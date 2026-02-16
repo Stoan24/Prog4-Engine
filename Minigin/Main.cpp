@@ -9,6 +9,7 @@
 #include "SceneManager.h"
 #include "ResourceManager.h"
 #include "Components/TextComponent.h"
+#include "Components/TextureComponent.h"
 #include "Scene.h"
 
 #include <filesystem>
@@ -19,23 +20,25 @@ static void load()
 	auto& scene = dae::SceneManager::GetInstance().CreateScene();
 
 	//Background
-	auto go = std::make_unique<dae::GameObject>();
-	go->SetTexture("background.png");
-	scene.Add(std::move(go));
+	auto goBG = std::make_unique<dae::GameObject>();
+	auto TextureCompBG = goBG->AddComponent<dae::TextureComponent>();
+	TextureCompBG->SetTexture("background.png");
+	scene.Add(std::move(goBG));
 
 	//Logo
-	go = std::make_unique<dae::GameObject>();
-	go->SetTexture("logo.png");
-	go->SetPosition(358, 180);
-	scene.Add(std::move(go));
+	auto goLogo = std::make_unique<dae::GameObject>();
+	auto TextureCompLogo = goLogo->AddComponent<dae::TextureComponent>();
+	TextureCompLogo->SetTexture("logo.png");
+	TextureCompLogo->SetPosition(358, 180);
+	scene.Add(std::move(goLogo));
 
 	//Text
 	auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
 	auto to = std::make_unique<dae::GameObject>();
 	to->SetPosition(292, 20);
 	
-	auto tc = to->AddComponent<dae::TextComponent>("Programming 4 Assignment", font);
-	tc->SetColor({ 255, 255, 0, 255 });
+	auto textComp = to->AddComponent<dae::TextComponent>("Programming 4 Assignment", font);
+	textComp->SetColor({ 255, 255, 0, 255 });
 	
 	scene.Add(std::move(to));
 

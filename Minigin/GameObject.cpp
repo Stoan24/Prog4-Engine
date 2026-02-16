@@ -19,8 +19,6 @@ void dae::GameObject::Render() const
 	{
 		m_pComponents[i]->Render();
 	}
-	//const auto& pos = m_transform.GetPosition();
-	//Renderer::GetInstance().RenderTexture(*m_texture, pos.x, pos.y);
 }
 
 void dae::GameObject::SetTexture(const std::string& filename)
