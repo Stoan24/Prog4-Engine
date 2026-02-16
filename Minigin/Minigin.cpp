@@ -2,6 +2,9 @@
 #include <sstream>
 #include <iostream>
 
+#include <chrono>
+#include <thread>
+
 #if WIN32
 #define WIN32_LEAN_AND_MEAN 
 #include <windows.h>
@@ -15,6 +18,7 @@
 #include "SceneManager.h"
 #include "Renderer.h"
 #include "ResourceManager.h"
+
 
 SDL_Window* g_window{};
 
@@ -90,17 +94,32 @@ dae::Minigin::~Minigin()
 void dae::Minigin::Run(const std::function<void()>& load)
 {
 	load();
+
+	auto lastTime = std::chrono::high_resolution_clock::now();
+
 #ifndef __EMSCRIPTEN__
 	while (!m_quit)
-		RunOneFrame();
+		RunOneFrame(lastTime);
 #else
 	emscripten_set_main_loop_arg(&LoopCallback, this, 0, true);
 #endif
 }
 
-void dae::Minigin::RunOneFrame()
+void dae::Minigin::RunOneFrame(auto& lastTime)
 {
+	const float desiredFrameTime{ 1.f / 60.f };
+	
+	//Calculate delta time
+	const auto currentTime{ std::chrono::high_resolution_clock::now() };
+	//const float deltaTime{ std::chrono::duration<float>(currentTime - lastTime).count() };
+	lastTime = currentTime;
+
+	//Game loop
 	m_quit = !InputManager::GetInstance().ProcessInput();
 	SceneManager::GetInstance().Update();
 	Renderer::GetInstance().Render();
+	
+	const auto SleepTime = desiredFrameTime - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - currentTime).count();
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(SleepTime)));
 }
