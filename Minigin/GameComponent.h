@@ -16,7 +16,7 @@ namespace dae
 		GameComponent& operator=(GameComponent&& other) = default;
 
 		virtual void Update() {}
-		virtual void Render() {}
+		virtual void Render() const {}
 
 	protected:
 		virtual GameObject* GetGameObject() const { return m_pGameObject;  }

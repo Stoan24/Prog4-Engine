@@ -3,13 +3,14 @@
 #include <memory>
 #include "Transform.h"
 #include "GameComponent.h"
+#include <type_traits>
 
 namespace dae
 {
 	class Texture2D;
 	class GameComponent;
 
-	class GameObject
+	class GameObject final
 	{
 		Transform m_transform{};
 		std::shared_ptr<Texture2D> m_texture{};
@@ -31,6 +32,8 @@ namespace dae
 		template<typename T, typename... Args>
 		T* AddComponent(Args&&... args)
 		{
+			static_assert(std::is_base_of<GameComponent, T>::value, "T does not inherit from GameComponent");
+
 			auto pComponent{ std::make_unique<T>(this, std::forward<Args>(args)...) };
 
 			T* ptr = pComponent.get();
@@ -73,6 +76,8 @@ namespace dae
 		{
 			return GetComponent<T>() != nullptr;
 		}
+
+		Transform& GetTransform() { return m_transform; };
 
 
 	private:
