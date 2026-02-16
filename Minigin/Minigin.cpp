@@ -19,6 +19,8 @@
 #include "Renderer.h"
 #include "ResourceManager.h"
 
+#include "GameTime.h"
+
 
 SDL_Window* g_window{};
 
@@ -107,12 +109,14 @@ void dae::Minigin::Run(const std::function<void()>& load)
 
 void dae::Minigin::RunOneFrame(auto& lastTime)
 {
-	const float desiredFrameTime{ 1.f / 60.f };
+	const float desiredFrameTime{ 1.f / m_desiredFPS };
 	
 	//Calculate delta time
 	const auto currentTime{ std::chrono::high_resolution_clock::now() };
-	//const float deltaTime{ std::chrono::duration<float>(currentTime - lastTime).count() };
+	const float deltaTime{ std::chrono::duration<float>(currentTime - lastTime).count() };
+	GameTime::GetInstance().SetDeltaTime(deltaTime);
 	lastTime = currentTime;
+
 
 	//Game loop
 	m_quit = !InputManager::GetInstance().ProcessInput();

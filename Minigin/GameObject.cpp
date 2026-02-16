@@ -5,7 +5,13 @@
 
 dae::GameObject::~GameObject() = default;
 
-void dae::GameObject::Update(){}
+void dae::GameObject::Update()
+{
+	for (int i{}; i < m_pComponents.size(); i++)
+	{
+		m_pComponents[i]->Update();
+	}
+}
 
 void dae::GameObject::Render() const
 {

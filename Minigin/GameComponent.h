@@ -18,7 +18,7 @@ namespace dae
 		virtual void Update() {}
 		virtual void Render() {}
 
-
+	protected:
 		virtual GameObject* GetGameObject() const { return m_pGameObject;  }
 
 	private:
