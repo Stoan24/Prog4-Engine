@@ -19,7 +19,7 @@ namespace dae
 		virtual void Render() {}
 
 
-		virutal GameObject GetGameObject() const {return m_pGameObject}
+		virtual GameObject* GetGameObject() const { return m_pGameObject;  }
 
 	private:
 		GameObject* m_pGameObject;
