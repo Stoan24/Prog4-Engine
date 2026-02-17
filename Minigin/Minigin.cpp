@@ -109,12 +109,13 @@ void dae::Minigin::Run(const std::function<void()>& load)
 
 void dae::Minigin::RunOneFrame(auto& lastTime)
 {
-	const float desiredFrameTime{ 1.f / m_desiredFPS };
+	const std::chrono::duration<float> desiredFrameTime{ 1.f / m_desiredFPS };
 	
 	//Calculate delta time
 	const auto currentTime{ std::chrono::high_resolution_clock::now() };
-	const float deltaTime{ std::chrono::duration<float>(currentTime - lastTime).count() };
-	GameTime::GetInstance().SetDeltaTime(deltaTime);
+	const std::chrono::duration<float> deltaTime{ currentTime - lastTime };
+
+	GameTime::GetInstance().SetDeltaTime(deltaTime.count());
 	lastTime = currentTime;
 
 
@@ -123,7 +124,12 @@ void dae::Minigin::RunOneFrame(auto& lastTime)
 	SceneManager::GetInstance().Update();
 	Renderer::GetInstance().Render();
 	
-	const auto SleepTime = desiredFrameTime - std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - currentTime).count();
+	const auto frameEnd = std::chrono::high_resolution_clock::now();
+	const auto frameDuration = frameEnd - currentTime;
+	const auto SleepTime = desiredFrameTime - frameDuration;
 
-	std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(SleepTime)));
+	if (SleepTime.count() > 0)
+	{
+		std::this_thread::sleep_for(SleepTime);
+	}
 }

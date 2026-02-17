@@ -10,6 +10,7 @@
 #include "ResourceManager.h"
 #include "Components/TextComponent.h"
 #include "Components/TextureComponent.h"
+#include "Components/FPSComponent.h"
 #include "Scene.h"
 
 #include <filesystem>
@@ -43,7 +44,14 @@ static void load()
 	scene.Add(std::move(to));
 
 	//FPS
+	auto fpsO = std::make_unique<dae::GameObject>();
+	auto fpsTextComp = fpsO->AddComponent<dae::TextComponent>("0 FPS", font);
+	fpsTextComp->SetColor({ 255, 255, 255, 255 });
 
+	fpsO->AddComponent<dae::FPSComponent>();
+	fpsO->GetTransform().SetPosition(10, 10);
+
+	scene.Add(std::move(fpsO));
 }
 
 int main(int, char*[]) {

@@ -62,7 +62,7 @@ namespace dae
 			{
 				if (pComp)
 				{
-					if (auto& component = dynamic_cast<T*>(pComp.get()))
+					if (auto component = dynamic_cast<T*>(pComp.get()))
 					{
 						return component;
 					}
