@@ -9,7 +9,7 @@ namespace dae
 	public:
 		GameComponent(GameObject* pGameObject) : m_pGameObject(pGameObject) {}
 		
-		~GameComponent() = default;
+		virtual ~GameComponent() = default;
 		GameComponent(const GameComponent& other) = default;
 		GameComponent(GameComponent&& other) = default;
 		GameComponent& operator=(const GameComponent& other) = default;
