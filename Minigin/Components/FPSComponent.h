@@ -24,5 +24,6 @@ namespace dae
 		TextComponent* m_pTextComponent{ nullptr };
 		float m_updateTimer{ 0.f };
 		int m_frameCount{ 0 };
+		float m_frameTime{ 0.5f };
 	};
 }

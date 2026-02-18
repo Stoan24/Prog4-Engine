@@ -105,6 +105,10 @@ void dae::Minigin::Run(const std::function<void()>& load)
 #else
 	emscripten_set_main_loop_arg(&LoopCallback, this, 0, true);
 #endif
+
+	SceneManager::GetInstance().Clear();
+	ResourceManager::GetInstance().UnloadAllResources();
+	Renderer::GetInstance().Destroy();
 }
 
 void dae::Minigin::RunOneFrame(auto& lastTime)

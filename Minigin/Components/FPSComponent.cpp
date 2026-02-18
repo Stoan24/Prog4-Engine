@@ -21,7 +21,7 @@ void dae::FPSComponent::Update()
 	m_updateTimer += deltaTime;
 	m_frameCount++;
 
-	if (m_updateTimer >= 1.f)
+	if (m_updateTimer >= m_frameTime)
 	{
 		const float fps = static_cast<float>(m_frameCount) / m_updateTimer;
 
@@ -35,6 +35,6 @@ void dae::FPSComponent::Update()
 		}
 
 		m_frameCount = 0;
-		m_updateTimer -= 1.f;
+		m_updateTimer -= m_frameTime;
 	}
 }

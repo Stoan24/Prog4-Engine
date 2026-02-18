@@ -54,3 +54,9 @@ void dae::ResourceManager::UnloadUnusedResources()
 			++it;
 	}
 }
+
+void dae::ResourceManager::UnloadAllResources()
+{
+	m_loadedTextures.clear();
+	m_loadedFonts.clear();
+}
