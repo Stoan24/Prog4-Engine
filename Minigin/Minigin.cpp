@@ -97,11 +97,11 @@ void dae::Minigin::Run(const std::function<void()>& load)
 {
 	load();
 
-	auto lastTime = std::chrono::high_resolution_clock::now();
+	m_LastTime = std::chrono::high_resolution_clock::now();
 
 #ifndef __EMSCRIPTEN__
 	while (!m_quit)
-		RunOneFrame(lastTime);
+		RunOneFrame();
 #else
 	emscripten_set_main_loop_arg(&LoopCallback, this, 0, true);
 #endif
@@ -111,16 +111,16 @@ void dae::Minigin::Run(const std::function<void()>& load)
 	Renderer::GetInstance().Destroy();
 }
 
-void dae::Minigin::RunOneFrame(auto& lastTime)
+void dae::Minigin::RunOneFrame()
 {
 	const std::chrono::duration<float> desiredFrameTime{ 1.f / m_desiredFPS };
 	
 	//Calculate delta time
 	const auto currentTime{ std::chrono::high_resolution_clock::now() };
-	const std::chrono::duration<float> deltaTime{ currentTime - lastTime };
+	const std::chrono::duration<float> deltaTime{ currentTime - m_LastTime };
 
 	GameTime::GetInstance().SetDeltaTime(deltaTime.count());
-	lastTime = currentTime;
+	m_LastTime = currentTime;
 
 
 	//Game loop
