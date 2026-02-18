@@ -4,7 +4,6 @@
 
 dae::TextureComponent::TextureComponent(GameObject* gameObject)
 	: GameComponent(gameObject),
-	m_needsUpdate(true),
 	m_texture(nullptr)
 {
 }

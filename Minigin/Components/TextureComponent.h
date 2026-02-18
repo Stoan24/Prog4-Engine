@@ -27,7 +27,6 @@ namespace dae
 		void SetPosition(float x, float y);
 
 	private:
-		bool m_needsUpdate{};
 		std::shared_ptr<Texture2D> m_texture{};
 	};
 }
