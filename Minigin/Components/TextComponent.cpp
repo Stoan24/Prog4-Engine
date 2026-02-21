@@ -1,3 +1,4 @@
+#include "TextureComponent.h"
 #include "TextComponent.h"
 #include <stdexcept>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -13,6 +14,11 @@ dae::TextComponent::TextComponent(GameObject* gameObject, const std::string& tex
 	m_font(std::move(font)),
 	m_textTexture(nullptr)
 {
+	m_pTextureComponent = GetGameObject()->GetComponent<TextureComponent>();
+	if (!m_pTextureComponent)
+	{
+		throw std::runtime_error("Textcomponent required a TextureComponent to work");
+	}
 }
 
 void dae::TextComponent::Update()
@@ -25,12 +31,14 @@ void dae::TextComponent::Update()
 			throw std::runtime_error(std::string("Render text failed: ") + SDL_GetError());
 		}
 		auto texture = SDL_CreateTextureFromSurface(Renderer::GetInstance().GetSDLRenderer(), surf);
+		SDL_DestroySurface(surf);
 
 		if (texture == nullptr)
 		{
 			throw std::runtime_error(std::string("Create text texture from surface failed: ") + SDL_GetError());
 		}
-		SDL_DestroySurface(surf);
+		auto newTexture = std::make_shared<Texture2D>(texture);
+		m_pTextureComponent->SetTexture(newTexture);
 		m_textTexture.reset();
 		m_textTexture = std::make_shared<Texture2D>(texture);
 		m_needsUpdate = false;

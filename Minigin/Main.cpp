@@ -21,37 +21,37 @@ static void load()
 	auto& scene = dae::SceneManager::GetInstance().CreateScene();
 
 	//Background
-	auto goBG = std::make_unique<dae::GameObject>();
-	auto TextureCompBG = goBG->AddComponent<dae::TextureComponent>();
-	TextureCompBG->SetTexture("background.png");
-	scene.Add(std::move(goBG));
+	auto gameObjectBackGround = std::make_unique<dae::GameObject>();
+	gameObjectBackGround->AddComponent<dae::TextureComponent>();
+	gameObjectBackGround->GetComponent<dae::TextureComponent>()->SetTexture("background.png");
+	scene.Add(std::move(gameObjectBackGround));
 
 	//Logo
-	auto goLogo = std::make_unique<dae::GameObject>();
-	auto TextureCompLogo = goLogo->AddComponent<dae::TextureComponent>();
-	TextureCompLogo->SetTexture("logo.png");
-	TextureCompLogo->SetPosition(358, 180);
-	scene.Add(std::move(goLogo));
+	auto gameObjectLogo = std::make_unique<dae::GameObject>();
+	gameObjectLogo->AddComponent<dae::TextureComponent>();
+	gameObjectLogo->GetComponent<dae::TextureComponent>()->SetTexture("logo.png");
+	gameObjectLogo->GetComponent<dae::TextureComponent>()->SetPosition(358, 180);
+	scene.Add(std::move(gameObjectLogo));
 
 	//Text
 	auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
-	auto to = std::make_unique<dae::GameObject>();
-	to->SetPosition(292, 20);
+	auto gameObjectText = std::make_unique<dae::GameObject>();
+	gameObjectText->SetPosition(292, 20);
+	gameObjectText->AddComponent<dae::TextureComponent>();
+	gameObjectText->AddComponent<dae::TextComponent>("Programming 4 Assignment", font);
+	gameObjectText->GetComponent<dae::TextComponent>()->SetColor({ 255, 255, 0, 255 });
 	
-	auto textComp = to->AddComponent<dae::TextComponent>("Programming 4 Assignment", font);
-	textComp->SetColor({ 255, 255, 0, 255 });
-	
-	scene.Add(std::move(to));
+	scene.Add(std::move(gameObjectText));
 
 	//FPS
-	auto fpsO = std::make_unique<dae::GameObject>();
-	auto fpsTextComp = fpsO->AddComponent<dae::TextComponent>("0 FPS", font);
-	fpsTextComp->SetColor({ 255, 255, 255, 255 });
+	auto fpsObject = std::make_unique<dae::GameObject>();
+	fpsObject->AddComponent<dae::TextureComponent>();
+	fpsObject->AddComponent<dae::TextComponent>("0 FPS", font);
+	fpsObject->GetComponent<dae::TextComponent>()->SetColor({ 255, 255, 255, 255 });
+	fpsObject->AddComponent<dae::FPSComponent>();
+	fpsObject->GetTransform().SetPosition(10, 10);
 
-	fpsO->AddComponent<dae::FPSComponent>();
-	fpsO->GetTransform().SetPosition(10, 10);
-
-	scene.Add(std::move(fpsO));
+	scene.Add(std::move(fpsObject));
 }
 
 int main(int, char*[]) {

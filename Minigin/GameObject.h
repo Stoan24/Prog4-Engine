@@ -13,12 +13,10 @@ namespace dae
 	class GameObject final
 	{
 		Transform m_transform{};
-		std::shared_ptr<Texture2D> m_texture{};
 	public:
 		void Update();
 		void Render() const;
 
-		void SetTexture(const std::string& filename);
 		void SetPosition(float x, float y);
 
 		GameObject() = default;

@@ -24,6 +24,7 @@ namespace dae
 		void Render() const override;
 
 		void SetTexture(const std::string& fileName);
+		void SetTexture(std::shared_ptr<Texture2D> texture);
 		void SetPosition(float x, float y);
 
 	private:

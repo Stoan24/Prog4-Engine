@@ -107,7 +107,6 @@ void dae::Minigin::Run(const std::function<void()>& load)
 #endif
 
 	SceneManager::GetInstance().Clear();
-	ResourceManager::GetInstance().UnloadAllResources();
 	Renderer::GetInstance().Destroy();
 }
 

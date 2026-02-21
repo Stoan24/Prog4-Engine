@@ -7,18 +7,17 @@ namespace dae
 	class GameComponent
 	{
 	public:
-		GameComponent(GameObject* pGameObject) : m_pGameObject(pGameObject) {}
-		
 		virtual ~GameComponent() = default;
-		GameComponent(const GameComponent& other) = default;
-		GameComponent(GameComponent&& other) = default;
-		GameComponent& operator=(const GameComponent& other) = default;
-		GameComponent& operator=(GameComponent&& other) = default;
-
+		GameComponent(const GameComponent& other) = delete;
+		GameComponent(GameComponent&& other) = delete;
+		GameComponent& operator=(const GameComponent& other) = delete;
+		GameComponent& operator=(GameComponent&& other) = delete;
+		
 		virtual void Update() {}
 		virtual void Render() const {}
 
 	protected:
+		GameComponent(GameObject* pGameObject) : m_pGameObject(pGameObject) {}
 		virtual GameObject* GetGameObject() const { return m_pGameObject;  }
 
 	private:
