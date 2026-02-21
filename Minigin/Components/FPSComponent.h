@@ -8,7 +8,7 @@ namespace dae
 	class FPSComponent final : public GameComponent
 	{
 	public:
-		FPSComponent(GameObject* gameObject);
+		explicit FPSComponent(GameObject* gameObject);
 		virtual ~FPSComponent() = default;
 
 		void Update() override;

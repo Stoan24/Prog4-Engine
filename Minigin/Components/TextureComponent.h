@@ -12,7 +12,7 @@ namespace dae
 	class TextureComponent final : public GameComponent
 	{
 	public:
-		TextureComponent(GameObject* gameObject);
+		explicit TextureComponent(GameObject* gameObject);
 		virtual ~TextureComponent() = default;
 
 		TextureComponent(const TextureComponent& other) = delete;

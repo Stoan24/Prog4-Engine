@@ -23,7 +23,7 @@ void dae::GameObject::Render() const
 
 void dae::GameObject::SetPosition(float x, float y)
 {
-	m_transform.SetPosition(x, y, 0.0f);
+	SetLocalPosition(glm::vec3(x, y, 0.0f));
 }
 
 void dae::GameObject::MarkForDestruction()
@@ -41,6 +41,16 @@ void dae::GameObject::SetLocalPosition(const glm::vec3& pos)
 {
 	m_LocalPosition = pos;
 	SetPositionDirty();
+}
+
+void dae::GameObject::SetPositionDirty()
+{
+	m_PositionIsDirty = true;
+
+	for (auto* child : m_pChildren)
+	{
+		child->SetPositionDirty();
+	}
 }
 
 void dae::GameObject::UpdateWorldPosition()
@@ -79,14 +89,17 @@ void dae::GameObject::SetParent(GameObject* pParent, bool keepWorldPosition)
 	//Update position, rotation and scale
 	if (pParent == nullptr)
 	{
-		SetPosition(GetTransform().GetPosition().x, GetTransform().GetPosition().y);
+		SetLocalPosition(GetWorldPosition());
 	}
 	else
 	{
 		if (keepWorldPosition)
 		{
-			auto newPos = GetTransform().GetPosition() - pParent->GetTransform().GetPosition();
-			GetTransform().SetPosition(newPos.x, newPos.y, 0.0f);
+			SetLocalPosition(GetTransform().GetPosition() - pParent->GetTransform().GetPosition());
+		}
+		else
+		{
+			SetPositionDirty();
 		}
 	}
 

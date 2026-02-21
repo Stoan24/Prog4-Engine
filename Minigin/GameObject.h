@@ -41,7 +41,7 @@ namespace dae
 
 		//Dirty flag
 		void SetLocalPosition(const glm::vec3& pos);
-		void SetPositionDirty() { m_PositionIsDirty = true; }
+		void SetPositionDirty();
 		void UpdateWorldPosition();
 
 		const glm::vec3& GetWorldPosition();

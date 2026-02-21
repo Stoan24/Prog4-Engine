@@ -13,7 +13,7 @@ void dae::TextureComponent::Render() const
 {
 	if (m_texture != nullptr)
 	{
-		const auto& pos = GetGameObject()->GetTransform().GetPosition();
+		const auto& pos = GetGameObject()->GetWorldPosition();
 		Renderer::GetInstance().RenderTexture(*m_texture, pos.x, pos.y);
 	}
 }
@@ -30,7 +30,7 @@ void dae::TextureComponent::SetTexture(std::shared_ptr<Texture2D> texture)
 
 void dae::TextureComponent::SetPosition(const float x, const float y)
 {
-	GetGameObject()->GetTransform().SetPosition(x, y);
+	GetGameObject()->SetLocalPosition(glm::vec3(x, y, 0.0f));
 }
 
 

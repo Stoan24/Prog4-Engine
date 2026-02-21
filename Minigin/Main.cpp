@@ -11,6 +11,7 @@
 #include "Components/TextComponent.h"
 #include "Components/TextureComponent.h"
 #include "Components/FPSComponent.h"
+#include "Components/RotationComponent.h"
 #include "Scene.h"
 
 #include <filesystem>
@@ -49,9 +50,43 @@ static void load()
 	fpsObject->AddComponent<dae::TextComponent>("0 FPS", font);
 	fpsObject->GetComponent<dae::TextComponent>()->SetColor({ 255, 255, 255, 255 });
 	fpsObject->AddComponent<dae::FPSComponent>();
-	fpsObject->GetTransform().SetPosition(10, 10);
+	fpsObject->SetPosition(10, 10);
 
 	scene.Add(std::move(fpsObject));
+
+
+	//Pengo's
+	
+//#define USE_ROTATOR
+
+#ifdef USE_ROTATOR
+	auto gameObjectRotator = std::make_unique<dae::GameObject>();
+	gameObjectRotator->SetPosition(400, 400);
+
+	auto gameObjectPengo1 = std::make_unique<dae::GameObject>();
+	gameObjectPengo1->AddComponent<dae::TextureComponent>()->SetTexture("Pengo.png");
+	gameObjectPengo1->SetParent(gameObjectRotator.get(), true);
+	gameObjectPengo1->AddComponent<dae::RotationComponent>(20.f, 2.5f);
+
+	scene.Add(std::move(gameObjectRotator));
+#else
+	auto gameObjectPengo1 = std::make_unique<dae::GameObject>();
+	gameObjectPengo1->AddComponent<dae::TextureComponent>()->SetTexture("Pengo.png");
+
+	const glm::vec3 offset{400.f, 400.f, 0.f};
+	gameObjectPengo1->AddComponent<dae::RotationComponent>(20.f, 2.5f, offset);
+#endif
+	
+
+	auto gameObjectPengo2 = std::make_unique<dae::GameObject>();
+	gameObjectPengo2->AddComponent<dae::TextureComponent>();
+	gameObjectPengo2->GetComponent<dae::TextureComponent>()->SetTexture("Pengo.png");
+
+	gameObjectPengo2->SetParent(gameObjectPengo1.get(), true);
+	gameObjectPengo2->AddComponent<dae::RotationComponent>(30.f, 5.f);
+
+	scene.Add(std::move(gameObjectPengo1));
+	scene.Add(std::move(gameObjectPengo2));
 }
 
 int main(int, char*[]) {
