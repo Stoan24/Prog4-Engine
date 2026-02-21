@@ -17,8 +17,6 @@ namespace dae
 		void Update();
 		void Render() const;
 
-		void SetPosition(float x, float y);
-
 		GameObject() = default;
 		~GameObject();
 		GameObject(const GameObject& other) = delete;
@@ -26,6 +24,30 @@ namespace dae
 		GameObject& operator=(const GameObject& other) = delete;
 		GameObject& operator=(GameObject&& other) = delete;
 
+		Transform& GetTransform() { return m_transform; };
+		void SetPosition(float x, float y);
+		
+		//Marking for destruction
+		void MarkForDestruction();
+		
+		bool isMarkedForDestruction() { return m_MarkForDestruction; }
+
+		//Parenting
+		void SetParent(GameObject* pParent, bool keepWorldPosition = true);
+		
+		GameObject* GetParent() const { return m_pParent; }
+		GameObject* GetChildAt(int index) const { return m_pChildren[index]; }
+		int GetChildCount() const{ return static_cast<int>(m_pChildren.size()); }
+
+		//Dirty flag
+		void SetLocalPosition(const glm::vec3& pos);
+		void SetPositionDirty() { m_PositionIsDirty = true; }
+		void UpdateWorldPosition();
+
+		const glm::vec3& GetWorldPosition();
+		const glm::vec3& GetLocalPosition() const { return m_LocalPosition; }
+
+#pragma region ComponentTemplates
 		//Component
 		template<typename T, typename... Args>
 		T* AddComponent(Args&&... args)
@@ -74,12 +96,28 @@ namespace dae
 		{
 			return GetComponent<T>() != nullptr;
 		}
-
-		Transform& GetTransform() { return m_transform; };
-
-
+#pragma endregion
+		
 	private:
 
+		//Parenting
+		void AddChild(GameObject* pChild);
+		void RemoveChild(GameObject* pChild);
+		bool IsChildOf(GameObject* pObject) const;
+		
+		//Components
 		std::vector<std::unique_ptr<GameComponent>> m_pComponents{};
+
+		//Marking for destruction
+		bool m_MarkForDestruction{ false };
+
+		//Parenting
+		GameObject* m_pParent{ nullptr };
+		std::vector<GameObject*> m_pChildren;
+
+		//Dirty flag
+		glm::vec3 m_LocalPosition{};
+		glm::vec3 m_WorldPosition{};
+		bool m_PositionIsDirty{ true };
 	};
 }

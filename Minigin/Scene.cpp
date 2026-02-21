@@ -23,10 +23,17 @@ void Scene::Remove(const GameObject& object)
 
 void Scene::Update()
 {
+	//Update
 	for(auto& object : m_objects)
 	{
 		object->Update();
 	}
+
+	//Removal
+	std::erase_if(m_objects, [](const std::unique_ptr<GameObject>& object) {
+		return object->isMarkedForDestruction();
+		});
+
 }
 
 void Scene::Render() const
