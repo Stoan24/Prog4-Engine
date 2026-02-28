@@ -12,40 +12,29 @@ namespace dae
 
 	class GameObject final
 	{
-		Transform m_transform{};
 	public:
 		void Update();
 		void Render() const;
 
-		GameObject() = default;
+		GameObject();
 		~GameObject();
 		GameObject(const GameObject& other) = delete;
 		GameObject(GameObject&& other) = delete;
 		GameObject& operator=(const GameObject& other) = delete;
 		GameObject& operator=(GameObject&& other) = delete;
-
-		Transform& GetTransform() { return m_transform; };
-		void SetPosition(float x, float y);
 		
 		//Marking for destruction
 		void MarkForDestruction();
 		
-		bool isMarkedForDestruction() { return m_MarkForDestruction; }
+		bool isMarkedForDestruction() const { return m_MarkForDestruction; }
 
 		//Parenting
 		void SetParent(GameObject* pParent, bool keepWorldPosition = true);
 		
 		GameObject* GetParent() const { return m_pParent; }
-		GameObject* GetChildAt(int index) const { return m_pChildren[index]; }
+		GameObject* GetChildAt(int index) const { return m_pChildren[index].get(); }
 		int GetChildCount() const{ return static_cast<int>(m_pChildren.size()); }
-
-		//Dirty flag
-		void SetLocalPosition(const glm::vec3& pos);
-		void SetPositionDirty();
-		void UpdateWorldPosition();
-
-		const glm::vec3& GetWorldPosition();
-		const glm::vec3& GetLocalPosition() const { return m_LocalPosition; }
+		std::vector<GameObject*> GetChildren() const;
 
 #pragma region ComponentTemplates
 		//Component
@@ -113,11 +102,6 @@ namespace dae
 
 		//Parenting
 		GameObject* m_pParent{ nullptr };
-		std::vector<GameObject*> m_pChildren;
-
-		//Dirty flag
-		glm::vec3 m_LocalPosition{};
-		glm::vec3 m_WorldPosition{};
-		bool m_PositionIsDirty{ true };
+		std::vector<std::unique_ptr<GameObject>> m_pChildren;
 	};
 }

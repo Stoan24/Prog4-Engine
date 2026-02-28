@@ -40,7 +40,7 @@ static void load()
 	gameObjectText->SetPosition(292, 20);
 	gameObjectText->AddComponent<dae::TextureComponent>();
 	gameObjectText->AddComponent<dae::TextComponent>("Programming 4 Assignment", font);
-	gameObjectText->GetComponent<dae::TextComponent>()->SetColor({ 255, 255, 0, 255 });
+	gameObjectText->GetComponent<dae::TextComponent>()->SetColor({ 255, 255, 255, 255 });
 	
 	scene.Add(std::move(gameObjectText));
 
