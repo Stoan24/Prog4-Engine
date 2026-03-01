@@ -12,6 +12,7 @@
 #include "Components/TextureComponent.h"
 #include "Components/FPSComponent.h"
 #include "Components/RotationComponent.h"
+#include "Transform.h"
 #include "Scene.h"
 
 #include <filesystem>
@@ -25,19 +26,21 @@ static void load()
 	auto gameObjectBackGround = std::make_unique<dae::GameObject>();
 	gameObjectBackGround->AddComponent<dae::TextureComponent>();
 	gameObjectBackGround->GetComponent<dae::TextureComponent>()->SetTexture("background.png");
+	
 	scene.Add(std::move(gameObjectBackGround));
 
 	//Logo
 	auto gameObjectLogo = std::make_unique<dae::GameObject>();
+	gameObjectLogo->GetComponent<dae::Transform>()->SetLocalPosition(358, 180);
 	gameObjectLogo->AddComponent<dae::TextureComponent>();
 	gameObjectLogo->GetComponent<dae::TextureComponent>()->SetTexture("logo.png");
-	gameObjectLogo->GetComponent<dae::TextureComponent>()->SetPosition(358, 180);
+
 	scene.Add(std::move(gameObjectLogo));
 
 	//Text
 	auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
 	auto gameObjectText = std::make_unique<dae::GameObject>();
-	gameObjectText->SetPosition(292, 20);
+	gameObjectText->GetComponent<dae::Transform>()->SetLocalPosition(292, 20);
 	gameObjectText->AddComponent<dae::TextureComponent>();
 	gameObjectText->AddComponent<dae::TextComponent>("Programming 4 Assignment", font);
 	gameObjectText->GetComponent<dae::TextComponent>()->SetColor({ 255, 255, 255, 255 });
@@ -46,11 +49,11 @@ static void load()
 
 	//FPS
 	auto fpsObject = std::make_unique<dae::GameObject>();
+	fpsObject->GetComponent<dae::Transform>()->SetLocalPosition(10, 10);
 	fpsObject->AddComponent<dae::TextureComponent>();
 	fpsObject->AddComponent<dae::TextComponent>("0 FPS", font);
 	fpsObject->GetComponent<dae::TextComponent>()->SetColor({ 255, 255, 255, 255 });
 	fpsObject->AddComponent<dae::FPSComponent>();
-	fpsObject->SetPosition(10, 10);
 
 	scene.Add(std::move(fpsObject));
 

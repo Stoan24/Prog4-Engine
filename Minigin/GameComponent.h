@@ -16,11 +16,16 @@ namespace dae
 		virtual void Update() {}
 		virtual void Render() const {}
 
+		bool IsMarkedForDestruction() const { return m_IsMarkedForDestruction; }
+		void MarkToDestroy() { m_IsMarkedForDestruction = true; }
+
 	protected:
 		GameComponent(GameObject* pGameObject) : m_pGameObject(pGameObject) {}
 		virtual GameObject* GetGameObject() const { return m_pGameObject;  }
 
 	private:
 		GameObject* m_pGameObject;
+
+		bool m_IsMarkedForDestruction{ false };
 	};
 }

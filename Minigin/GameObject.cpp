@@ -1,3 +1,4 @@
+#include "Transform.h"
 #include <string>
 #include "GameObject.h"
 #include "ResourceManager.h"
@@ -10,7 +11,7 @@ dae::GameObject::GameObject()
 
 dae::GameObject::~GameObject()
 {
-	m_pChildren.clear();
+	//m_pChildren.clear();
 }
 
 void dae::GameObject::Update()
@@ -24,6 +25,8 @@ void dae::GameObject::Update()
 	{
 		child->Update();
 	}
+
+	DestroyMarkedComponents();
 }
 
 void dae::GameObject::Render() const
@@ -41,11 +44,21 @@ void dae::GameObject::Render() const
 
 void dae::GameObject::MarkForDestruction()
 {
-	m_MarkForDestruction = true;
+	m_IsMarkForDestruction = true;
 	
 	for(const auto& child : m_pChildren)
 	{
 		child->MarkForDestruction();
+	}
+}
+
+void dae::GameObject::MarkToDestroy()
+{
+	m_IsMarkForDestruction = true;
+
+	for (auto& child : m_pChildren)
+	{
+		child->MarkToDestroy();
 	}
 }
 
@@ -87,9 +100,10 @@ std::vector<dae::GameObject*> dae::GameObject::GetChildren() const
 {
 	std::vector<GameObject*> pointers;
 	pointers.reserve(m_pChildren.size());
+
 	for (const auto& child : m_pChildren)
 	{
-		pointers.push_back(child.get());
+		pointers.push_back(child);
 	}
 	return pointers;
 }
@@ -101,16 +115,7 @@ void dae::GameObject::AddChild(GameObject* pChild)
 
 void dae::GameObject::RemoveChild(GameObject* pChild)
 {
-	for (auto child = m_pChildren.begin(); child != m_pChildren.end(); child++)
-	{
-		if (pChild == child->get())
-		{
-			m_pChildren.erase(child);
-			return;
-		}
-	}
-
-	//m_pChildren.erase(std::remove(m_pChildren.begin(), m_pChildren.end(), pChild));
+	m_pChildren.erase(std::remove(m_pChildren.begin(), m_pChildren.end(), pChild));
 }
 
 bool dae::GameObject::IsChildOf(GameObject* pObject) const
@@ -119,9 +124,18 @@ bool dae::GameObject::IsChildOf(GameObject* pObject) const
 	{
 		if (!child) continue;
 
-		if (child.get() == pObject || child->IsChildOf(pObject)) return true;
+		if (child == pObject || child->IsChildOf(pObject)) return true;
 	}
 
 	return false;
+}
+
+void dae::GameObject::DestroyMarkedComponents()
+{
+	m_pComponents.erase(std::remove_if(m_pComponents.begin(), m_pComponents.end(),
+		[](const std::unique_ptr<GameComponent>& component) {
+			return component->IsMarkedForDestruction();
+		}),
+		m_pComponents.end());
 }
 #pragma endregion

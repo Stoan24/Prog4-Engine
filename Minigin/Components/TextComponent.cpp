@@ -11,8 +11,7 @@ dae::TextComponent::TextComponent(GameObject* gameObject, const std::string& tex
 	m_needsUpdate(true),
 	m_text(text),
 	m_color(color),
-	m_font(std::move(font)),
-	m_textTexture(nullptr)
+	m_font(std::move(font))
 {
 	m_pTextureComponent = GetGameObject()->GetComponent<TextureComponent>();
 	if (!m_pTextureComponent)
@@ -39,15 +38,13 @@ void dae::TextComponent::Update()
 		}
 		auto newTexture = std::make_shared<Texture2D>(texture);
 		m_pTextureComponent->SetTexture(newTexture);
-		m_textTexture.reset();
-		m_textTexture = std::make_shared<Texture2D>(texture);
 		m_needsUpdate = false;
 	}
 }
 
 void dae::TextComponent::Render() const
 {
-	if (m_textTexture != nullptr)
+	if (m_pTextureComponent != nullptr)
 	{
 		m_pTextureComponent->Render();
 	}
@@ -57,11 +54,6 @@ void dae::TextComponent::SetText(const std::string& text)
 {
 	m_text = text;
 	m_needsUpdate = true;
-}
-
-void dae::TextComponent::SetPosition(const float x, const float y)
-{
-	GetGameObject()->GetTransform().SetPosition(x, y);
 }
 
 void dae::TextComponent::SetColor(const SDL_Color& color)

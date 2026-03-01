@@ -3,6 +3,7 @@
 #include <memory>
 #include "GameComponent.h"
 #include <GameObject.h>
+#include "Transform.h"
 
 namespace dae
 {
@@ -12,7 +13,7 @@ namespace dae
 	class TextureComponent final : public GameComponent
 	{
 	public:
-		explicit TextureComponent(GameObject* gameObject);
+		explicit TextureComponent(GameObject* pGameObject);
 		virtual ~TextureComponent() = default;
 
 		TextureComponent(const TextureComponent& other) = delete;
@@ -25,7 +26,6 @@ namespace dae
 
 		void SetTexture(const std::string& fileName);
 		void SetTexture(std::shared_ptr<Texture2D> texture);
-		void SetPosition(float x, float y);
 
 	private:
 		std::shared_ptr<Texture2D> m_texture{};

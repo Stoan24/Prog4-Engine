@@ -7,8 +7,20 @@ namespace dae
 	class Transform final : public GameComponent
 	{
 	public:
+		Transform(dae::GameObject* pGameObject)
+			:GameComponent(pGameObject)
+		{
+		}
+
+		virtual ~Transform() = default;
+
+		Transform(const Transform& other) = delete;
+		Transform(Transform&& other) = delete;
+		Transform& operator=(const Transform& other) = delete;
+		Transform& operator=(Transform&& other) = delete;
+
 		const glm::vec3& GetWorldPosition();
-		const glm::vec3& GetLocalPosition() const { return m_localPosition; }
+		const glm::vec3& GetLocalPosition() const { return m_LocalPosition; }
 		
 		void SetWorldPosition(float x, float y, float z = 0);
 		void SetLocalPosition(float x, float y, float z = 0);
@@ -21,9 +33,9 @@ namespace dae
 
 
 	private:
-		glm::vec3 m_worldposition{ 0, 0, 0 };
-		glm::vec3 m_localPosition{ 0, 0, 0 };
+		glm::vec3 m_WorldPosition{ 0, 0, 0 };
+		glm::vec3 m_LocalPosition{ 0, 0, 0 };
 
-		bool m_isPositionDirty{ true };
+		bool m_IsPositionDirty{ true };
 	};
 }

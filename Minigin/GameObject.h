@@ -1,9 +1,11 @@
 #pragma once
 #include <string>
 #include <memory>
-#include "Transform.h"
-#include "GameComponent.h"
 #include <type_traits>
+#include <algorithm>
+#include <utility>
+#include "GameComponent.h"
+#include <vector>
 
 namespace dae
 {
@@ -26,13 +28,14 @@ namespace dae
 		//Marking for destruction
 		void MarkForDestruction();
 		
-		bool isMarkedForDestruction() const { return m_MarkForDestruction; }
+		bool isMarkedForDestruction() const { return m_IsMarkForDestruction; }
+		void MarkToDestroy();
 
 		//Parenting
 		void SetParent(GameObject* pParent, bool keepWorldPosition = true);
 		
 		GameObject* GetParent() const { return m_pParent; }
-		GameObject* GetChildAt(int index) const { return m_pChildren[index].get(); }
+		GameObject* GetChildAt(int index) const { return m_pChildren[index]; }
 		int GetChildCount() const{ return static_cast<int>(m_pChildren.size()); }
 		std::vector<GameObject*> GetChildren() const;
 
@@ -44,8 +47,9 @@ namespace dae
 			static_assert(std::is_base_of<GameComponent, T>::value, "T does not inherit from GameComponent");
 
 			auto pComponent{ std::make_unique<T>(this, std::forward<Args>(args)...) };
+			
 
-			T* ptr = pComponent.get();
+			auto ptr = pComponent.get();
 			m_pComponents.push_back(std::move(pComponent));
 			
 			return ptr;
@@ -93,15 +97,17 @@ namespace dae
 		void AddChild(GameObject* pChild);
 		void RemoveChild(GameObject* pChild);
 		bool IsChildOf(GameObject* pObject) const;
+
+		void DestroyMarkedComponents();
 		
 		//Components
 		std::vector<std::unique_ptr<GameComponent>> m_pComponents{};
 
 		//Marking for destruction
-		bool m_MarkForDestruction{ false };
+		bool m_IsMarkForDestruction{ false };
 
 		//Parenting
 		GameObject* m_pParent{ nullptr };
-		std::vector<std::unique_ptr<GameObject>> m_pChildren;
+		std::vector<GameObject*> m_pChildren;
 	};
 }
