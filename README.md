@@ -1,18 +1,41 @@
-﻿# Minigin
 
-Minigin is a very small project using [SDL3](https://www.libsdl.org/) and [glm](https://github.com/g-truc/glm) for 2D c++ game projects. It is in no way a game engine, only a barebone start project where everything sdl related has been set up. It contains glm for vector math, to aleviate the need to write custom vector and matrix classes.
+# 2D Component-Based Engine
 
-[![Build Status](https://github.com/avadae/minigin/actions/workflows/cmake.yml/badge.svg)](https://github.com/avadae/cmake/actions)
-[![Build Status](https://github.com/avadae/minigin/actions/workflows/emscripten.yml/badge.svg)](https://github.com/avadae/emscripten/actions)
-[![GitHub Release](https://img.shields.io/github/v/release/avadae/minigin?logo=github&sort=semver)](https://github.com/avadae/minigin/releases/latest)
+This project contains a 2D component-based game engine in C++. This engine also features a remake of the Sega game Pengo, playable [here](https://stoan24.github.io/Prog4-Engine/).
+
+[![Build Status](https://github.com/Stoan24/Prog4-Engine/actions/workflows/cmake.yml/badge.svg)](https://github.com/Stoan24/cmake/actions)
+[![Build Status](https://github.com/Stoan24/Prog4-Engine/actions/workflows/emscripten.yml/badge.svg)](https://github.com/Stoan24/emscripten/actions)
+
+# Features
+
+The engine is built on a Component-Based Architecture, allowing for highly decoupled and reusable game logic. Key features include:
+- Scene Graph & GameObjects: Hierarchical structure for managing game entities.
+- Component System: Logic is split into modular components (Transform, SpriteRenderer, Collider, Controller, etc.).
+- Input Management: Support for Keyboard and Controller (XInput) using the Command Pattern.
+- Resource Manager: Centralized loading for textures, fonts, and sounds.
+- Sound System: A thread-safe service locator for handling audio playback via SDL_Mixer.
+- Game Loop: A fixed-timestamp update loop to ensure consistent physics and movement regardless of frame rate.
+
+# Pengo
+
+The primary goal of this project is to recreate the gameplay mechanics of Pengo using a custom-built engine architecture.
+- Grid-based Movement: Logic for navigating the icy maze.
+- Ice Block Physics: Mechanics for pushing, sliding, and crushing enemies with ice blocks.
+- AI Behavior: Pathfinding and state logic for the "Sno-Bees."
+- Sound & Animation: Retro-accurate audio triggers and sprite animations.
+
+# Minigin
+
+This project is built upon Minigin, a lightweight starting point designed for the Programming 4 course at Digital Arts & Entertainment (DAE). Minigin provides a barebones setup for:
+- SDL3 for window management, rendering, and input.
+- GLM for optimized 2D/3D mathematics.
+- A foundational structure to implement Game Programming Patterns as described by Robert Nystrom.
+- CMake Workflow: Builds the project in Debug/Release for Windows on every push to ensure code stability.
+- Emscripten Workflow: Automatically compiles the web version and deploys it to [GitHub Pages](https://stoan24.github.io/Prog4-Engine/).
 
 # Goal
 
 Minigin can/may be used as a start project for the exam assignment in the course [Programming 4](https://youtu.be/j96Oh6vzhmg) at DAE. In that assignment students need to recreate a popular 80's arcade game with a game engine they need to program themselves. During the course we discuss several game programming patterns, using the book '[Game Programming Patterns](https://gameprogrammingpatterns.com/)' by [Robert Nystrom](https://github.com/munificent) as reading material. 
-
-# Disclaimer
-
-Minigin is, despite perhaps the suggestion in its name, **not** a game engine. It is just a very simple SDL3 ready project with some of the scaffolding in place to get started. None of the patterns discussed in the course are used yet (except singleton which use we challenge during the course). It is up to the students to implement their own vision for their engine, apply patterns as they see fit, create their game as efficient as possible.
 
 # Use
 
@@ -76,13 +99,9 @@ To be able to see the webpage you can start a python webserver in the build_web 
 
 Then browse to http://localhost:8000 and you're good to go.
 
-## Github Actions
+# Credits & Resources
 
-This project is build with github actions.
-- The CMake workflow builds the project in Debug and Release for Windows and serves as a check that the project builds on that platform.
-- The Emscripten workflow generates a web version of the project and publishes it as a [github page](https://avadae.github.io/minigin/). 
-  - The url of that page will be `https://<username>.github.io/<repository>/`
-- You can embed this page with 
-
-```<iframe style="position: absolute; top: 0px; left: 0px; width: 1024px; height: 576px;" src="https://<username>.github.io/<repository>/" loading="lazy"></iframe>```
-
+- Engine Author: [Stoan24]
+- Minigin Base: Created for DAE Programming 4.
+- Book: Game Programming Patterns by Robert Nystrom.
+- Original Game: [Pengo](https://en.wikipedia.org/wiki/Pengo_(video_game)) (1982) by SEGA / Coreland.
