@@ -60,7 +60,7 @@ static void load()
 	
 	//Thrash the cache
 	auto gameObjectGraphs = std::make_unique<dae::GameObject>();
-	gameObjectGraphs->AddComponent<dae::TrashComponent>();
+	gameObjectGraphs->AddComponent<dae::ThrashComponent>();
 	scene.Add(std::move(gameObjectGraphs));
 
 

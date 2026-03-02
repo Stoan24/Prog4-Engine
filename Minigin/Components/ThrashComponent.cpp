@@ -1,7 +1,7 @@
 #include "ThrashComponent.h"
 #include <algorithm>
 
-void dae::TrashComponent::RenderGUI()
+void dae::ThrashComponent::RenderGUI()
 {
     ImGui::Begin("Thrash The Cache");
 
@@ -62,7 +62,7 @@ void dae::TrashComponent::RenderGUI()
     ImGui::End();
 }
 
-void dae::TrashComponent::RenderPlot(const char* label, const std::vector<float>& scores, ImVec4 color, float scaleMax, bool isCombined)
+void dae::ThrashComponent::RenderPlot(const char* label, const std::vector<float>& scores, ImVec4 color, float scaleMax, bool isCombined)
 {
     if (scores.empty()) return;
 
@@ -81,7 +81,7 @@ void dae::TrashComponent::RenderPlot(const char* label, const std::vector<float>
     if (isCombined) ImGui::PopStyleColor();
 }
 
-void dae::TrashComponent::ThrashInt(std::vector<float>& scores, int sampleAmount, int bufferSize)
+void dae::ThrashComponent::ThrashInt(std::vector<float>& scores, int sampleAmount, int bufferSize)
 {
     scores.clear();
 
@@ -95,7 +95,7 @@ void dae::TrashComponent::ThrashInt(std::vector<float>& scores, int sampleAmount
         {
             auto start = std::chrono::high_resolution_clock::now();
 
-            for (int i = 0; i < std::size(array); i += stepsize)
+            for (size_t i = 0; i < array.size(); i += stepsize)
             {
                 array[i] *= 2;
             }
@@ -111,7 +111,7 @@ void dae::TrashComponent::ThrashInt(std::vector<float>& scores, int sampleAmount
     }
 }
 
-void dae::TrashComponent::ThrashGameObject(std::vector<float>& scores, int sampleAmount, int bufferSize)
+void dae::ThrashComponent::ThrashGameObject(std::vector<float>& scores, int sampleAmount, int bufferSize)
 {
     scores.clear();
 
@@ -125,7 +125,7 @@ void dae::TrashComponent::ThrashGameObject(std::vector<float>& scores, int sampl
         {
             auto start = std::chrono::high_resolution_clock::now();
 
-            for (int i = 0; i < std::size(array); i += stepsize)
+            for (size_t i = 0; i < array.size(); i += stepsize)
             {
                 array[i].ID *= 2;
             }
@@ -141,7 +141,7 @@ void dae::TrashComponent::ThrashGameObject(std::vector<float>& scores, int sampl
     }
 }
 
-void dae::TrashComponent::ThrashAlt(std::vector<float>& scores, int sampleAmount, int bufferSize)
+void dae::ThrashComponent::ThrashAlt(std::vector<float>& scores, int sampleAmount, int bufferSize)
 {
     scores.clear();
 
@@ -155,7 +155,7 @@ void dae::TrashComponent::ThrashAlt(std::vector<float>& scores, int sampleAmount
         {
             auto start = std::chrono::high_resolution_clock::now();
 
-            for (int i = 0; i < std::size(array); i += stepsize)
+            for (size_t i = 0; i < array.size(); i += stepsize)
             {
                 array[i].ID *= 2;
             }

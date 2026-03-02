@@ -32,15 +32,15 @@ struct GameObject3DAlt
 namespace dae
 {
 
-    class TrashComponent final : public GameComponent
+    class ThrashComponent final : public GameComponent
     {
     public:
-        TrashComponent(GameObject* pGameObject)
+        ThrashComponent(GameObject* pGameObject)
             : GameComponent(pGameObject) 
         {
         }
 
-        virtual ~TrashComponent() = default;
+        virtual ~ThrashComponent() = default;
 
         void RenderGUI() override;
         void RenderPlot(const char* label, const std::vector<float>& scores, ImVec4 color, float scaleMax, bool isCombined = false);
