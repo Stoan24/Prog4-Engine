@@ -15,6 +15,7 @@ namespace dae
 		
 		virtual void Update() {}
 		virtual void Render() const {}
+		virtual void RenderGUI() {}
 
 		bool IsMarkedForDestruction() const { return m_IsMarkedForDestruction; }
 		void MarkToDestroy() { m_IsMarkedForDestruction = true; }

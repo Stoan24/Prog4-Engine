@@ -42,6 +42,14 @@ void dae::GameObject::Render() const
 	}
 }
 
+void dae::GameObject::RenderGUI()
+{
+	for (const auto& component : m_pComponents)
+	{
+		component->RenderGUI();
+	}
+}
+
 void dae::GameObject::MarkForDestruction()
 {
 	m_IsMarkForDestruction = true;

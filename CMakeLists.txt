@@ -27,9 +27,11 @@ add_executable(${TARGET_NAME} ${TARGET_PARAM}
   Minigin/TextObject.cpp
   Minigin/Texture2D.cpp
   Minigin/Transform.cpp
-  
-  "Minigin/Components/TextComponent.cpp"
- "Minigin/Components/TextureComponent.cpp" "Minigin/Components/FPSComponent.cpp" "Minigin/Components/RotationComponent.cpp")
+  Minigin/Components/TextComponent.cpp
+  Minigin/Components/TextureComponent.cpp
+  Minigin/Components/FPSComponent.cpp
+  Minigin/Components/RotationComponent.cpp
+  Minigin/Components/ThrashComponent.cpp)
 
 # enable c++20 features
 target_compile_features(${TARGET_NAME} PUBLIC cxx_std_20)
@@ -115,17 +117,47 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/steam")
 find_package(Steamworks QUIET)
 
-target_include_directories("${TARGET_NAME}" PUBLIC
+target_include_directories("${TARGET_NAME}" PUBLIC 
   ${CMAKE_SOURCE_DIR}/Minigin/
+  ${glm_SOURCE_DIR}
+  ${sdl3_SOURCE_DIR}/include
+  ${sdl3_image_SOURCE_DIR}/include
+  ${sdl3_ttf_SOURCE_DIR}/include
+  ${imgui_SOURCE_DIR}
   ${VLD_INCLUDE_DIR}
 )
 
 target_link_libraries("${TARGET_NAME}" PUBLIC
   SDL3::SDL3
   SDL3_ttf::SDL3_ttf
-  glm::glm
+  imgui
   ${VLD_LIBRARIES}
 )
+
+# Dear ImGui
+FetchContent_Declare(
+  imgui
+  GIT_REPOSITORY https://github.com/ocornut/imgui
+  GIT_TAG v1.92.5-docking
+  GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(imgui)
+
+add_library(imgui STATIC
+  ${imgui_SOURCE_DIR}/imgui.cpp
+  ${imgui_SOURCE_DIR}/imgui_draw.cpp
+  ${imgui_SOURCE_DIR}/imgui_tables.cpp
+  ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+  ${imgui_SOURCE_DIR}/imgui_demo.cpp
+  ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl3.cpp
+  ${imgui_SOURCE_DIR}/backends/imgui_impl_sdlrenderer3.cpp
+)
+
+target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR} ${sdl3_SOURCE_DIR}/include)
+target_link_libraries(imgui PUBLIC SDL3::SDL3)
+# enable c++20 features
+target_compile_features(imgui PUBLIC cxx_std_20)
+
 
 if(MSVC)
   # compile at warning level 4 + treat warnings as errors

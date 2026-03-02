@@ -11,12 +11,6 @@ dae::RotationComponent::RotationComponent(GameObject* pGameObject, float radius,
 {
 }
 
-dae::RotationComponent::RotationComponent(GameObject* pGameObject, float radius, float speed, const glm::vec3& offset)
-	:RotationComponent(pGameObject, radius, speed)
-{
-	m_offset = offset;
-}
-
 void dae::RotationComponent::Update()
 {
 	const float deltaTime = GameTime::GetInstance().GetDeltaTime();

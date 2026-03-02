@@ -12,6 +12,7 @@
 #include "Components/TextureComponent.h"
 #include "Components/FPSComponent.h"
 #include "Components/RotationComponent.h"
+#include "Components/ThrashComponent.h"
 #include "Transform.h"
 #include "Scene.h"
 
@@ -56,15 +57,17 @@ static void load()
 	fpsObject->AddComponent<dae::FPSComponent>();
 
 	scene.Add(std::move(fpsObject));
+	
+	//Thrash the cache
+	auto gameObjectGraphs = std::make_unique<dae::GameObject>();
+	gameObjectGraphs->AddComponent<dae::TrashComponent>();
+	scene.Add(std::move(gameObjectGraphs));
 
 
 	//Pengo's
 	
-//#define USE_ROTATOR
-
-#ifdef USE_ROTATOR
 	auto gameObjectRotator = std::make_unique<dae::GameObject>();
-	gameObjectRotator->SetPosition(400, 400);
+	gameObjectRotator->GetComponent<dae::Transform>()->SetLocalPosition(400, 400);
 
 	auto gameObjectPengo1 = std::make_unique<dae::GameObject>();
 	gameObjectPengo1->AddComponent<dae::TextureComponent>()->SetTexture("Pengo.png");
@@ -72,13 +75,6 @@ static void load()
 	gameObjectPengo1->AddComponent<dae::RotationComponent>(20.f, 2.5f);
 
 	scene.Add(std::move(gameObjectRotator));
-#else
-	auto gameObjectPengo1 = std::make_unique<dae::GameObject>();
-	gameObjectPengo1->AddComponent<dae::TextureComponent>()->SetTexture("Pengo.png");
-
-	const glm::vec3 offset{400.f, 400.f, 0.f};
-	gameObjectPengo1->AddComponent<dae::RotationComponent>(20.f, 2.5f, offset);
-#endif
 	
 
 	auto gameObjectPengo2 = std::make_unique<dae::GameObject>();

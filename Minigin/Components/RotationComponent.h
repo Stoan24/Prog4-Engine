@@ -8,7 +8,6 @@ namespace dae
 	{
 	public:
 		explicit RotationComponent(GameObject* pGameObject, float radius, float speed);
-		explicit RotationComponent(GameObject* pGameObject, float radius, float speed, const glm::vec3& offset);
 
 		~RotationComponent() override = default;
 
