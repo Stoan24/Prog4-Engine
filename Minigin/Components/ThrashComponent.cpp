@@ -13,7 +13,7 @@ void dae::ThrashComponent::RenderGUI()
         ImGui::InputInt("# samples##1", &m_SamplesInt);
         if (ImGui::Button("Thrash the cache##1"))
         {
-            ThrashInt(m_PlotInt, m_SamplesInt, m_BufferSize);
+            ThrashTheCache<int>(m_PlotInt, m_SamplesInt, m_BufferSize, [](int& val) { val *= 2; });
         }
 
 
@@ -32,7 +32,7 @@ void dae::ThrashComponent::RenderGUI()
 
         if (ImGui::Button("Thrash GameObject3D"))
         {
-            ThrashGameObject(m_PlotGO3D, m_SamplesGameObjects, m_BufferSize);
+            ThrashTheCache<GameObject3D>(m_PlotGO3D, m_SamplesGameObjects, m_BufferSize, [](GameObject3D& val) { val.ID *= 2; });
         }
 
         float maxGO = m_PlotGO3D.empty() ? 1.0f : *std::max_element(m_PlotGO3D.begin(), m_PlotGO3D.end());
@@ -42,7 +42,7 @@ void dae::ThrashComponent::RenderGUI()
 
         if (ImGui::Button("Thrash GameObject3DAlt"))
         {
-            ThrashAlt(m_PlotAlt, m_SamplesGameObjects, m_BufferSize);
+            ThrashTheCache<GameObject3DAlt>(m_PlotAlt, m_SamplesGameObjects, m_BufferSize, [](GameObject3DAlt& val) { val.ID *= 2; });
         }
 
         float maxAlt = m_PlotAlt.empty() ? 1.0f : *std::max_element(m_PlotAlt.begin(), m_PlotAlt.end());
@@ -79,94 +79,4 @@ void dae::ThrashComponent::RenderPlot(const char* label, const std::vector<float
     ImGui::PopStyleColor();
 
     if (isCombined) ImGui::PopStyleColor();
-}
-
-void dae::ThrashComponent::ThrashInt(std::vector<float>& scores, int sampleAmount, int bufferSize)
-{
-    scores.clear();
-
-    std::vector<int> array(bufferSize);
-
-    for (int stepsize = 1; stepsize <= 1024; stepsize *= 2)
-    {
-        float sampleTime = 0.f;
-
-        for (int sample = 0; sample < sampleAmount; sample++)
-        {
-            auto start = std::chrono::high_resolution_clock::now();
-
-            for (size_t i = 0; i < array.size(); i += stepsize)
-            {
-                array[i] *= 2;
-            }
-
-            auto end = std::chrono::high_resolution_clock::now();
-            const auto elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-            sampleTime += elapsedTime;
-        }
-
-        float averageTime = sampleTime / sampleAmount;
-
-        scores.push_back(averageTime);
-    }
-}
-
-void dae::ThrashComponent::ThrashGameObject(std::vector<float>& scores, int sampleAmount, int bufferSize)
-{
-    scores.clear();
-
-    std::vector<GameObject3D> array(bufferSize);
-
-    for (int stepsize = 1; stepsize <= 1024; stepsize *= 2)
-    {
-        float sampleTime = 0.f;
-
-        for (int sample = 0; sample < sampleAmount; sample++)
-        {
-            auto start = std::chrono::high_resolution_clock::now();
-
-            for (size_t i = 0; i < array.size(); i += stepsize)
-            {
-                array[i].ID *= 2;
-            }
-
-            auto end = std::chrono::high_resolution_clock::now();
-            const auto elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-            sampleTime += elapsedTime;
-        }
-
-        float averageTime = sampleTime / sampleAmount;
-
-        scores.push_back(averageTime);
-    }
-}
-
-void dae::ThrashComponent::ThrashAlt(std::vector<float>& scores, int sampleAmount, int bufferSize)
-{
-    scores.clear();
-
-    std::vector<GameObject3DAlt> array(bufferSize);
-
-    for (int stepsize = 1; stepsize <= 1024; stepsize *= 2)
-    {
-        float sampleTime = 0.f;
-
-        for (int sample = 0; sample < sampleAmount; sample++)
-        {
-            auto start = std::chrono::high_resolution_clock::now();
-
-            for (size_t i = 0; i < array.size(); i += stepsize)
-            {
-                array[i].ID *= 2;
-            }
-
-            auto end = std::chrono::high_resolution_clock::now();
-            const auto elapsedTime = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-            sampleTime += elapsedTime;
-        }
-
-        float averageTime = sampleTime / sampleAmount;
-
-        scores.push_back(averageTime);
-    }
 }

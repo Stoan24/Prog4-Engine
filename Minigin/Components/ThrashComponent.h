@@ -57,9 +57,33 @@ namespace dae
 
         float m_PlotSize{ 80.f };
 
-        void ThrashInt(std::vector<float>& scores, int sampleAmount, int bufferSize);
-        void ThrashGameObject(std::vector<float>& scores, int sampleAmount, int bufferSize);
-        void ThrashAlt(std::vector<float>& scores, int sampleAmount, int bufferSize);
+        //DRY
+        template <typename T, typename Lambda>
+        void ThrashTheCache(std::vector<float>& scores, int sampleAmount, int bufferSize, Lambda operation)
+        {
+            scores.clear();
+            std::vector<T> array(bufferSize);
+
+            for (int stepsize = 1; stepsize <= 1024; stepsize *= 2)
+            {
+                float totalTime = 0.f;
+
+                for (int sample = 0; sample < sampleAmount; sample++)
+                {
+                    auto start = std::chrono::high_resolution_clock::now();
+
+                    for (size_t i = 0; i < array.size(); i += stepsize)
+                    {
+                        operation(array[i]);
+                    }
+
+                    auto end = std::chrono::high_resolution_clock::now();
+                    totalTime += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+                }
+
+                scores.push_back(totalTime / sampleAmount);
+            }
+        }
 
     };
 }
