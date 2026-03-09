@@ -31,7 +31,9 @@ add_executable(${TARGET_NAME} ${TARGET_PARAM}
   Minigin/Components/TextureComponent.cpp
   Minigin/Components/FPSComponent.cpp
   Minigin/Components/RotationComponent.cpp
-  Minigin/Components/ThrashComponent.cpp)
+  Minigin/Components/ThrashComponent.cpp
+  Minigin/Commands.h
+  Minigin/Gamepad.h)
 
 # enable c++20 features
 target_compile_features(${TARGET_NAME} PUBLIC cxx_std_20)
@@ -131,6 +133,7 @@ target_link_libraries("${TARGET_NAME}" PUBLIC
   SDL3::SDL3
   SDL3_ttf::SDL3_ttf
   imgui
+  xinput
   ${VLD_LIBRARIES}
 )
 
