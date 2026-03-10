@@ -8,6 +8,8 @@
 #include "Minigin.h"
 #include "SceneManager.h"
 #include "ResourceManager.h"
+
+//Components
 #include "Components/TextComponent.h"
 #include "Components/TextureComponent.h"
 #include "Components/FPSComponent.h"
@@ -16,12 +18,17 @@
 #include "Transform.h"
 #include "Scene.h"
 
+//input commands
+#include "InputManager.h"
+#include "Commands.h"
+
 #include <filesystem>
 namespace fs = std::filesystem;
 
 static void load()
 {
 	auto& scene = dae::SceneManager::GetInstance().CreateScene();
+	auto& input = dae::InputManager::GetInstance();
 
 	//Background
 	auto gameObjectBackGround = std::make_unique<dae::GameObject>();
@@ -65,27 +72,36 @@ static void load()
 
 
 	//Pengo's
-	
-	auto gameObjectRotator = std::make_unique<dae::GameObject>();
-	gameObjectRotator->GetComponent<dae::Transform>()->SetLocalPosition(400, 400);
+	float baseSpeed = 100.f;
 
-	auto gameObjectPengo1 = std::make_unique<dae::GameObject>();
-	gameObjectPengo1->AddComponent<dae::TextureComponent>()->SetTexture("Pengo.png");
-	gameObjectPengo1->SetParent(gameObjectRotator.get(), true);
-	gameObjectPengo1->AddComponent<dae::RotationComponent>(20.f, 2.5f);
 
-	scene.Add(std::move(gameObjectRotator));
-	
+	auto KeyboardCharacter = std::make_unique<dae::GameObject>();
+	KeyboardCharacter->AddComponent<dae::TextureComponent>()->SetTexture("Pengo.png");
+	KeyboardCharacter->GetComponent<dae::Transform>()->SetLocalPosition(100, 100);
 
-	auto gameObjectPengo2 = std::make_unique<dae::GameObject>();
-	gameObjectPengo2->AddComponent<dae::TextureComponent>();
-	gameObjectPengo2->GetComponent<dae::TextureComponent>()->SetTexture("Pengo.png");
 
-	gameObjectPengo2->SetParent(gameObjectPengo1.get(), true);
-	gameObjectPengo2->AddComponent<dae::RotationComponent>(30.f, 5.f);
+	input.BindKey(SDL_SCANCODE_W, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(KeyboardCharacter.get(), glm::vec2{ 0, -1 }, baseSpeed));
+	input.BindKey(SDL_SCANCODE_S, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(KeyboardCharacter.get(), glm::vec2{ 0, 1 }, baseSpeed));
+	input.BindKey(SDL_SCANCODE_A, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(KeyboardCharacter.get(), glm::vec2{ -1, 0 }, baseSpeed));
+	input.BindKey(SDL_SCANCODE_D, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(KeyboardCharacter.get(), glm::vec2{ 1, 0 }, baseSpeed));
 
-	scene.Add(std::move(gameObjectPengo1));
-	scene.Add(std::move(gameObjectPengo2));
+	scene.Add(std::move(KeyboardCharacter));
+
+
+
+	auto controllerCharacter = std::make_unique<dae::GameObject>();
+	controllerCharacter->AddComponent<dae::TextureComponent>()->SetTexture("Snobee.png");
+	controllerCharacter->GetComponent<dae::Transform>()->SetLocalPosition(300, 100);
+
+	const float doubleSpeed = baseSpeed * 2.0f;
+
+
+	input.BindButton(0, dae::ControllerButton::DpadUp, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(controllerCharacter.get(), glm::vec2{ 0, -1 }, doubleSpeed));
+	input.BindButton(0, dae::ControllerButton::DpadDown, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(controllerCharacter.get(), glm::vec2{ 0, 1 }, doubleSpeed));
+	input.BindButton(0, dae::ControllerButton::DpadLeft, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(controllerCharacter.get(), glm::vec2{ -1, 0 }, doubleSpeed));
+	input.BindButton(0, dae::ControllerButton::DpadRight, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(controllerCharacter.get(), glm::vec2{ 1, 0 }, doubleSpeed));
+
+	scene.Add(std::move(controllerCharacter));
 }
 
 int main(int, char*[]) {

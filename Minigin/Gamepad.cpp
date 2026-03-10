@@ -1,35 +1,93 @@
 #include "Gamepad.h"
-#include <minwinbase.h>
 
-dae::Gamepad::Gamepad(unsigned int controllerIdx) : m_ControllerIndex(controllerIdx)
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <XInput.h>
+
+namespace dae
 {
-    ZeroMemory(&m_PreviousState, sizeof(XINPUT_STATE));
-    ZeroMemory(&m_CurrentState, sizeof(XINPUT_STATE));
+    class Gamepad::GamepadImpl
+    {
+    public:
+        uint16_t m_ControllerIndex{};
+
+        XINPUT_STATE m_CurrentState{};
+        XINPUT_STATE m_PreviousState{};
+        uint16_t m_ButtonsPressedThisFrame{};
+        uint16_t m_ButtonsReleasedThisFrame{};
+
+
+        GamepadImpl(uint16_t controllerIndex) : m_ControllerIndex(controllerIndex)
+        {
+            ZeroMemory(&m_PreviousState, sizeof(XINPUT_STATE));
+            ZeroMemory(&m_CurrentState, sizeof(XINPUT_STATE));
+        }
+
+        void Update()
+        {
+            CopyMemory(&m_PreviousState, &m_CurrentState, sizeof(XINPUT_STATE));
+            ZeroMemory(&m_CurrentState, sizeof(XINPUT_STATE));
+            XInputGetState(m_ControllerIndex, &m_CurrentState);
+
+            auto buttonChanges = m_CurrentState.Gamepad.wButtons ^ m_PreviousState.Gamepad.wButtons;
+            m_ButtonsPressedThisFrame = buttonChanges & m_CurrentState.Gamepad.wButtons;
+            m_ButtonsReleasedThisFrame = buttonChanges & (~m_CurrentState.Gamepad.wButtons);
+        }
+
+        bool IsDown(ControllerButton button) const { return m_ButtonsPressedThisFrame & static_cast<uint16_t>(button); }
+        bool IsUp(ControllerButton button) const { return m_ButtonsReleasedThisFrame & static_cast<uint16_t>(button); }
+        bool IsPressed(ControllerButton button) const { return m_CurrentState.Gamepad.wButtons & static_cast<uint16_t>(button); }
+    };
+}
+#else
+namespace dae
+{
+    class Gamepad::GamepadImpl
+    {
+    public:
+        uint16_t m_ControllerIndex{};
+
+        GamepadImpl(uint16_t controllerIndex) : m_ControllerIndex(controllerIndex) {}
+
+        void Update()
+        {
+
+        }
+
+        bool IsDown(ControllerButton) const { return false; }
+        bool IsUp(ControllerButton) const { return false; }
+        bool IsPressed(ControllerButton) const { return false; }
+    };
 }
 
-void dae::Gamepad::Update()
+#endif
+
+namespace dae
 {
-    m_PreviousState = m_CurrentState;
-    ZeroMemory(&m_CurrentState, sizeof(XINPUT_STATE));
-    XInputGetState(m_ControllerIndex, &m_CurrentState);
+    dae::Gamepad::Gamepad(uint16_t controllerIdx)
+        : m_pImpl(std::make_unique<GamepadImpl>(controllerIdx))
+    {
+    }
 
+    Gamepad::~Gamepad() = default;
 
-    auto buttonChanges = m_CurrentState.Gamepad.wButtons ^ m_PreviousState.Gamepad.wButtons;
-    m_ButtonsPressedThisFrame = buttonChanges & m_CurrentState.Gamepad.wButtons;
-    m_ButtonsReleasedThisFrame = buttonChanges & (~m_CurrentState.Gamepad.wButtons);
-}
+    void Gamepad::Update() { m_pImpl->Update(); }
 
-bool dae::Gamepad::IsDown(unsigned int button) const 
-{
-    return m_ButtonsPressedThisFrame & button;
-}
+    bool Gamepad::IsPressed(ControllerButton button) const
+    {
+        return m_pImpl->IsPressed(button);
+    }
 
-bool dae::Gamepad::IsUp(unsigned int button) const 
-{
-    return m_ButtonsReleasedThisFrame & button;
-}
+    bool Gamepad::IsDown(ControllerButton button) const
+    {
+        return m_pImpl->IsDown(button);
+    }
 
-bool dae::Gamepad::IsPressed(unsigned int button) const 
-{
-    return m_CurrentState.Gamepad.wButtons & button;
+    bool Gamepad::IsUp(ControllerButton button) const
+    {
+        return m_pImpl->IsUp(button);
+    }
+
+    uint16_t Gamepad::GetIndex() const { return m_pImpl->m_ControllerIndex; }
 }

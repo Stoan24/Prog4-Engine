@@ -1,13 +1,12 @@
 #include <SDL3/SDL.h>
 #include <backends/imgui_impl_sdl3.h>
 #include "InputManager.h"
-#include <minwinbase.h>
 
 dae::InputManager::InputManager() 
 {
 	for (int i = 0; i < m_AmountOfControllers; ++i)
 	{
-		m_Controllers.push_back(std::make_unique<Gamepad>(i));
+		m_pControllers.push_back(std::make_unique<Gamepad>(i));
 	}
 }
 
@@ -60,7 +59,7 @@ bool dae::InputManager::ProcessInput()
 	
 	for (auto& b : m_ControllerBindings) 
 	{
-		const auto& controller = m_Controllers[b.controllerIndex];
+		const auto& controller = m_pControllers[b.controllerIndex];
 
 		bool trigger = false;
 		if (b.state == KeyState::Down && controller->IsDown(b.buttonBitmask)) trigger = true;
@@ -86,15 +85,15 @@ void dae::InputManager::UnbindKey(SDL_Scancode key, KeyState state)
 		});
 }
 
-void dae::InputManager::BindButton(unsigned int controllerIdx, unsigned int bitmask, KeyState state, std::unique_ptr<Command> command) 
+void dae::InputManager::BindButton(unsigned int controllerIdx, ControllerButton button, KeyState state, std::unique_ptr<Command> command) 
 {
-	m_ControllerBindings.push_back({ bitmask, state, controllerIdx, std::move(command) });
+	m_ControllerBindings.push_back({ button, state, controllerIdx, std::move(command) });
 }
 
-void dae::InputManager::UnbindButton(unsigned int controllerIdx, unsigned int bitmask, KeyState state) 
+void dae::InputManager::UnbindButton(unsigned int controllerIdx, ControllerButton button, KeyState state)
 {
 	std::erase_if(m_ControllerBindings, [=](const auto& b) 
 		{
-			return b.controllerIndex == controllerIdx && b.buttonBitmask == bitmask && b.state == state;
+			return b.controllerIndex == controllerIdx && b.buttonBitmask == button && b.state == state;
 		});
 }
