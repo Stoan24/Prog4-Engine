@@ -66,9 +66,9 @@ static void load()
 	scene.Add(std::move(fpsObject));
 	
 	//Thrash the cache
-	auto gameObjectGraphs = std::make_unique<dae::GameObject>();
-	gameObjectGraphs->AddComponent<dae::ThrashComponent>();
-	scene.Add(std::move(gameObjectGraphs));
+	//auto gameObjectGraphs = std::make_unique<dae::GameObject>();
+	//gameObjectGraphs->AddComponent<dae::ThrashComponent>();
+	//scene.Add(std::move(gameObjectGraphs));
 
 
 	//Pengo's
@@ -77,7 +77,7 @@ static void load()
 
 	auto KeyboardCharacter = std::make_unique<dae::GameObject>();
 	KeyboardCharacter->AddComponent<dae::TextureComponent>()->SetTexture("Pengo.png");
-	KeyboardCharacter->GetComponent<dae::Transform>()->SetLocalPosition(100, 100);
+	KeyboardCharacter->GetComponent<dae::Transform>()->SetLocalPosition(300, 350);
 
 
 	input.BindKey(SDL_SCANCODE_W, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(KeyboardCharacter.get(), glm::vec2{ 0, -1 }, baseSpeed));
@@ -91,7 +91,7 @@ static void load()
 
 	auto controllerCharacter = std::make_unique<dae::GameObject>();
 	controllerCharacter->AddComponent<dae::TextureComponent>()->SetTexture("Snobee.png");
-	controllerCharacter->GetComponent<dae::Transform>()->SetLocalPosition(300, 100);
+	controllerCharacter->GetComponent<dae::Transform>()->SetLocalPosition(350, 350);
 
 	const float doubleSpeed = baseSpeed * 2.0f;
 
@@ -102,6 +102,26 @@ static void load()
 	input.BindButton(0, dae::ControllerButton::DpadRight, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(controllerCharacter.get(), glm::vec2{ 1, 0 }, doubleSpeed));
 
 	scene.Add(std::move(controllerCharacter));
+
+
+	auto controlsFont = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 14);
+	//Controls Text
+	auto controllerText = std::make_unique<dae::GameObject>();
+	controllerText->GetComponent<dae::Transform>()->SetLocalPosition(10, 100);
+	controllerText->AddComponent<dae::TextureComponent>();
+	controllerText->AddComponent<dae::TextComponent>("Use the D-Pad to move the Snobee", controlsFont);
+	controllerText->GetComponent<dae::TextComponent>()->SetColor({ 255, 255, 255, 255 });
+
+	scene.Add(std::move(controllerText));
+
+	//Keyboard Text
+	auto keyboardText = std::make_unique<dae::GameObject>();
+	keyboardText->GetComponent<dae::Transform>()->SetLocalPosition(10, 120);
+	keyboardText->AddComponent<dae::TextureComponent>();
+	keyboardText->AddComponent<dae::TextComponent>("Use WASD to move Pengo", controlsFont);
+	keyboardText->GetComponent<dae::TextComponent>()->SetColor({ 255, 255, 255, 255 });
+
+	scene.Add(std::move(keyboardText));
 }
 
 int main(int, char*[]) {

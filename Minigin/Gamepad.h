@@ -37,7 +37,7 @@ namespace dae
 
     private:
 
-        class GamepadImpl;
+        struct GamepadImpl;
         std::unique_ptr<GamepadImpl> m_pImpl;
     };
 }
