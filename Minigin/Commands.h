@@ -13,29 +13,33 @@ namespace dae
 	};
 
 
-    class MoveCommand final : public dae::Command
+    class MoveCommand final : public Command
     {
-        dae::GameObject* m_pActor;
+        GameObject* m_pActor;
         glm::vec2 m_Direction;
         float m_MoveSpeed;
 
+        Transform* m_Transform;
+
     public:
-        MoveCommand(dae::GameObject* actor, glm::vec2 direction, float speed)
+        MoveCommand(GameObject* actor, glm::vec2 direction, float speed)
             : m_pActor(actor), m_Direction(direction), m_MoveSpeed(speed)
         {
+            m_Transform = m_pActor->GetComponent<Transform>();
         }
 
         void Execute() override
         {
+            if (!m_Transform) return;
+
             const float deltaTime = GameTime::GetInstance().GetDeltaTime();
 
-            auto transform = m_pActor->GetComponent<dae::Transform>();
-            auto pos = transform->GetLocalPosition();
+            auto pos = m_Transform->GetLocalPosition();
 
             pos.x += m_Direction.x * m_MoveSpeed * deltaTime;
             pos.y += m_Direction.y * m_MoveSpeed * deltaTime;
 
-            transform->SetLocalPosition(pos.x, pos.y);
+            m_Transform->SetLocalPosition(pos.x, pos.y);
         }
     };
 }

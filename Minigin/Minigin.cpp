@@ -18,6 +18,7 @@
 #include "SceneManager.h"
 #include "Renderer.h"
 #include "ResourceManager.h"
+#include "CollisionManager.h"
 
 #include "GameTime.h"
 

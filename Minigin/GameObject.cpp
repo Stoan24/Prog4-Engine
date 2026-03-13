@@ -3,16 +3,14 @@
 #include "GameObject.h"
 #include "ResourceManager.h"
 #include "Renderer.h"
+#include <algorithm>
 
 dae::GameObject::GameObject()
 {
 	AddComponent<Transform>();
 }
 
-dae::GameObject::~GameObject()
-{
-	//m_pChildren.clear();
-}
+dae::GameObject::~GameObject() = default;
 
 void dae::GameObject::Update()
 {
@@ -147,3 +145,19 @@ void dae::GameObject::DestroyMarkedComponents()
 		m_pComponents.end());
 }
 #pragma endregion
+
+
+#pragma region Tagging
+void dae::GameObject::AddTag(const std::string& tag)
+{
+	m_Tags.push_back(tag);
+}
+
+bool dae::GameObject::HasTag(const std::string& tag) const
+{
+	//std::ranges does not work with emscripten even when using #include <algorithm>
+	//return std::ranges::find(m_Tags, tag) != m_Tags.end();
+
+	return std::find(m_Tags.begin(), m_Tags.end(), tag) != m_Tags.end();
+}
+#pragma endregion Tagging

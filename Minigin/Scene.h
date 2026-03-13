@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "GameObject.h"
+#include "Observer.h"
 
 namespace dae
 {
@@ -10,7 +11,9 @@ namespace dae
 	{
 	public:
 		void Add(std::unique_ptr<GameObject> object);
+		void Add(std::unique_ptr<Observer> observer);
 		void Remove(const GameObject& object);
+		void Remove(const Observer& observer);
 
 		void Update();
 		void Render() const;
@@ -27,6 +30,7 @@ namespace dae
 		explicit Scene() = default;
 
 		std::vector <std::unique_ptr<GameObject>> m_objects{};
+		std::vector <std::unique_ptr<Observer>> m_observers{};
 	};
 
 }

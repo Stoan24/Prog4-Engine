@@ -4,8 +4,8 @@
 #include <type_traits>
 #include <algorithm>
 #include <utility>
-#include "GameComponent.h"
 #include <vector>
+#include "GameComponent.h"
 
 namespace dae
 {
@@ -39,6 +39,10 @@ namespace dae
 		GameObject* GetChildAt(int index) const { return m_pChildren[index]; }
 		int GetChildCount() const{ return static_cast<int>(m_pChildren.size()); }
 		std::vector<GameObject*> GetChildren() const;
+
+		//Tagging
+		void AddTag(const std::string& tag);
+		bool HasTag(const std::string& tag) const;
 
 #pragma region ComponentTemplates
 		//Component
@@ -107,8 +111,12 @@ namespace dae
 		//Marking for destruction
 		bool m_IsMarkForDestruction{ false };
 
+		//Tagging
+		std::vector<std::string> m_Tags;
+
 		//Parenting
 		GameObject* m_pParent{ nullptr };
 		std::vector<GameObject*> m_pChildren;
+
 	};
 }
