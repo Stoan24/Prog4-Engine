@@ -1,4 +1,3 @@
-#pragma once
 #include "ScoreManager.h"
 #include "Components/ScoreComponent.h"
 #include "Events/Event.h"
