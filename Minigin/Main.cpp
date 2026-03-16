@@ -16,12 +16,17 @@
 #include "Components/RotationComponent.h"
 #include "Components/ThrashComponent.h"
 #include "Components/HealthComponent.h"
+#include "Components/ScoreComponent.h"
 #include "Components/CollisionComponent.h"
 #include "Transform.h"
 #include "Scene.h"
 
 //Observers
 #include "Observers/HealthObserver.h"
+
+//Events
+#include "Events/ScoreEvent.h"
+#include "ScoreManager.h"
 
 //input commands
 #include "InputManager.h"
@@ -34,6 +39,7 @@ static void load()
 {
 	auto& scene = dae::SceneManager::GetInstance().CreateScene();
 	auto& input = dae::InputManager::GetInstance();
+	dae::ScoreManager::GetInstance().Initialize();
 
 #pragma region Dae Template
 	//Background
@@ -61,7 +67,6 @@ static void load()
 	
 	scene.Add(std::move(gameObjectText));
 
-#pragma endregion Dae Template
 
 	//FPS
 	auto fpsObject = std::make_unique<dae::GameObject>();
@@ -77,43 +82,101 @@ static void load()
 	//auto gameObjectGraphs = std::make_unique<dae::GameObject>();
 	//gameObjectGraphs->AddComponent<dae::ThrashComponent>();
 	//scene.Add(std::move(gameObjectGraphs));
+#pragma endregion Dae Template
 
 	auto controlsFont = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 14);
 
 	//Players
 	float baseSpeed = 100.f;
 
-
+#pragma region Player1
 	auto Pengo = std::make_unique<dae::GameObject>();
 	Pengo->AddComponent<dae::TextureComponent>()->SetTexture("Pengo.png");
 	Pengo->GetComponent<dae::Transform>()->SetLocalPosition(300, 350);
 	Pengo->AddComponent<dae::CollisionComponent>()->SetSize(16, 16);
-	Pengo->AddComponent<dae::HealthComponent>(3);
+	auto health = Pengo->AddComponent<dae::HealthComponent>(3);
+	Pengo->AddComponent<dae::ScoreComponent>();
 
 	Pengo->AddTag("Player");
 
-
+	//Input
 	input.BindKey(SDL_SCANCODE_W, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(Pengo.get(), glm::vec2{ 0, -1 }, baseSpeed));
 	input.BindKey(SDL_SCANCODE_S, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(Pengo.get(), glm::vec2{ 0, 1 }, baseSpeed));
 	input.BindKey(SDL_SCANCODE_A, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(Pengo.get(), glm::vec2{ -1, 0 }, baseSpeed));
 	input.BindKey(SDL_SCANCODE_D, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(Pengo.get(), glm::vec2{ 1, 0 }, baseSpeed));
 
+	input.BindKey(SDL_SCANCODE_E, dae::KeyState::Down, std::make_unique<dae::ScoreCommand>(Pengo.get()));
+
+	//Lives
 	auto livesDisplay = std::make_unique<dae::GameObject>();
 	livesDisplay->GetComponent<dae::Transform>()->SetLocalPosition(10, 150);
 	livesDisplay->AddComponent<dae::TextureComponent>();
 	auto livesText = livesDisplay->AddComponent<dae::TextComponent>("# Lives: 3", controlsFont);
 
-	auto observer = std::make_unique<dae::HealthObserver>(livesText, Pengo->GetComponent<dae::HealthComponent>()->GetSubject());
+	auto observer = livesDisplay->AddComponent<dae::HealthObserver>(livesText, health->GetSubject());
 
-	Pengo->GetComponent<dae::HealthComponent>()->GetSubject()->addObserver(observer.get());
+	health->GetSubject()->addObserver(observer);
 	
+	//Score
+	auto scoreDisplay = std::make_unique<dae::GameObject>();
+	scoreDisplay->GetComponent<dae::Transform>()->SetLocalPosition(10, 170);
+	scoreDisplay->AddComponent<dae::TextureComponent>();
+	auto scoreText = scoreDisplay->AddComponent<dae::TextComponent>("Score: 0", controlsFont);
+
+	scoreDisplay->AddComponent<dae::ScoreEvent>(scoreText, Pengo.get());
+
 
 	scene.Add(std::move(Pengo));
 	scene.Add(std::move(livesDisplay));
-	scene.Add(std::move(observer));
+	scene.Add(std::move(scoreDisplay));
+
+#pragma endregion Player1
+
+#pragma region Player2
+	auto Pengo1 = std::make_unique<dae::GameObject>();
+	Pengo1->AddComponent<dae::TextureComponent>()->SetTexture("Pengo.png");
+	Pengo1->GetComponent<dae::Transform>()->SetLocalPosition(300, 300);
+	Pengo1->AddComponent<dae::CollisionComponent>()->SetSize(16, 16);
+	auto health1 = Pengo1->AddComponent<dae::HealthComponent>(3);
+	Pengo1->AddComponent<dae::ScoreComponent>();
+
+	Pengo1->AddTag("Player");
+
+	const float doubleSpeed = baseSpeed * 2.0f;
+	//Input
+	input.BindButton(0, dae::ControllerButton::DpadUp, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(Pengo1.get(), glm::vec2{ 0, -1 }, doubleSpeed));
+	input.BindButton(0, dae::ControllerButton::DpadDown, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(Pengo1.get(), glm::vec2{ 0, 1 }, doubleSpeed));
+	input.BindButton(0, dae::ControllerButton::DpadLeft, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(Pengo1.get(), glm::vec2{ -1, 0 }, doubleSpeed));
+	input.BindButton(0, dae::ControllerButton::DpadRight, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(Pengo1.get(), glm::vec2{ 1, 0 }, doubleSpeed));
+
+	input.BindButton(0, dae::ControllerButton::ButtonX, dae::KeyState::Down, std::make_unique<dae::ScoreCommand>(Pengo1.get()));
+
+	//Lives
+	auto livesDisplay1 = std::make_unique<dae::GameObject>();
+	livesDisplay1->GetComponent<dae::Transform>()->SetLocalPosition(10, 200);
+	livesDisplay1->AddComponent<dae::TextureComponent>();
+	auto livesText1 = livesDisplay1->AddComponent<dae::TextComponent>("# Lives: 3", controlsFont);
+
+	auto observer1 = livesDisplay1->AddComponent<dae::HealthObserver>(livesText1, health1->GetSubject());
+
+	health1->GetSubject()->addObserver(observer1);
+
+	//Score
+	auto scoreDisplay1 = std::make_unique<dae::GameObject>();
+	scoreDisplay1->GetComponent<dae::Transform>()->SetLocalPosition(10, 220);
+	scoreDisplay1->AddComponent<dae::TextureComponent>();
+	auto scoreText1 = scoreDisplay1->AddComponent<dae::TextComponent>("Score: 0", controlsFont);
+
+	scoreDisplay1->AddComponent<dae::ScoreEvent>(scoreText1, Pengo1.get());
 
 
+	scene.Add(std::move(Pengo1));
+	scene.Add(std::move(livesDisplay1));
+	scene.Add(std::move(scoreDisplay1));
 
+#pragma endregion Player2
+
+#pragma region Enemy
 	auto Snobee = std::make_unique<dae::GameObject>();
 	Snobee->AddComponent<dae::TextureComponent>()->SetTexture("Snobee.png");
 	Snobee->GetComponent<dae::Transform>()->SetLocalPosition(350, 350);
@@ -122,15 +185,8 @@ static void load()
 	Snobee->AddTag("Enemy");
 
 
-	const float doubleSpeed = baseSpeed * 2.0f;
-
-	input.BindButton(0, dae::ControllerButton::DpadUp, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(Snobee.get(), glm::vec2{ 0, -1 }, doubleSpeed));
-	input.BindButton(0, dae::ControllerButton::DpadDown, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(Snobee.get(), glm::vec2{ 0, 1 }, doubleSpeed));
-	input.BindButton(0, dae::ControllerButton::DpadLeft, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(Snobee.get(), glm::vec2{ -1, 0 }, doubleSpeed));
-	input.BindButton(0, dae::ControllerButton::DpadRight, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(Snobee.get(), glm::vec2{ 1, 0 }, doubleSpeed));
-
 	scene.Add(std::move(Snobee));
-
+#pragma endregion Enemy
 
 	//Keyboard Text
 	auto keyboardText = std::make_unique<dae::GameObject>();

@@ -1,6 +1,6 @@
 #pragma once
 #include "Singleton.h"
-#include <list>
+#include <vector>
 #include "Components/CollisionComponent.h"
 
 namespace dae
@@ -9,15 +9,17 @@ namespace dae
 	class CollisionManager final : public Singleton<CollisionManager>
 	{
 	public:
-		CollisionManager() = default;
 
-		void AddCollider(CollisionComponent* pCollider);
-		void RemoveCollider(CollisionComponent* pCollider);
+		void AddCollider(CollisionComponent* collider);
+		void RemoveCollider(CollisionComponent* collider);
 
-		GameObject* CheckCollision(CollisionComponent* pCollider);
+		GameObject* CheckCollision(CollisionComponent* collider);
 
 	private:
+		//Friend class, can only be made by itself
+		friend class Singleton<CollisionManager>;
+		CollisionManager() = default;
 
-		std::list<CollisionComponent*> m_pColliders{};
+		std::vector<CollisionComponent*> m_pColliders{};
 	};
 }

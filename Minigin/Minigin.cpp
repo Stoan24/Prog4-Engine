@@ -18,7 +18,7 @@
 #include "SceneManager.h"
 #include "Renderer.h"
 #include "ResourceManager.h"
-#include "CollisionManager.h"
+#include "Events/EventManager.h"
 
 #include "GameTime.h"
 
@@ -125,6 +125,7 @@ void dae::Minigin::RunOneFrame()
 	//Game loop
 	m_quit = !InputManager::GetInstance().ProcessInput();
 	SceneManager::GetInstance().Update();
+	EventManager::GetInstance().Update();
 	Renderer::GetInstance().Render();
 	
 	const auto frameEnd = std::chrono::high_resolution_clock::now();

@@ -30,6 +30,7 @@ void dae::CollisionComponent::SetSize(int width, int height)
 
 void dae::CollisionComponent::OnCollision(GameObject* other)
 {
+	//Quick Tag checking --> Should be in Game not Engine
 	if (other->HasTag("Enemy"))
 	{
 		auto health = GetGameObject()->GetComponent<HealthComponent>();

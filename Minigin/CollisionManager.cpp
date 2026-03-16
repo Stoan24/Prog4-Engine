@@ -1,26 +1,27 @@
 #include "CollisionManager.h"
 #include "GameObject.h"
 #include "Transform.h"
+#include <vector>
 
-void dae::CollisionManager::AddCollider(CollisionComponent* pCollider)
+void dae::CollisionManager::AddCollider(CollisionComponent* collider)
 {
-	m_pColliders.push_back(pCollider);
+	m_pColliders.push_back(collider);
 }
 
-void dae::CollisionManager::RemoveCollider(CollisionComponent* pCollider)
+void dae::CollisionManager::RemoveCollider(CollisionComponent* collider)
 {
-	m_pColliders.remove(pCollider);
+	std::erase(m_pColliders, collider);
 }
 
-dae::GameObject* dae::CollisionManager::CheckCollision(CollisionComponent* pCollider)
+dae::GameObject* dae::CollisionManager::CheckCollision(CollisionComponent* collider)
 {
-	const auto transform = pCollider->GetTransform();
+	const auto transform = collider->GetTransform();
 	const auto position = transform->GetWorldPosition();
-	const auto size = pCollider->GetSize();
+	const auto size = collider->GetSize();
 
 	for (auto otherCollider : m_pColliders)
 	{
-		if (pCollider == otherCollider) continue;
+		if (collider == otherCollider) continue;
 
 		const auto otherTransform = otherCollider->GetTransform();
 		const auto otherPosition = otherTransform->GetWorldPosition();
@@ -30,8 +31,8 @@ dae::GameObject* dae::CollisionManager::CheckCollision(CollisionComponent* pColl
 		if (position.x < otherPosition.x + otherSize.x && position.x + size.x > otherPosition.x &&
 			position.y < otherPosition.y + otherSize.y && position.y + size.y > otherPosition.y)
 		{
-			pCollider->OnCollision(otherCollider->GetGameObject());
-			otherCollider->OnCollision(pCollider->GetGameObject());
+			collider->OnCollision(otherCollider->GetGameObject());
+			otherCollider->OnCollision(collider->GetGameObject());
 		}
 	}
 

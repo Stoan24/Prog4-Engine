@@ -1,17 +1,19 @@
 #pragma once
 #include "Observer.h"
 #include "SDBMHasher.h"
+#include "GameComponent.h"
 #include "Components/HealthComponent.h"
 #include "Components/TextComponent.h"
 
 namespace dae
 {
-	class HealthObserver : public Observer
+	class HealthObserver : public GameComponent, public Observer
 	{
 		
 	public:
-		explicit HealthObserver(TextComponent* pText, Subject* pSubject)
-			:m_pTextComponent{ pText },
+		explicit HealthObserver(GameObject* gameObject, TextComponent* pText, Subject* pSubject)
+			:GameComponent(gameObject),
+			m_pTextComponent{ pText },
 			m_pSubject{ pSubject }
 		{
 		}
@@ -30,6 +32,8 @@ namespace dae
 				UpdateDisplay(currentLives);
 			}
 		}
+
+		void OnSubjectDestroyed() override { m_pSubject = nullptr; }
 
 	private:
 		TextComponent* m_pTextComponent{ nullptr };

@@ -30,7 +30,6 @@ namespace dae
 		void MarkForDestruction();
 		
 		bool isMarkedForDestruction() const { return m_IsMarkForDestruction; }
-		void MarkToDestroy();
 
 		//Parenting
 		void SetParent(GameObject* pParent, bool keepWorldPosition = true);

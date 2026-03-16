@@ -34,9 +34,12 @@ add_executable(${TARGET_NAME} ${TARGET_PARAM}
   Minigin/Components/ThrashComponent.cpp
   Minigin/Commands.h
   Minigin/Gamepad.cpp
-  Minigin/Components/HealthComponent.cpp 
+  Minigin/Components/HealthComponent.cpp
   Minigin/Components/CollisionComponent.cpp
-  Minigin/CollisionManager.cpp)
+  Minigin/CollisionManager.cpp
+  Minigin/ScoreManager.cpp
+  Minigin/Events/EventManager.cpp
+  Minigin/Components/ScoreComponent.cpp)
 
 # enable c++20 features
 target_compile_features(${TARGET_NAME} PUBLIC cxx_std_20)

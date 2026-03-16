@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include "GameObject.h"
-#include "Observer.h"
+#include "Observers/Observer.h"
 
 namespace dae
 {

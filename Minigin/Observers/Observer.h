@@ -10,5 +10,6 @@ namespace dae
 	public:
 		virtual ~Observer() = default;
 		virtual void Notify(GameObject* gameObject, EventId event) = 0;
+		virtual void OnSubjectDestroyed() {}
 	};
 }

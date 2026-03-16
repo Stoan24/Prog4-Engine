@@ -58,16 +58,6 @@ void dae::GameObject::MarkForDestruction()
 	}
 }
 
-void dae::GameObject::MarkToDestroy()
-{
-	m_IsMarkForDestruction = true;
-
-	for (auto& child : m_pChildren)
-	{
-		child->MarkToDestroy();
-	}
-}
-
 #pragma region Parenting
 void dae::GameObject::SetParent(GameObject* pParent, bool keepWorldPosition)
 {
