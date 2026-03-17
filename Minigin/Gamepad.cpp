@@ -110,7 +110,7 @@ namespace dae
 
         void Connect()
         {
-            SDL_InitSubSystem(SDL_INIT_GAMEPAD);
+            //SDL_InitSubSystem(SDL_INIT_GAMEPAD);
 
             int count{};
             SDL_JoystickID* joysticks = SDL_GetGamepads(&count);
