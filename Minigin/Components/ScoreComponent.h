@@ -20,6 +20,7 @@ namespace dae
 
 	private:
 		int m_CurrentScore{ 0 };
+		int m_WinnerScore{ 500 };
 	};
 
 }

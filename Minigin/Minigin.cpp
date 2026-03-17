@@ -10,6 +10,13 @@
 #include <windows.h>
 #endif
 
+#if USE_STEAMWORKS
+#pragma warning (push)
+#pragma warning (disable:4996)
+#include <steam_api.h>
+#pragma warning (pop)
+#endif
+
 #include <SDL3/SDL.h>
 //#include <SDL3_image/SDL_image.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -21,6 +28,12 @@
 #include "Events/EventManager.h"
 
 #include "GameTime.h"
+
+#ifdef USE_STEAMWORKS
+
+#include <Steam/Achievement.h>
+#endif // USE_STEAMWORKS
+
 
 
 SDL_Window* g_window{};
@@ -38,6 +51,8 @@ void LogSDLVersion(const std::string& message, int major, int minor, int patch)
 
 #ifdef __EMSCRIPTEN__
 #include "emscripten.h"
+
+
 
 void LoopCallback(void* arg)
 {
@@ -65,14 +80,20 @@ dae::Minigin::Minigin(const std::filesystem::path& dataPath)
 {
 	PrintSDLVersion();
 	
-	if (!SDL_InitSubSystem(SDL_INIT_VIDEO))
+#ifndef __EMSCRIPTEN__
+	//Emscirpten does not like double initialisation
+	if (!(SDL_WasInit(SDL_INIT_VIDEO) & SDL_INIT_VIDEO))
 	{
-		SDL_Log("Renderer error: %s", SDL_GetError());
-		throw std::runtime_error(std::string("SDL_Init Error: ") + SDL_GetError());
+		if (!SDL_InitSubSystem(SDL_INIT_VIDEO))
+		{
+			SDL_Log("Renderer error: %s", SDL_GetError());
+			throw std::runtime_error(std::string("SDL_Init Error: ") + SDL_GetError());
+		}
 	}
+#endif
 
 	g_window = SDL_CreateWindow(
-		"Programming 4 assignment",
+		"Pengo",
 		1024,
 		576,
 		SDL_WINDOW_OPENGL
@@ -81,6 +102,11 @@ dae::Minigin::Minigin(const std::filesystem::path& dataPath)
 	{
 		throw std::runtime_error(std::string("SDL_CreateWindow Error: ") + SDL_GetError());
 	}
+#if USE_STEAMWORKS
+	if (!SteamAPI_Init())
+		throw std::runtime_error(std::string("Fatal Error - Steam must be running to play this game (SteamAPI_Init() failed)."));
+	g_SteamAchievements = new SteamAchievements(g_Achievements, 4);
+#endif
 
 	Renderer::GetInstance().Init(g_window);
 	ResourceManager::GetInstance().Init(dataPath);
@@ -88,6 +114,11 @@ dae::Minigin::Minigin(const std::filesystem::path& dataPath)
 
 dae::Minigin::~Minigin()
 {
+#if USE_STEAMWORKS
+	delete g_SteamAchievements;
+	SteamAPI_Shutdown();
+#endif
+
 	SDL_DestroyWindow(g_window);
 	g_window = nullptr;
 	SDL_Quit();
@@ -112,6 +143,10 @@ void dae::Minigin::Run(const std::function<void()>& load)
 
 void dae::Minigin::RunOneFrame()
 {
+#if USE_STEAMWORKS
+	SteamAPI_RunCallbacks();
+#endif
+
 	const std::chrono::duration<float> desiredFrameTime{ 1.f / m_desiredFPS };
 	
 	//Calculate delta time

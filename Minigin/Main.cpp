@@ -5,6 +5,7 @@
 #include <vld.h>
 #endif
 
+
 #include "Minigin.h"
 #include "SceneManager.h"
 #include "ResourceManager.h"
@@ -105,11 +106,11 @@ static void load()
 	input.BindKey(SDL_SCANCODE_A, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(Pengo.get(), glm::vec2{ -1, 0 }, baseSpeed));
 	input.BindKey(SDL_SCANCODE_D, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(Pengo.get(), glm::vec2{ 1, 0 }, baseSpeed));
 
-	input.BindKey(SDL_SCANCODE_E, dae::KeyState::Down, std::make_unique<dae::ScoreCommand>(Pengo.get()));
+	input.BindKey(SDL_SCANCODE_X, dae::KeyState::Down, std::make_unique<dae::ScoreCommand>(Pengo.get()));
 
 	//Lives
 	auto livesDisplay = std::make_unique<dae::GameObject>();
-	livesDisplay->GetComponent<dae::Transform>()->SetLocalPosition(10, 150);
+	livesDisplay->GetComponent<dae::Transform>()->SetLocalPosition(10, 200);
 	livesDisplay->AddComponent<dae::TextureComponent>();
 	auto livesText = livesDisplay->AddComponent<dae::TextComponent>("# Lives: 3", controlsFont);
 
@@ -119,7 +120,7 @@ static void load()
 	
 	//Score
 	auto scoreDisplay = std::make_unique<dae::GameObject>();
-	scoreDisplay->GetComponent<dae::Transform>()->SetLocalPosition(10, 170);
+	scoreDisplay->GetComponent<dae::Transform>()->SetLocalPosition(10, 220);
 	scoreDisplay->AddComponent<dae::TextureComponent>();
 	auto scoreText = scoreDisplay->AddComponent<dae::TextComponent>("Score: 0", controlsFont);
 
@@ -153,7 +154,7 @@ static void load()
 
 	//Lives
 	auto livesDisplay1 = std::make_unique<dae::GameObject>();
-	livesDisplay1->GetComponent<dae::Transform>()->SetLocalPosition(10, 200);
+	livesDisplay1->GetComponent<dae::Transform>()->SetLocalPosition(10, 240);
 	livesDisplay1->AddComponent<dae::TextureComponent>();
 	auto livesText1 = livesDisplay1->AddComponent<dae::TextComponent>("# Lives: 3", controlsFont);
 
@@ -163,7 +164,7 @@ static void load()
 
 	//Score
 	auto scoreDisplay1 = std::make_unique<dae::GameObject>();
-	scoreDisplay1->GetComponent<dae::Transform>()->SetLocalPosition(10, 220);
+	scoreDisplay1->GetComponent<dae::Transform>()->SetLocalPosition(10, 260);
 	scoreDisplay1->AddComponent<dae::TextureComponent>();
 	auto scoreText1 = scoreDisplay1->AddComponent<dae::TextComponent>("Score: 0", controlsFont);
 
@@ -192,7 +193,7 @@ static void load()
 	auto keyboardText = std::make_unique<dae::GameObject>();
 	keyboardText->GetComponent<dae::Transform>()->SetLocalPosition(10, 100);
 	keyboardText->AddComponent<dae::TextureComponent>();
-	keyboardText->AddComponent<dae::TextComponent>("Use WASD to move Pengo, collide with the SnoBee to lose a life", controlsFont);
+	keyboardText->AddComponent<dae::TextComponent>("Use WASD to move Yellow, collide with the SnoBee to lose a life", controlsFont);
 	keyboardText->GetComponent<dae::TextComponent>()->SetColor({ 255, 255, 255, 255 });
 
 	scene.Add(std::move(keyboardText));
@@ -201,12 +202,19 @@ static void load()
 	auto controllerText = std::make_unique<dae::GameObject>();
 	controllerText->GetComponent<dae::Transform>()->SetLocalPosition(10, 120);
 	controllerText->AddComponent<dae::TextureComponent>();
-	controllerText->AddComponent<dae::TextComponent>("Use the D-Pad to move the Snobee", controlsFont);
+	controllerText->AddComponent<dae::TextComponent>("Use the D-Pad to move the Red, collide with the SnoBee to lose a life", controlsFont);
 	controllerText->GetComponent<dae::TextComponent>()->SetColor({ 255, 255, 255, 255 });
 
 	scene.Add(std::move(controllerText));
 
+	//ScoreText
+	auto scoreInstructions = std::make_unique<dae::GameObject>();
+	scoreInstructions->GetComponent<dae::Transform>()->SetLocalPosition(10, 140);
+	scoreInstructions->AddComponent<dae::TextureComponent>();
+	scoreInstructions->AddComponent<dae::TextComponent>("Gain 100 score by pressing 'X' on controller or keyboard", controlsFont);
+	scoreInstructions->GetComponent<dae::TextComponent>()->SetColor({ 255, 255, 255, 255 });
 	
+	scene.Add(std::move(scoreInstructions));
 }
 
 int main(int, char*[]) {
@@ -217,7 +225,9 @@ int main(int, char*[]) {
 	if(!fs::exists(data_location))
 		data_location = "../Data/";
 #endif
+
 	dae::Minigin engine(data_location);
 	engine.Run(load);
+
     return 0;
 }

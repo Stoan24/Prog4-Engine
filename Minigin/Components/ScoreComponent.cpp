@@ -25,4 +25,11 @@ void dae::ScoreComponent::AddPoints(int amount)
 	e.args[1].value = m_CurrentScore;
 
 	EventManager::GetInstance().HandleEvent(e);
+
+	if (m_CurrentScore >= m_WinnerScore)
+	{
+		Event winner(make_sdbm_hash("Winner"));
+
+		EventManager::GetInstance().HandleEvent(winner);
+	}
 }
