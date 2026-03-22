@@ -24,9 +24,9 @@
 
 //Observers
 #include "Observers/HealthObserver.h"
+#include "Observers/ScoreObserver.h"
 
 //Events
-#include "Events/ScoreEvent.h"
 #include "ScoreManager.h"
 
 //input commands
@@ -96,7 +96,7 @@ static void load()
 	Pengo->GetComponent<dae::Transform>()->SetLocalPosition(300, 350);
 	Pengo->AddComponent<dae::CollisionComponent>()->SetSize(16, 16);
 	auto health = Pengo->AddComponent<dae::HealthComponent>(3);
-	Pengo->AddComponent<dae::ScoreComponent>();
+	auto score = Pengo->AddComponent<dae::ScoreComponent>();
 
 	Pengo->AddTag("Player");
 
@@ -106,25 +106,26 @@ static void load()
 	input.BindKey(SDL_SCANCODE_A, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(Pengo.get(), glm::vec2{ -1, 0 }, baseSpeed));
 	input.BindKey(SDL_SCANCODE_D, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(Pengo.get(), glm::vec2{ 1, 0 }, baseSpeed));
 
-	input.BindKey(SDL_SCANCODE_X, dae::KeyState::Down, std::make_unique<dae::ScoreCommand>(Pengo.get()));
+	input.BindKey(SDL_SCANCODE_X, dae::KeyState::Down, std::make_unique<dae::KillEnemyCommand>(Pengo.get()));
+	input.BindKey(SDL_SCANCODE_Y, dae::KeyState::Down, std::make_unique<dae::PushBlockCommand>(Pengo.get()));
+
 
 	//Lives
 	auto livesDisplay = std::make_unique<dae::GameObject>();
 	livesDisplay->GetComponent<dae::Transform>()->SetLocalPosition(10, 200);
 	livesDisplay->AddComponent<dae::TextureComponent>();
+
 	auto livesText = livesDisplay->AddComponent<dae::TextComponent>("# Lives: 3", controlsFont);
-
-	auto observer = livesDisplay->AddComponent<dae::HealthObserver>(livesText, health->GetSubject());
-
-	health->GetSubject()->addObserver(observer);
+	livesDisplay->AddComponent<dae::HealthObserver>(livesText, health);
 	
+
 	//Score
 	auto scoreDisplay = std::make_unique<dae::GameObject>();
 	scoreDisplay->GetComponent<dae::Transform>()->SetLocalPosition(10, 220);
 	scoreDisplay->AddComponent<dae::TextureComponent>();
-	auto scoreText = scoreDisplay->AddComponent<dae::TextComponent>("Score: 0", controlsFont);
 
-	scoreDisplay->AddComponent<dae::ScoreEvent>(scoreText, Pengo.get());
+	auto scoreText = scoreDisplay->AddComponent<dae::TextComponent>("Score: 0", controlsFont);
+	scoreDisplay->AddComponent<dae::ScoreObserver>(scoreText, score);
 
 
 	scene.Add(std::move(Pengo));
@@ -139,7 +140,7 @@ static void load()
 	Pengo1->GetComponent<dae::Transform>()->SetLocalPosition(300, 300);
 	Pengo1->AddComponent<dae::CollisionComponent>()->SetSize(16, 16);
 	auto health1 = Pengo1->AddComponent<dae::HealthComponent>(3);
-	Pengo1->AddComponent<dae::ScoreComponent>();
+	auto score1 = Pengo1->AddComponent<dae::ScoreComponent>();
 
 	Pengo1->AddTag("Player");
 
@@ -150,25 +151,25 @@ static void load()
 	input.BindButton(0, dae::ControllerButton::DpadLeft, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(Pengo1.get(), glm::vec2{ -1, 0 }, doubleSpeed));
 	input.BindButton(0, dae::ControllerButton::DpadRight, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(Pengo1.get(), glm::vec2{ 1, 0 }, doubleSpeed));
 
-	input.BindButton(0, dae::ControllerButton::ButtonX, dae::KeyState::Down, std::make_unique<dae::ScoreCommand>(Pengo1.get()));
+	input.BindButton(0, dae::ControllerButton::ButtonX, dae::KeyState::Down, std::make_unique<dae::KillEnemyCommand>(Pengo1.get()));
+	input.BindButton(0, dae::ControllerButton::ButtonY, dae::KeyState::Down, std::make_unique<dae::PushBlockCommand>(Pengo1.get()));
 
 	//Lives
 	auto livesDisplay1 = std::make_unique<dae::GameObject>();
 	livesDisplay1->GetComponent<dae::Transform>()->SetLocalPosition(10, 240);
 	livesDisplay1->AddComponent<dae::TextureComponent>();
+
 	auto livesText1 = livesDisplay1->AddComponent<dae::TextComponent>("# Lives: 3", controlsFont);
+	livesDisplay1->AddComponent<dae::HealthObserver>(livesText1, health1);
 
-	auto observer1 = livesDisplay1->AddComponent<dae::HealthObserver>(livesText1, health1->GetSubject());
-
-	health1->GetSubject()->addObserver(observer1);
 
 	//Score
 	auto scoreDisplay1 = std::make_unique<dae::GameObject>();
 	scoreDisplay1->GetComponent<dae::Transform>()->SetLocalPosition(10, 260);
 	scoreDisplay1->AddComponent<dae::TextureComponent>();
-	auto scoreText1 = scoreDisplay1->AddComponent<dae::TextComponent>("Score: 0", controlsFont);
 
-	scoreDisplay1->AddComponent<dae::ScoreEvent>(scoreText1, Pengo1.get());
+	auto scoreText1 = scoreDisplay1->AddComponent<dae::TextComponent>("Score: 0", controlsFont);
+	scoreDisplay1->AddComponent<dae::ScoreObserver>(scoreText1, score1);
 
 
 	scene.Add(std::move(Pengo1));
@@ -211,7 +212,15 @@ static void load()
 	auto scoreInstructions = std::make_unique<dae::GameObject>();
 	scoreInstructions->GetComponent<dae::Transform>()->SetLocalPosition(10, 140);
 	scoreInstructions->AddComponent<dae::TextureComponent>();
-	scoreInstructions->AddComponent<dae::TextComponent>("Gain 100 score by pressing 'X' on controller or keyboard", controlsFont);
+	scoreInstructions->AddComponent<dae::TextComponent>("Kill enemy(100) by pressing 'X' on controller or keyboard", controlsFont);
+	scoreInstructions->GetComponent<dae::TextComponent>()->SetColor({ 255, 255, 255, 255 });
+	
+	scene.Add(std::move(scoreInstructions));
+
+	scoreInstructions = std::make_unique<dae::GameObject>();
+	scoreInstructions->GetComponent<dae::Transform>()->SetLocalPosition(10, 160);
+	scoreInstructions->AddComponent<dae::TextureComponent>();
+	scoreInstructions->AddComponent<dae::TextComponent>("Push block(50) by pressing 'Y' on controller or keyboard", controlsFont);
 	scoreInstructions->GetComponent<dae::TextComponent>()->SetColor({ 255, 255, 255, 255 });
 	
 	scene.Add(std::move(scoreInstructions));

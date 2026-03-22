@@ -3,6 +3,8 @@
 #include "CollisionManager.h"
 #include "HealthComponent.h"
 #include "Transform.h"
+#include <SDBMHasher.h>
+#include "Events/EventManager.h"
 
 dae::CollisionComponent::CollisionComponent(GameObject* gameObject)
 	:GameComponent(gameObject)
@@ -33,11 +35,9 @@ void dae::CollisionComponent::OnCollision(GameObject* other)
 	//Quick Tag checking --> Should be in Game not Engine
 	if (other->HasTag("Enemy"))
 	{
-		auto health = GetGameObject()->GetComponent<HealthComponent>();
-		
-		if (health)
-		{
-			health->TakeDamage(1);
-		}
+		Event e(make_sdbm_hash("PlayerHit"));
+		e.nbArgs = 1;
+		e.args[0].gameObject = GetGameObject();
+		EventManager::GetInstance().HandleEvent(e);
 	}
 }

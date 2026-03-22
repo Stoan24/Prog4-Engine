@@ -7,31 +7,15 @@
 
 void dae::ScoreManager::Initialize()
 {
-	EventManager::GetInstance().AddEvent(make_sdbm_hash("AddScore"), this);
+	EventManager::GetInstance().AddEvent(make_sdbm_hash("EnemyKilled"), this);
+	EventManager::GetInstance().AddEvent(make_sdbm_hash("BlockPushed"), this);
 }
 
-
-void dae::ScoreManager::AddScoreToTrack(ScoreComponent* score)
+void dae::ScoreManager::Notify(const Event& e)
 {
-	m_pScores.push_back(score);
-}
+	auto* score = e.args[0].gameObject->GetComponent<ScoreComponent>();
+	if (!score) return;
 
-void dae::ScoreManager::RemoveScoreToTrack(ScoreComponent* score)
-{
-	std::erase(m_pScores, score);
-}
-
-void dae::ScoreManager::OnEvent(const Event& e)
-{
-	if (e.id == make_sdbm_hash("AddScore"))
-	{
-		for (auto* score : m_pScores)
-		{
-			if (score->GetGameObject() == e.args[0].gameObject)
-			{
-				score->AddPoints(e.args[1].value);
-				break;
-			}
-		}
-	}
+	if (e.id == make_sdbm_hash("EnemyKilled"))  score->AddPoints(killScore);
+	if (e.id == make_sdbm_hash("BlockPushed"))  score->AddPoints(pushBlockScore);
 }

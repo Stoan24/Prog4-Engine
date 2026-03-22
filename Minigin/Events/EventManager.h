@@ -1,9 +1,10 @@
 #pragma once
 #include "Singleton.h"
-#include <queue>
-#include <map>
+#include "Observers/Observer.h"
 #include "Event.h"
-#include "EventListener.h"
+#include <queue>
+#include <vector>
+#include <map>
 
 namespace dae
 {
@@ -12,7 +13,7 @@ namespace dae
 	{
 	public:
 
-		void AddEvent(EventId id, EventListener* listener);
+		void AddEvent(EventId id, Observer* listener);
 		void HandleEvent(Event e);
 
 		void Update();
@@ -24,6 +25,6 @@ namespace dae
 		std::queue<Event> m_EventQueue;
 
 		//Link events to multiple listeners
-		std::map<EventId, std::vector<EventListener*>> m_Listeners;
+		std::map<EventId, std::vector<Observer*>> m_Observers;
 	};
 }

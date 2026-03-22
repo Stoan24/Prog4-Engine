@@ -1,5 +1,6 @@
 #pragma once
 #include "GameObject.h"
+#include <Events/Event.h>
 
 namespace dae
 {
@@ -9,7 +10,6 @@ namespace dae
 	{
 	public:
 		virtual ~Observer() = default;
-		virtual void Notify(GameObject* gameObject, EventId event) = 0;
-		virtual void OnSubjectDestroyed() {}
+		virtual void Notify(const Event& e) = 0;
 	};
 }

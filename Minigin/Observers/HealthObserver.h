@@ -11,32 +11,32 @@ namespace dae
 	{
 		
 	public:
-		explicit HealthObserver(GameObject* gameObject, TextComponent* pText, Subject* pSubject)
+		explicit HealthObserver(GameObject* gameObject, TextComponent* pText, HealthComponent* pHealth)
 			:GameComponent(gameObject),
 			m_pTextComponent{ pText },
-			m_pSubject{ pSubject }
+			m_pHealth{ pHealth },
+			m_pSubject{ pHealth->GetSubject() }
 		{
+			if (m_pSubject) m_pSubject->AddObserver(this);
 		}
 
 		virtual ~HealthObserver()
 		{
-			if (m_pSubject) m_pSubject->removeObserver(this);
+			if (m_pSubject) m_pSubject->RemoveObserver(this);
 		}
 
-		void Notify(GameObject* gameObject, EventId event) override
+		void Notify(const Event& e) override
 		{
-			if (event == make_sdbm_hash("PlayerHit"))
+			if (e.id == make_sdbm_hash("PlayerHit"))
 			{
-				auto health = gameObject->GetComponent<HealthComponent>();
-				int currentLives = health->GetLives();
-				UpdateDisplay(currentLives);
+				m_pTextComponent->SetText("# Lives: " + std::to_string(m_pHealth->GetLives()));
+
 			}
 		}
 
-		void OnSubjectDestroyed() override { m_pSubject = nullptr; }
-
 	private:
 		TextComponent* m_pTextComponent{ nullptr };
+		HealthComponent* m_pHealth{ nullptr };
 		Subject* m_pSubject{ nullptr };
 
 		void UpdateDisplay(int lives)

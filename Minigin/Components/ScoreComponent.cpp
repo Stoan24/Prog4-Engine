@@ -5,31 +5,14 @@
 #include "SDBMHasher.h"
 
 dae::ScoreComponent::ScoreComponent(GameObject* gameObject)
-	:GameComponent(gameObject)
+	: GameComponent(gameObject)
+	, m_pSubject{ std::make_unique<Subject>(10) }
 {
-	ScoreManager::GetInstance().AddScoreToTrack(this);
-}
-
-dae::ScoreComponent::~ScoreComponent()
-{
-	ScoreManager::GetInstance().RemoveScoreToTrack(this);
 }
 
 void dae::ScoreComponent::AddPoints(int amount)
 {
 	m_CurrentScore += amount;
 
-	Event e(make_sdbm_hash("ScoreChange"));
-	e.nbArgs = 2;
-	e.args[0].gameObject = GetGameObject();
-	e.args[1].value = m_CurrentScore;
-
-	EventManager::GetInstance().HandleEvent(e);
-
-	if (m_CurrentScore >= m_WinnerScore)
-	{
-		Event winner(make_sdbm_hash("Winner"));
-
-		EventManager::GetInstance().HandleEvent(winner);
-	}
+	m_pSubject->NotifyObservers(GetGameObject(), make_sdbm_hash("ScoreChanged"));
 }

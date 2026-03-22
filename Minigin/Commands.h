@@ -47,24 +47,40 @@ namespace dae
         }
     };
 
-    class ScoreCommand final : public Command
+    class KillEnemyCommand final : public Command
     {
         GameObject* m_pGameObject;
 
     public:
-        ScoreCommand(GameObject* gameObject)
-            :m_pGameObject{ gameObject }
+        KillEnemyCommand(GameObject* gameObject)
+            : m_pGameObject{ gameObject }
         {
         }
 
         void Execute() override
         {
-            Event e(make_sdbm_hash("AddScore"));
-
-            e.nbArgs = 2;
+            Event e(make_sdbm_hash("EnemyKilled"));
+            e.nbArgs = 1;
             e.args[0].gameObject = m_pGameObject;
-            e.args[1].value = 100;
+            EventManager::GetInstance().HandleEvent(e);
+        }
+    };
 
+    class PushBlockCommand final : public Command
+    {
+        GameObject* m_pGameObject;
+
+    public:
+        PushBlockCommand(GameObject* gameObject)
+            : m_pGameObject{ gameObject }
+        {
+        }
+
+        void Execute() override
+        {
+            Event e(make_sdbm_hash("BlockPushed"));
+            e.nbArgs = 1;
+            e.args[0].gameObject = m_pGameObject;
             EventManager::GetInstance().HandleEvent(e);
         }
     };

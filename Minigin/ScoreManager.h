@@ -1,28 +1,27 @@
 #pragma once
 #include "Singleton.h"
 #include <vector>
-#include "Events/EventListener.h"
 #include "Events/Event.h"
-
+#include "Observers/Observer.h"
 
 namespace dae
 {
 	class ScoreComponent;
 
-	class ScoreManager final : public Singleton<ScoreManager>, public EventListener
+	class ScoreManager final : public Singleton<ScoreManager>, public Observer
 	{
 	public:
 		void Initialize();
 
-		void AddScoreToTrack(ScoreComponent* score);
-		void RemoveScoreToTrack(ScoreComponent* score);
-
-		void OnEvent(const Event& e) override;
+		void Notify(const Event& e) override;
 
 	private:
 		friend class Singleton<ScoreManager>;
 		ScoreManager() = default;
 
 		std::vector<ScoreComponent*> m_pScores;
+
+		int killScore{ 100 };
+		int pushBlockScore{ 50 };
 	};
 }
