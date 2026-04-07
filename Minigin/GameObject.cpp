@@ -23,8 +23,6 @@ void dae::GameObject::Update()
 	{
 		child->Update();
 	}
-
-	DestroyMarkedComponents();
 }
 
 void dae::GameObject::Render() const
@@ -124,15 +122,6 @@ bool dae::GameObject::IsChildOf(GameObject* pObject) const
 	}
 
 	return false;
-}
-
-void dae::GameObject::DestroyMarkedComponents()
-{
-	m_pComponents.erase(std::remove_if(m_pComponents.begin(), m_pComponents.end(),
-		[](const std::unique_ptr<GameComponent>& component) {
-			return component->IsMarkedForDestruction();
-		}),
-		m_pComponents.end());
 }
 #pragma endregion
 

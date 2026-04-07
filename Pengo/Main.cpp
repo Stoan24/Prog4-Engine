@@ -98,24 +98,29 @@ static void load()
 
 	auto gridObject = std::make_unique<dae::GameObject>();
 	gridObject->GetComponent<dae::Transform>()->SetLocalPosition(200, 200);
-	auto grid = gridObject->AddComponent<dae::GridComponent>(13, 15, 16, glm::vec2{ 200,200 });
+	auto grid = gridObject->AddComponent<dae::GridComponent>(13, 15, 16);
 	gridObject->AddComponent<dae::TextureComponent>()->SetTexture("LevelBackground.png");
 
-	scene.Add(std::move(gridObject));
-
-
+	
 	auto makeIceBlock = [&](int col, int row)
 		{
 			auto block = std::make_unique<dae::GameObject>();
 			block->AddComponent<dae::TextureComponent>()->SetTexture("IceBlock.png");
+			block->AddComponent<dae::GridMoveComponent>(grid, col, row, 10.f);
 			block->AddComponent<dae::IceBlockComponent>(grid, col, row);
+			block->AddComponent<dae::CollisionComponent>()->SetSize(16, 16);
+
+			block->SetParent(gridObject.get(), false);
+
 			scene.Add(std::move(block));
 		};
 
 	makeIceBlock(2, 2);
+	makeIceBlock(10, 2);
 	makeIceBlock(5, 4);
 	makeIceBlock(7, 7);
 
+	
 
 #pragma endregion Level
 
@@ -126,7 +131,7 @@ static void load()
 #pragma region Player1
 	auto Pengo = std::make_unique<dae::GameObject>();
 	Pengo->AddComponent<dae::TextureComponent>()->SetTexture("Pengo.png");
-	Pengo->AddComponent<dae::GridMovementComponent>(grid, 3, 3, moveSpeed);
+	Pengo->AddComponent<dae::GridMoveComponent>(grid, 3, 3, moveSpeed);
 	Pengo->AddComponent<dae::CollisionComponent>()->SetSize(16, 16);
 	auto health = Pengo->AddComponent<dae::HealthComponent>(3);
 	auto score = Pengo->AddComponent<dae::ScoreComponent>();
@@ -160,6 +165,7 @@ static void load()
 	auto scoreText = scoreDisplay->AddComponent<dae::TextComponent>("Score: 0", controlsFont);
 	scoreDisplay->AddComponent<dae::ScoreObserver>(scoreText, score);
 
+	Pengo->SetParent(gridObject.get(), false);
 
 	scene.Add(std::move(Pengo));
 	scene.Add(std::move(livesDisplay));
@@ -170,7 +176,7 @@ static void load()
 #pragma region Player2
 	auto Pengo1 = std::make_unique<dae::GameObject>();
 	Pengo1->AddComponent<dae::TextureComponent>()->SetTexture("Pengo.png");
-	Pengo1->AddComponent<dae::GridMovementComponent>(grid, 5, 10, moveSpeed * 2);
+	Pengo1->AddComponent<dae::GridMoveComponent>(grid, 5, 10, moveSpeed * 2);
 	Pengo1->AddComponent<dae::CollisionComponent>()->SetSize(16, 16);
 	auto health1 = Pengo1->AddComponent<dae::HealthComponent>(3);
 	auto score1 = Pengo1->AddComponent<dae::ScoreComponent>();
@@ -203,6 +209,7 @@ static void load()
 	auto scoreText1 = scoreDisplay1->AddComponent<dae::TextComponent>("Score: 0", controlsFont);
 	scoreDisplay1->AddComponent<dae::ScoreObserver>(scoreText1, score1);
 
+	Pengo1->SetParent(gridObject.get(), false);
 
 	scene.Add(std::move(Pengo1));
 	scene.Add(std::move(livesDisplay1));
@@ -215,9 +222,11 @@ static void load()
 	Snobee->AddComponent<dae::TextureComponent>()->SetTexture("Snobee.png");
 	Snobee->GetComponent<dae::Transform>()->SetLocalPosition(350, 350);
 	Snobee->AddComponent<dae::CollisionComponent>()->SetSize(16, 16);
+	Snobee->AddComponent<dae::GridMoveComponent>(grid, 2, 13, moveSpeed * 2);
 
 	Snobee->AddTag("Enemy");
 
+	Snobee->SetParent(gridObject.get(), false);
 
 	scene.Add(std::move(Snobee));
 #pragma endregion Enemy
@@ -258,6 +267,9 @@ static void load()
 	
 	scene.Add(std::move(scoreInstructions));
 #pragma endregion textObjects
+
+
+	scene.Add(std::move(gridObject));
 }
 
 int main(int, char*[]) {

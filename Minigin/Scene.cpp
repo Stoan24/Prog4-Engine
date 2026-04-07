@@ -49,9 +49,9 @@ void Scene::Update()
 	}
 
 	//Removal
-	std::erase_if(m_objects, [](const std::unique_ptr<GameObject>& object) 
+	std::erase_if(m_objects, [](const std::unique_ptr<GameObject>& object)
 		{
-			return object->isMarkedForDestruction();
+			return object->IsMarkedForDestruction();
 		});
 
 }

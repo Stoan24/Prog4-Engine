@@ -29,7 +29,7 @@ namespace dae
 		//Marking for destruction
 		void MarkForDestruction();
 		
-		bool isMarkedForDestruction() const { return m_IsMarkForDestruction; }
+		bool IsMarkedForDestruction() const { return m_IsMarkForDestruction; }
 
 		//Parenting
 		void SetParent(GameObject* pParent, bool keepWorldPosition = true);
@@ -101,8 +101,6 @@ namespace dae
 		void AddChild(GameObject* pChild);
 		void RemoveChild(GameObject* pChild);
 		bool IsChildOf(GameObject* pObject) const;
-
-		void DestroyMarkedComponents();
 		
 		//Components
 		std::vector<std::unique_ptr<GameComponent>> m_pComponents{};

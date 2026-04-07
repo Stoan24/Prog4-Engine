@@ -31,8 +31,7 @@ dae::GameObject* dae::CollisionManager::CheckCollision(CollisionComponent* colli
 		if (position.x < otherPosition.x + otherSize.x && position.x + size.x > otherPosition.x &&
 			position.y < otherPosition.y + otherSize.y && position.y + size.y > otherPosition.y)
 		{
-			collider->OnCollision(otherCollider->GetGameObject());
-			otherCollider->OnCollision(collider->GetGameObject());
+			return otherCollider->GetGameObject();
 		}
 	}
 
