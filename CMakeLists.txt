@@ -5,46 +5,12 @@ if(EMSCRIPTEN)
   message("Using Emscripten!")
 endif()
 
-if(EMSCRIPTEN)
-  set(TARGET_NAME minigin_web)
-  set(TARGET_PARAM )
-else()
-  set(TARGET_NAME minigin)
-  set(TARGET_PARAM WIN32)
-endif()
 
-# list source files here
-add_executable(${TARGET_NAME} ${TARGET_PARAM}
-  Minigin/Font.cpp
-  Minigin/GameObject.cpp
-  Minigin/InputManager.cpp
-  Minigin/Main.cpp
-  Minigin/Minigin.cpp
-  Minigin/Renderer.cpp
-  Minigin/ResourceManager.cpp
-  Minigin/Scene.cpp
-  Minigin/SceneManager.cpp
-  Minigin/TextObject.cpp
-  Minigin/Texture2D.cpp
-  Minigin/Transform.cpp
-  Minigin/Components/TextComponent.cpp
-  Minigin/Components/TextureComponent.cpp
-  Minigin/Components/FPSComponent.cpp
-  Minigin/Components/RotationComponent.cpp
-  Minigin/Components/ThrashComponent.cpp
-  Minigin/Commands.h
-  Minigin/Gamepad.cpp
-  Minigin/Components/HealthComponent.cpp
-  Minigin/Components/CollisionComponent.cpp
-  Minigin/CollisionManager.cpp
-  Minigin/ScoreManager.cpp
-  Minigin/Events/EventManager.cpp
-  Minigin/Components/ScoreComponent.cpp "Minigin/Steam/Achievement.cpp")
 
-# enable c++20 features
-target_compile_features(${TARGET_NAME} PUBLIC cxx_std_20)
+# Third Party Dependencies
 
 include(FetchContent)
+
 # add glm
 find_package(glm CONFIG QUIET)
 if(NOT glm_FOUND)
@@ -116,37 +82,6 @@ if(NOT SDL3_ttf_FOUND)
   endif()
 endif()
 
-if (WIN32)
-  # Add VLD (Visual Leak Detector) for memory leak detection on Windows
-  find_package(VLD CONFIG)
-endif()
-
-# Add steam if available
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/steam")
-find_package(Steamworks QUIET)
-
-target_include_directories("${TARGET_NAME}" PUBLIC 
-  ${CMAKE_SOURCE_DIR}/Minigin/
-  ${glm_SOURCE_DIR}
-  ${sdl3_SOURCE_DIR}/include
-  ${sdl3_image_SOURCE_DIR}/include
-  ${sdl3_ttf_SOURCE_DIR}/include
-  ${imgui_SOURCE_DIR}
-  ${VLD_INCLUDE_DIR}
-)
-
-target_link_libraries("${TARGET_NAME}" PUBLIC
-  SDL3::SDL3
-  SDL3_ttf::SDL3_ttf
-  imgui
-  ${VLD_LIBRARIES}
-)
-if(WIN32 AND NOT EMSCRIPTEN)
-    target_link_libraries("${TARGET_NAME}" PUBLIC
-	xinput
-	)
-endif()
-
 # Dear ImGui
 FetchContent_Declare(
   imgui
@@ -171,13 +106,109 @@ target_link_libraries(imgui PUBLIC SDL3::SDL3)
 # enable c++20 features
 target_compile_features(imgui PUBLIC cxx_std_20)
 
+if (WIN32)
+  # Add VLD (Visual Leak Detector) for memory leak detection on Windows
+  find_package(VLD CONFIG)
+endif()
+
+# Add steam if available
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/steam")
+find_package(Steamworks QUIET)
+
+
+
+# Minigin
+
+add_library(MiniginLib STATIC
+  Minigin/Font.cpp
+  Minigin/GameObject.cpp
+  Minigin/InputManager.cpp
+  Minigin/Minigin.cpp
+  Minigin/Renderer.cpp
+  Minigin/ResourceManager.cpp
+  Minigin/Scene.cpp
+  Minigin/SceneManager.cpp
+  Minigin/TextObject.cpp
+  Minigin/Texture2D.cpp
+  Minigin/Transform.cpp
+  Minigin/Components/TextComponent.cpp
+  Minigin/Components/TextureComponent.cpp
+  Minigin/Components/FPSComponent.cpp
+  Minigin/Components/RotationComponent.cpp
+  Minigin/Components/ThrashComponent.cpp
+  Minigin/Gamepad.cpp
+  Minigin/Components/CollisionComponent.cpp
+  Minigin/CollisionManager.cpp
+  Minigin/Events/EventManager.cpp
+  Minigin/Steam/Achievement.cpp)
+
+# enable c++20 features
+target_compile_features(MiniginLib PUBLIC cxx_std_20)
+
+target_include_directories(MiniginLib PUBLIC 
+  ${CMAKE_SOURCE_DIR}/Minigin
+  ${glm_SOURCE_DIR}
+  ${sdl3_SOURCE_DIR}/include
+  ${sdl3_image_SOURCE_DIR}/include
+  ${sdl3_ttf_SOURCE_DIR}/include
+  ${imgui_SOURCE_DIR}
+  ${VLD_INCLUDE_DIR}
+)
+
+target_link_libraries(MiniginLib PUBLIC
+  SDL3::SDL3
+  SDL3_ttf::SDL3_ttf
+  imgui
+  ${VLD_LIBRARIES}
+)
+
+if(WIN32 AND NOT EMSCRIPTEN)
+    target_link_libraries(MiniginLib PUBLIC
+	xinput
+	)
+endif()
 
 if(MSVC)
   # compile at warning level 4 + treat warnings as errors
-  target_compile_options(${TARGET_NAME} PRIVATE /W4 /WX)
+  target_compile_options(MiniginLib PRIVATE /W4 /WX)
 else()
-  target_compile_options(${TARGET_NAME} PRIVATE -Wall -Wextra -Werror)
+  target_compile_options(MiniginLib PRIVATE -Wall -Wextra -Werror)
 endif()
+
+
+
+# Pengo
+
+if(EMSCRIPTEN)
+  set(PENGO_TARGET  minigin_web)
+  set(PENGO_PARAM  )
+else()
+  set(PENGO_TARGET  minigin)
+  set(PENGO_PARAM  WIN32)
+endif()
+
+add_executable(${PENGO_TARGET} ${PENGO_PARAM}
+  Pengo/main.cpp
+  Pengo/Components/HealthComponent.cpp
+  Pengo/ScoreManager.cpp
+  Pengo/Components/ScoreComponent.cpp
+  Pengo/Components/GridComponent.cpp
+  Pengo/Components/GridMoveComponent.cpp
+  Pengo/Components/IceBlockComponent.cpp)
+
+target_include_directories(${PENGO_TARGET} PRIVATE
+  ${CMAKE_SOURCE_DIR}/Pengo
+  ${CMAKE_SOURCE_DIR}/Minigin
+)
+  
+target_link_libraries(${PENGO_TARGET} PRIVATE MiniginLib)
+
+if(MSVC)
+  target_compile_options(${PENGO_TARGET} PRIVATE /W4 /WX)
+else()
+  target_compile_options(${PENGO_TARGET} PRIVATE -Wall -Wextra -Werror)
+endif()
+
 
 if(EMSCRIPTEN)
   set(EMSCRIPTEN_COMPILE_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -g")
@@ -187,13 +218,13 @@ if(EMSCRIPTEN)
   set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/EmscriptenToolchain.cmake)
 
   # Additional settings for Emscripten build
-  set_target_properties(${TARGET_NAME} PROPERTIES
+  set_target_properties(${PENGO_TARGET} PROPERTIES
       COMPILE_FLAGS "${EMSCRIPTEN_COMPILE_FLAGS}"
       LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS}"
   )
 
-  add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/web" "$<TARGET_FILE_DIR:${TARGET_NAME}>/"
+  add_custom_command(TARGET ${PENGO_TARGET} POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/web" "$<TARGET_FILE_DIR:${PENGO_TARGET}>/"
   )
 
   # Have emscripten generate a html page too.
@@ -201,9 +232,9 @@ if(EMSCRIPTEN)
 
 elseif(WIN32)
   # Set minigin as the default startup project
-  set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${TARGET_NAME})
+  set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PENGO_TARGET})
   # Set working directory to output folder
-  set_target_properties(${TARGET_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${TARGET_NAME}>")
+  set_target_properties(${PENGO_TARGET} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${PENGO_TARGET}>")
 
   # Copy SDL dlls to output folder
   set(SDL_RUNTIME_DLLS
@@ -213,73 +244,73 @@ elseif(WIN32)
 
   foreach(dllTarget IN LISTS SDL_RUNTIME_DLLS)
     add_custom_command(
-      TARGET ${TARGET_NAME} POST_BUILD
+      TARGET ${PENGO_TARGET} POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_if_different
           "$<TARGET_FILE:${dllTarget}>"
-          "$<TARGET_FILE_DIR:${TARGET_NAME}>"
+          "$<TARGET_FILE_DIR:${PENGO_TARGET}>"
       VERBATIM
     )
   endforeach()
 
   if(Steamworks_FOUND)
-    target_link_libraries("${TARGET_NAME}" PUBLIC Steamworks::Steamworks)
-    target_compile_definitions(${TARGET_NAME} PRIVATE USE_STEAMWORKS)
-    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-      COMMAND "${CMAKE_COMMAND}" -E copy "${Steamworks_RUNTIME_DLL}" "$<TARGET_FILE_DIR:${TARGET_NAME}>")
-    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-      COMMAND "${CMAKE_COMMAND}" -E echo "480" > "$<TARGET_FILE_DIR:${TARGET_NAME}>/steam_appid.txt"
+    target_link_libraries("${PENGO_TARGET}" PUBLIC Steamworks::Steamworks)
+    target_compile_definitions(${PENGO_TARGET} PRIVATE USE_STEAMWORKS)
+    add_custom_command(TARGET ${PENGO_TARGET} POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E copy "${Steamworks_RUNTIME_DLL}" "$<TARGET_FILE_DIR:${PENGO_TARGET}>")
+    add_custom_command(TARGET ${PENGO_TARGET} POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E echo "480" > "$<TARGET_FILE_DIR:${PENGO_TARGET}>/steam_appid.txt"
       COMMENT "Generating steam_appid.txt"
     )
   endif()
 
-  add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${TARGET_NAME}>/Data"
+  add_custom_command(TARGET ${PENGO_TARGET} POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${PENGO_TARGET}>/Data"
   )
 elseif(APPLE)
-  set_target_properties(${TARGET_NAME} PROPERTIES
+  set_target_properties(${PENGO_TARGET} PROPERTIES
     MACOSX_BUNDLE TRUE
     INSTALL_RPATH "@executable_path/../Frameworks"
     BUILD_WITH_INSTALL_RPATH TRUE
   )
-  add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_BUNDLE_DIR:${TARGET_NAME}>/Contents/Frameworks"
-    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:SDL3::SDL3-shared>" "$<TARGET_BUNDLE_DIR:${TARGET_NAME}>/Contents/Frameworks/"
-    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:SDL3_ttf::SDL3_ttf-shared>" "$<TARGET_BUNDLE_DIR:${TARGET_NAME}>/Contents/Frameworks/"
-    COMMAND install_name_tool -change "@rpath/libSDL3_ttf.0.dylib" "@executable_path/../Frameworks/libSDL3_ttf.0.2.2.dylib" "$<TARGET_FILE:${TARGET_NAME}>"
-    COMMAND install_name_tool -change "@rpath/libSDL3.0.dylib" "@executable_path/../Frameworks/libSDL3.0.dylib" "$<TARGET_FILE:${TARGET_NAME}>"
+  add_custom_command(TARGET ${PENGO_TARGET} POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_BUNDLE_DIR:${PENGO_TARGET}>/Contents/Frameworks"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:SDL3::SDL3-shared>" "$<TARGET_BUNDLE_DIR:${PENGO_TARGET}>/Contents/Frameworks/"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:SDL3_ttf::SDL3_ttf-shared>" "$<TARGET_BUNDLE_DIR:${PENGO_TARGET}>/Contents/Frameworks/"
+    COMMAND install_name_tool -change "@rpath/libSDL3_ttf.0.dylib" "@executable_path/../Frameworks/libSDL3_ttf.0.2.2.dylib" "$<TARGET_FILE:${PENGO_TARGET}>"
+    COMMAND install_name_tool -change "@rpath/libSDL3.0.dylib" "@executable_path/../Frameworks/libSDL3.0.dylib" "$<TARGET_FILE:${PENGO_TARGET}>"
   )
 
   if(Steamworks_FOUND)
-    target_link_libraries("${TARGET_NAME}" PUBLIC Steamworks::Steamworks)
-    target_compile_definitions(${TARGET_NAME} PRIVATE USE_STEAMWORKS)
-    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-      COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${Steamworks_LIBRARIES}" "$<TARGET_BUNDLE_DIR:${TARGET_NAME}>/Contents/Frameworks/"
+    target_link_libraries("${PENGO_TARGET}" PUBLIC Steamworks::Steamworks)
+    target_compile_definitions(${PENGO_TARGET} PRIVATE USE_STEAMWORKS)
+    add_custom_command(TARGET ${PENGO_TARGET} POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${Steamworks_LIBRARIES}" "$<TARGET_BUNDLE_DIR:${PENGO_TARGET}>/Contents/Frameworks/"
     )
-    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-      COMMAND "${CMAKE_COMMAND}" -E echo "480" > "$<TARGET_FILE_DIR:${TARGET_NAME}>/steam_appid.txt"
+    add_custom_command(TARGET ${PENGO_TARGET} POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E echo "480" > "$<TARGET_FILE_DIR:${PENGO_TARGET}>/steam_appid.txt"
       COMMENT "Generating steam_appid.txt"
     )
   endif()
 
   # Copy Data folder to output directory after build
-  add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${TARGET_NAME}>/Data"
+  add_custom_command(TARGET ${PENGO_TARGET} POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${PENGO_TARGET}>/Data"
   )
 else()
  if(Steamworks_FOUND)
-    target_link_libraries("${TARGET_NAME}" PUBLIC Steamworks::Steamworks)
-    target_compile_definitions(${TARGET_NAME} PRIVATE USE_STEAMWORKS)
-    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-      COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${Steamworks_LIBRARIES}" "$<TARGET_FILE_DIR:${TARGET_NAME}>"
+    target_link_libraries("${PENGO_TARGET}" PUBLIC Steamworks::Steamworks)
+    target_compile_definitions(${PENGO_TARGET} PRIVATE USE_STEAMWORKS)
+    add_custom_command(TARGET ${PENGO_TARGET} POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${Steamworks_LIBRARIES}" "$<TARGET_FILE_DIR:${PENGO_TARGET}>"
     )
-    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-      COMMAND "${CMAKE_COMMAND}" -E echo "480" > "$<TARGET_FILE_DIR:${TARGET_NAME}>/steam_appid.txt"
+    add_custom_command(TARGET ${PENGO_TARGET} POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E echo "480" > "$<TARGET_FILE_DIR:${PENGO_TARGET}>/steam_appid.txt"
       COMMENT "Generating steam_appid.txt"
     )
   endif()
 
   # Copy Data folder to output directory after build
-  add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${TARGET_NAME}>/Data"
+  add_custom_command(TARGET ${PENGO_TARGET} POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${PENGO_TARGET}>/Data"
   )
 endif()

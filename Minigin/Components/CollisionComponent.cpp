@@ -1,7 +1,6 @@
 #include "CollisionComponent.h"
 #include "GameObject.h"
 #include "CollisionManager.h"
-#include "HealthComponent.h"
 #include "Transform.h"
 #include <SDBMHasher.h>
 #include "Events/EventManager.h"
