@@ -2,7 +2,7 @@
 #include "Observers/Observer.h"
 #include "SDBMHasher.h"
 #include "GameComponent.h"
-#include "Components/HealthComponent.h"
+#include "../Components/HealthComponent.h"
 #include "Components/TextComponent.h"
 
 namespace dae

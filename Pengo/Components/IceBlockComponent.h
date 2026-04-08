@@ -1,6 +1,6 @@
 #pragma once
 #include "GameComponent.h"
-#include "Components/GridComponent.h"
+#include "GridComponent.h"
 #include "GridMoveComponent.h"
 #include "Components/CollisionComponent.h"
 

@@ -2,7 +2,7 @@
 #include "Observers/Observer.h"
 #include "GameComponent.h"
 #include "SDBMHasher.h"
-#include "Components/ScoreComponent.h"
+#include "../Components/ScoreComponent.h"
 #include "Components/TextComponent.h"
 
 namespace dae

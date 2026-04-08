@@ -40,6 +40,7 @@ namespace dae
         bool IsCellFree(int col, int row) const;
         GameObject* GetCellObject(int col, int row) const;
 
+        GameObject* GetGameObject() const override { return GameComponent::GetGameObject(); }
 
     private:
         int m_Cols{ 13 };

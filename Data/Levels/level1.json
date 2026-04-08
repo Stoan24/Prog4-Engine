@@ -1,0 +1,82 @@
+{
+  "grid": {
+    "cellSize": 16,
+    "texture": "LevelBackground.png",
+    "origin": {
+      "x": 200,
+      "y": 200
+    },
+    "layout": [
+      [ 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0 ],
+      [ 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0 ],
+      [ 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0 ],
+      [ 0, 1, 1, 1, 0, 4, 1, 1, 0, 1, 0, 4, 0 ],
+      [ 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 ],
+      [ 1, 1, 1, 1, 1, 1, 0, 1, 1, 2, 0, 1, 0 ],
+      [ 0, 0, 0, 0, 0, 0, 3, 1, 0, 1, 0, 1, 0 ],
+      [ 0, 1, 1, 4, 1, 1, 1, 1, 0, 4, 0, 1, 1 ],
+      [ 0, 1, 0, 0, 0, 0, 5, 1, 0, 0, 0, 0, 0 ],
+      [ 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0 ],
+      [ 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0 ],
+      [ 0, 1, 0, 1, 1, 1, 1, 2, 0, 1, 1, 1, 1 ],
+      [ 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0 ],
+      [ 1, 1, 0, 4, 0, 2, 0, 1, 1, 1, 1, 4, 0 ],
+      [ 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 ]
+    ]
+  },
+
+  "ui": [
+    {
+      "tracksPlayer": "Pengo",
+      "type": "healthObserver",
+      "position": {
+        "x": 10,
+        "y": 200
+      },
+      "font": {
+        "file": "Lingua.otf",
+        "size": 14
+      },
+      "initialText": "# Lives: 3"
+    },
+    {
+      "tracksPlayer": "Pengo",
+      "type": "scoreObserver",
+      "position": {
+        "x": 10,
+        "y": 220
+      },
+      "font": {
+        "file": "Lingua.otf",
+        "size": 14
+      },
+      "initialText": "Score: 0"
+    },
+    {
+      "tracksPlayer": "Pengo2",
+      "type": "healthObserver",
+      "position": {
+        "x": 10,
+        "y": 240
+      },
+      "font": {
+        "file": "Lingua.otf",
+        "size": 14
+      },
+      "initialText": "# Lives: 3"
+    },
+    {
+      "tracksPlayer": "Pengo2",
+      "type": "scoreObserver",
+      "position": {
+        "x": 10,
+        "y": 260
+      },
+      "font": {
+        "file": "Lingua.otf",
+        "size": 14
+      },
+      "initialText": "Score: 0"
+    }
+  ]
+}
