@@ -200,7 +200,7 @@ else()
 endif()
 
 add_executable(${PENGO_TARGET} ${PENGO_PARAM}
-  Pengo/main.cpp
+  Pengo/Main.cpp
   Pengo/Components/HealthComponent.cpp
   Pengo/ScoreManager.cpp
   Pengo/Components/ScoreComponent.cpp
