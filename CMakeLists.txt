@@ -207,7 +207,7 @@ add_executable(${PENGO_TARGET} ${PENGO_PARAM}
   Pengo/Components/GridComponent.cpp
   Pengo/Components/GridMoveComponent.cpp
   Pengo/Components/IceBlockComponent.cpp
-  Pengo/LevelLoader.cpp)
+  Pengo/LevelLoader.cpp "Pengo/Components/DiamondBlockComponent.cpp" "Pengo/Components/BlockComponent.cpp")
 
 target_include_directories(${PENGO_TARGET} PRIVATE
   ${CMAKE_SOURCE_DIR}/Pengo

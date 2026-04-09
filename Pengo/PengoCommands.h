@@ -78,7 +78,7 @@ namespace dae
             GameObject* targetObject = m_Grid->GetCellObject(targetCell.x, targetCell.y);
             if (targetObject)
             {
-                auto* iceBlock = targetObject->GetComponent<IceBlockComponent>();
+                auto* iceBlock = targetObject->GetComponent<BlockComponent>();
                 if (iceBlock)
                 {
                     iceBlock->Push(lookDir, m_pGameObject);

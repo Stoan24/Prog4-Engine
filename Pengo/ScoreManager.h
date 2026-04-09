@@ -21,7 +21,7 @@ namespace dae
 
 		std::vector<ScoreComponent*> m_pScores;
 
-		int killScore{ 100 };
-		int pushBlockScore{ 50 };
+		int m_killScore{ 100 };
+		int m_stunScore{ 50 };
 	};
 }

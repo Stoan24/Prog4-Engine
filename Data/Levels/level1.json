@@ -3,8 +3,8 @@
     "cellSize": 16,
     "texture": "LevelBackground.png",
     "origin": {
-      "x": 200,
-      "y": 200
+      "x": 0,
+      "y": 32
     },
     "layout": [
       [ 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0 ],
@@ -30,8 +30,8 @@
       "tracksPlayer": "Pengo",
       "type": "healthObserver",
       "position": {
-        "x": 10,
-        "y": 200
+        "x": 0,
+        "y": 0
       },
       "font": {
         "file": "Lingua.otf",
@@ -43,8 +43,8 @@
       "tracksPlayer": "Pengo",
       "type": "scoreObserver",
       "position": {
-        "x": 10,
-        "y": 220
+        "x": 0,
+        "y": 16
       },
       "font": {
         "file": "Lingua.otf",
@@ -56,8 +56,8 @@
       "tracksPlayer": "Pengo2",
       "type": "healthObserver",
       "position": {
-        "x": 10,
-        "y": 240
+        "x": 100,
+        "y": 0
       },
       "font": {
         "file": "Lingua.otf",
@@ -69,8 +69,8 @@
       "tracksPlayer": "Pengo2",
       "type": "scoreObserver",
       "position": {
-        "x": 10,
-        "y": 260
+        "x": 100,
+        "y": 16
       },
       "font": {
         "file": "Lingua.otf",

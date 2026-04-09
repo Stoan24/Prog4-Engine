@@ -99,8 +99,8 @@ dae::Minigin::Minigin(const std::filesystem::path& dataPath)
 
 	g_window = SDL_CreateWindow(
 		"Pengo",
-		1024,
-		576,
+		224,
+		304,
 		SDL_WINDOW_OPENGL
 	);
 	if (g_window == nullptr) 

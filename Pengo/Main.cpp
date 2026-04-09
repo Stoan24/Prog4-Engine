@@ -59,7 +59,7 @@ static void load()
 	input.BindKey(SDL_SCANCODE_D, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(pengo, glm::ivec2{ 1, 0 }));
 
 	input.BindKey(SDL_SCANCODE_X, dae::KeyState::Down, std::make_unique<dae::KillEnemyCommand>(pengo));
-	input.BindKey(SDL_SCANCODE_Y, dae::KeyState::Down, std::make_unique<dae::PushBlockCommand>(pengo));
+	input.BindKey(SDL_SCANCODE_E, dae::KeyState::Down, std::make_unique<dae::PushBlockCommand>(pengo));
 
 	input.BindButton(0, dae::ControllerButton::DpadUp, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(pengo2, glm::ivec2{ 0,-1 }));
 	input.BindButton(0, dae::ControllerButton::DpadDown, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(pengo2, glm::ivec2{ 0, 1 }));
@@ -67,7 +67,7 @@ static void load()
 	input.BindButton(0, dae::ControllerButton::DpadRight, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(pengo2, glm::ivec2{ 1, 0 }));
 
 	input.BindButton(0, dae::ControllerButton::ButtonX, dae::KeyState::Pressed, std::make_unique<dae::KillEnemyCommand>(pengo2));
-	input.BindButton(0, dae::ControllerButton::ButtonY, dae::KeyState::Pressed, std::make_unique<dae::PushBlockCommand>(pengo2));
+	input.BindButton(0, dae::ControllerButton::ButtonA, dae::KeyState::Pressed, std::make_unique<dae::PushBlockCommand>(pengo2));
 
 
 //	auto& scene = dae::SceneManager::GetInstance().CreateScene();

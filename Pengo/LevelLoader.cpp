@@ -16,6 +16,7 @@
 #include "Components/HealthComponent.h"
 #include "Components/ScoreComponent.h"
 #include "Components/IceBlockComponent.h"
+#include "Components/DiamondBlockComponent.h"
 #include "Observers/HealthObserver.h"
 #include "Observers/ScoreObserver.h"
 
@@ -96,7 +97,7 @@ void dae::LevelLoader::LoadCell(int id, int col, int row, Scene& scene, GridComp
         gameObject->AddComponent<TextureComponent>()->SetTexture("DiamondBlock.png");
         gameObject->AddComponent<GridMoveComponent>(grid, col, row, 10.f);
         gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
-        gameObject->AddComponent<IceBlockComponent>(grid, col, row);
+        gameObject->AddComponent<DiamondBlockComponent>(grid, col, row);
         break;
 
     case 3: //Player Spawn
