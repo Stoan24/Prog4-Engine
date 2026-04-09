@@ -299,11 +299,12 @@ static void load()
 //
 //
 //	scene.Add(std::move(gridObject));
+
 }
 
 int main(int, char*[]) {
 #if __EMSCRIPTEN__
-	fs::path data_location = "";
+	fs::path data_location = "Data/";
 #else
 	fs::path data_location = "./Data/";
 	if(!fs::exists(data_location))
