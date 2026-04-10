@@ -3,7 +3,8 @@
 #include "GameObject.h"
 #include "Events/EventManager.h"
 #include "SDBMHasher.h"
-#include <Components/GridMoveComponent.h>
+#include "Components/GridMoveComponent.h"
+#include "Components/Blocks/BlockComponent.h"
 
 namespace dae
 {

@@ -1,8 +1,8 @@
 #include "IceBlockComponent.h"
 #include "GameObject.h"
 
-dae::IceBlockComponent::IceBlockComponent(GameObject* gameObject, GridComponent* grid, int col, int row)
-    : BlockComponent(gameObject, grid, col, row)
+dae::IceBlockComponent::IceBlockComponent(GameObject* gameObject, GridComponent* grid)
+    : BlockComponent(gameObject, grid)
 {
 }
 

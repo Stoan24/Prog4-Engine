@@ -1,14 +1,14 @@
 #pragma once
 #include "GameComponent.h"
 #include "GameObject.h"
-#include "GridComponent.h"
-#include "GridMoveComponent.h"
+#include "Components/GridComponent.h"
+#include "Components/GridMoveComponent.h"
 #include "Components/CollisionComponent.h"
 
 namespace dae {
     class BlockComponent : public GameComponent {
     public:
-        BlockComponent(GameObject* gameObject, GridComponent* grid, int col, int row);
+        BlockComponent(GameObject* gameObject, GridComponent* grid);
 
         virtual ~BlockComponent() = default;
 
@@ -16,10 +16,10 @@ namespace dae {
 
         void Push(glm::ivec2 direction, GameObject* player);
         
+        virtual void OnBreak() = 0;
 
     protected:
 
-        virtual void OnBreak() = 0;
         virtual void OnSlideStopped() {}
 
         GridComponent* m_pGrid;

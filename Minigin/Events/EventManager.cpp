@@ -20,7 +20,9 @@ void dae::EventManager::Update()
         if (eventIt != m_Observers.end())
         {
             for (auto observer : eventIt->second)
+            {
                 observer->Notify(e);
+            }
         }
 
         m_EventQueue.pop();

@@ -4,14 +4,14 @@
 #include "Events/EventManager.h"
 #include "SDBMHasher.h"
 
-dae::BlockComponent::BlockComponent(GameObject* gameObject, GridComponent* grid, int col, int row)
+dae::BlockComponent::BlockComponent(GameObject* gameObject, GridComponent* grid)
     :GameComponent(gameObject),
     m_pGrid{ grid }
 {
-    m_pGrid->FillCell(col, row, gameObject);
-
     m_pMoveComponent = gameObject->GetComponent<GridMoveComponent>();
     m_pCollisionComponent = gameObject->GetComponent<CollisionComponent>();
+
+    m_pGrid->FillCell(m_pMoveComponent->GetCurrentCell().x, m_pMoveComponent->GetCurrentCell().y, gameObject);
 }
 
 void dae::BlockComponent::Update()

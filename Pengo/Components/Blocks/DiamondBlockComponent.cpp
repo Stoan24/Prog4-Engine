@@ -4,8 +4,8 @@
 #include "Events/EventManager.h"
 #include "SDBMHasher.h"
 
-dae::DiamondBlockComponent::DiamondBlockComponent(GameObject* gameObject, GridComponent* grid, int col, int row)
-    : BlockComponent(gameObject, grid, col, row)
+dae::DiamondBlockComponent::DiamondBlockComponent(GameObject* gameObject, GridComponent* grid)
+    : BlockComponent(gameObject, grid)
 {
 }
 

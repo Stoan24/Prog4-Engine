@@ -1,14 +1,14 @@
 #pragma once
 #include "BlockComponent.h"
 #include "GameObject.h"
-#include "GridComponent.h"
+#include "Components/GridComponent.h"
 
 namespace dae
 {
     class DiamondBlockComponent final : public BlockComponent
     {
     public:
-        DiamondBlockComponent(GameObject* gameObject, GridComponent* grid, int col, int row);
+        DiamondBlockComponent(GameObject* gameObject, GridComponent* grid);
 
         virtual ~DiamondBlockComponent() = default;
 

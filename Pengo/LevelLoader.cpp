@@ -9,14 +9,17 @@
 #include "Components/TextComponent.h"
 #include "Components/GridComponent.h"
 #include "Components/GridMoveComponent.h"
+#include "Components/CollisionComponent.h"
 #include "ResourceManager.h"
 #include "Transform.h"
 
 //Game components
 #include "Components/HealthComponent.h"
 #include "Components/ScoreComponent.h"
-#include "Components/IceBlockComponent.h"
-#include "Components/DiamondBlockComponent.h"
+#include "Components/Blocks/IceBlockComponent.h"
+#include "Components/Blocks/DiamondBlockComponent.h"
+#include "Components/Blocks/EggBlockComponent.h"
+#include "Components/SnoBeeComponent.h"
 #include "Observers/HealthObserver.h"
 #include "Observers/ScoreObserver.h"
 
@@ -90,20 +93,23 @@ void dae::LevelLoader::LoadCell(int id, int col, int row, Scene& scene, GridComp
         gameObject->AddComponent<TextureComponent>()->SetTexture("IceBlock.png");
         gameObject->AddComponent<GridMoveComponent>(grid, col, row, 10.f);
         gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
-        gameObject->AddComponent<IceBlockComponent>(grid, col, row);
+
+        gameObject->AddComponent<IceBlockComponent>(grid);
         break;
 
     case 2: //Diamond Block
         gameObject->AddComponent<TextureComponent>()->SetTexture("DiamondBlock.png");
         gameObject->AddComponent<GridMoveComponent>(grid, col, row, 10.f);
         gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
-        gameObject->AddComponent<DiamondBlockComponent>(grid, col, row);
+
+        gameObject->AddComponent<DiamondBlockComponent>(grid);
         break;
 
     case 3: //Player Spawn
         gameObject->AddComponent<TextureComponent>()->SetTexture("Pengo.png");
         gameObject->AddComponent<GridMoveComponent>(grid, col, row, 2.f);
         gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
+
         gameObject->AddComponent<HealthComponent>(3);
         gameObject->AddComponent<ScoreComponent>();
         gameObject->AddTag("Player");
@@ -113,18 +119,21 @@ void dae::LevelLoader::LoadCell(int id, int col, int row, Scene& scene, GridComp
 
     case 4: //Ice Block Enemy
         gameObject->AddComponent<TextureComponent>()->SetTexture("IceBlock.png");
-        gameObject->AddComponent<GridMoveComponent>(grid, col, row, 10.f);
+        gameObject->AddComponent<GridMoveComponent>(grid, col, row, 1.f);
         gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
-        gameObject->AddComponent<IceBlockComponent>(grid, col, row);
+
+        gameObject->AddComponent<EggBlockComponent>(grid);
+        gameObject->AddTag("Enemy");
         break;
 
     case 5: //Player 2
         gameObject->AddComponent<TextureComponent>()->SetTexture("Pengo2.png");
         gameObject->AddComponent<GridMoveComponent>(grid, col, row, 1.5f);
         gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
+
         gameObject->AddComponent<HealthComponent>(3);
         gameObject->AddComponent<ScoreComponent>();
-        gameObject->AddTag("Player");
+        //gameObject->AddTag("Player");
 
         m_NamedObjects["Pengo2"] = gameObject.get();
         break;
@@ -143,7 +152,7 @@ void dae::LevelLoader::LoadUI(const json& uiJson, Scene& scene)
     {
         std::string type = item["type"];
         std::string fontFile = item["font"]["file"];
-        uint8_t         fontSize = item["font"]["size"];
+        uint8_t fontSize = item["font"]["size"];
         std::string initialText = item["initialText"];
 
         float x = item["position"]["x"];
