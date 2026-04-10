@@ -23,5 +23,6 @@ namespace dae
 
 		int m_killScore{ 100 };
 		int m_stunScore{ 50 };
+		int m_eggScore{ 500 };
 	};
 }

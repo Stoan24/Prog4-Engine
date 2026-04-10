@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include "Events/EventManager.h"
 #include "Observers/Subject.h"
+#include "Blocks/EggBlockComponent.h"
 
 dae::SnoBeeComponent::SnoBeeComponent(GameObject* gameObject, GridComponent* grid)
     : GameComponent(gameObject),
@@ -88,6 +89,8 @@ bool dae::SnoBeeComponent::BreakBlock(glm::ivec2 direction)
     auto* occupant = m_pGrid->GetCellObject(targetCell.x, targetCell.y);
 
     if (!occupant) return false;
+
+    if (occupant->GetComponent<EggBlockComponent>()) return false;
 
     auto* block = occupant->GetComponent<IceBlockComponent>();
     if (!block) return false;

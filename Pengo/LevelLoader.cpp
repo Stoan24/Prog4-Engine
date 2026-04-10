@@ -11,6 +11,7 @@
 #include "Components/GridMoveComponent.h"
 #include "Components/CollisionComponent.h"
 #include "ResourceManager.h"
+
 #include "Transform.h"
 
 //Game components
@@ -22,6 +23,8 @@
 #include "Components/SnoBeeComponent.h"
 #include "Observers/HealthObserver.h"
 #include "Observers/ScoreObserver.h"
+
+#include "SnoBeeManager.h"
 
 using json = nlohmann::json;
 
@@ -40,6 +43,11 @@ dae::GridComponent* dae::LevelLoader::LoadLevel(const std::string& filePath, Sce
     LoadGrid(data["grid"], scene, grid);
 
     LoadUI(data["ui"], scene);
+
+    SnoBeeManager::GetInstance().Initialize(grid);
+    SnoBeeManager::GetInstance().HatchNextEgg();
+    SnoBeeManager::GetInstance().HatchNextEgg();
+    SnoBeeManager::GetInstance().HatchNextEgg();
 
     return grid;
 }
@@ -107,7 +115,7 @@ void dae::LevelLoader::LoadCell(int id, int col, int row, Scene& scene, GridComp
 
     case 3: //Player Spawn
         gameObject->AddComponent<TextureComponent>()->SetTexture("Pengo.png");
-        gameObject->AddComponent<GridMoveComponent>(grid, col, row, 2.f);
+        gameObject->AddComponent<GridMoveComponent>(grid, col, row, 1.5f);
         gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
 
         gameObject->AddComponent<HealthComponent>(3);
@@ -119,10 +127,13 @@ void dae::LevelLoader::LoadCell(int id, int col, int row, Scene& scene, GridComp
 
     case 4: //Ice Block Enemy
         gameObject->AddComponent<TextureComponent>()->SetTexture("IceBlock.png");
-        gameObject->AddComponent<GridMoveComponent>(grid, col, row, 1.f);
+        gameObject->AddComponent<GridMoveComponent>(grid, col, row, 10.f);
         gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
 
         gameObject->AddComponent<EggBlockComponent>(grid);
+
+        SnoBeeManager::GetInstance().RegisterEgg(gameObject.get());
+
         gameObject->AddTag("Enemy");
         break;
 

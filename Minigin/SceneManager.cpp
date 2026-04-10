@@ -41,9 +41,9 @@ void dae::SceneManager::SetActiveScene(const std::string& name)
 	}
 }
 
-dae::Scene& dae::SceneManager::GetActiveScene() const
+dae::Scene* dae::SceneManager::GetActiveScene() const
 {
-	return *m_pActiveScene;
+	return m_pActiveScene;
 }
 
 dae::Scene& dae::SceneManager::CreateScene(const std::string& name)

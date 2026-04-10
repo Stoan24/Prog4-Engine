@@ -9,6 +9,7 @@ void dae::ScoreManager::Initialize()
 {
 	EventManager::GetInstance().AddEvent(make_sdbm_hash("EnemyKilled"), this);
 	EventManager::GetInstance().AddEvent(make_sdbm_hash("StunEnemies"), this);
+	EventManager::GetInstance().AddEvent(make_sdbm_hash("EggDestroyed"), this);
 }
 
 void dae::ScoreManager::Notify(const Event& e)
@@ -18,4 +19,5 @@ void dae::ScoreManager::Notify(const Event& e)
 
 	if (e.id == make_sdbm_hash("EnemyKilled"))  score->AddPoints(m_killScore);
 	if (e.id == make_sdbm_hash("StunEnemies"))  score->AddPoints(m_stunScore);
+	if (e.id == make_sdbm_hash("EggDestroyed"))  score->AddPoints(m_eggScore);
 }

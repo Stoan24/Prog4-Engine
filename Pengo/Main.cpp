@@ -47,6 +47,7 @@ namespace fs = std::filesystem;
 static void load()
 {
 	auto& gameScene = dae::SceneManager::GetInstance().CreateScene("Game");
+	dae::SceneManager::GetInstance().SetActiveScene("Game");
 	auto& input = dae::InputManager::GetInstance();
 	dae::ScoreManager::GetInstance().Initialize();
 
@@ -72,7 +73,7 @@ static void load()
 	input.BindButton(0, dae::ControllerButton::ButtonX, dae::KeyState::Pressed, std::make_unique<dae::KillEnemyCommand>(pengo2));
 	input.BindButton(0, dae::ControllerButton::ButtonA, dae::KeyState::Pressed, std::make_unique<dae::PushBlockCommand>(pengo2));
 
-	dae::SceneManager::GetInstance().SetActiveScene("Game");
+	
 }
 
 int main(int, char*[]) {
