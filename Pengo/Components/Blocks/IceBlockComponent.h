@@ -10,7 +10,7 @@ namespace dae
     public:
         IceBlockComponent(GameObject* gameObject, GridComponent* grid);
 
-        virtual ~IceBlockComponent();
+        virtual ~IceBlockComponent() = default;
 
         IceBlockComponent(const IceBlockComponent&) = delete;
         IceBlockComponent(IceBlockComponent&&) = delete;

@@ -82,6 +82,33 @@ if(NOT SDL3_ttf_FOUND)
   endif()
 endif()
 
+# SDL mixer
+find_package(SDL3_mixer CONFIG QUIET)
+if(NOT SDL3_mixer_FOUND)
+  if (WIN32)
+    FetchContent_Declare(
+      SDL3_mixer
+      URL https://github.com/libsdl-org/SDL_mixer/releases/download/release-3.2.0/SDL3_mixer-devel-3.2.0-VC.zip
+      DOWNLOAD_NO_PROGRESS ON
+      DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/downloads
+    )
+    FetchContent_MakeAvailable(SDL3_mixer)
+    list(PREPEND CMAKE_PREFIX_PATH "${sdl3_mixer_SOURCE_DIR}")
+    find_package(SDL3_mixer CONFIG REQUIRED)
+  else()
+    FetchContent_Declare(
+      SDL3_mixer
+      GIT_REPOSITORY https://github.com/libsdl-org/SDL_mixer.git
+      GIT_TAG release-3.2.0
+      GIT_SHALLOW TRUE
+      GIT_PROGRESS TRUE
+    )
+    set(SDL3MIXER_INSTALL OFF)
+    FetchContent_MakeAvailable(SDL3_mixer)
+  endif()
+endif()
+
+
 # Dear ImGui
 FetchContent_Declare(
   imgui
@@ -151,7 +178,9 @@ add_library(MiniginLib STATIC
   Minigin/Components/CollisionComponent.cpp
   Minigin/CollisionManager.cpp
   Minigin/Events/EventManager.cpp
-  Minigin/Steam/Achievement.cpp)
+  Minigin/Steam/Achievement.cpp 
+  Minigin/Sound/SDLSoundSystem.cpp
+  Minigin/Sound/ServiceLocator.cpp)
 
 # enable c++20 features
 target_compile_features(MiniginLib PUBLIC cxx_std_20)
@@ -169,6 +198,7 @@ target_include_directories(MiniginLib PUBLIC
 target_link_libraries(MiniginLib PUBLIC
   SDL3::SDL3
   SDL3_ttf::SDL3_ttf
+  SDL3_mixer::SDL3_mixer
   imgui
   nlohmann_json::nlohmann_json
   ${VLD_LIBRARIES}
@@ -206,8 +236,13 @@ add_executable(${PENGO_TARGET} ${PENGO_PARAM}
   Pengo/Components/ScoreComponent.cpp
   Pengo/Components/GridComponent.cpp
   Pengo/Components/GridMoveComponent.cpp
-  "Pengo/Components/Blocks/IceBlockComponent.cpp"
-  Pengo/LevelLoader.cpp "Pengo/Components/Blocks/DiamondBlockComponent.cpp" "Pengo/Components/Blocks/BlockComponent.cpp" "Pengo/Components/SnoBeeComponent.cpp" "Pengo/Components/Blocks/EggBlockComponent.cpp" "Pengo/SnoBeeManager.cpp")
+  Pengo/Components/Blocks/IceBlockComponent.cpp
+  Pengo/LevelLoader.cpp 
+  Pengo/Components/Blocks/DiamondBlockComponent.cpp
+  Pengo/Components/Blocks/BlockComponent.cpp
+  Pengo/Components/SnoBeeComponent.cpp
+  Pengo/Components/Blocks/EggBlockComponent.cpp
+  Pengo/SnoBeeManager.cpp)
 
 target_include_directories(${PENGO_TARGET} PRIVATE
   ${CMAKE_SOURCE_DIR}/Pengo
@@ -253,6 +288,7 @@ elseif(WIN32)
   set(SDL_RUNTIME_DLLS
     SDL3::SDL3
     SDL3_ttf::SDL3_ttf
+	SDL3_mixer::SDL3_mixer
   )
 
   foreach(dllTarget IN LISTS SDL_RUNTIME_DLLS)
@@ -289,6 +325,7 @@ elseif(APPLE)
     COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_BUNDLE_DIR:${PENGO_TARGET}>/Contents/Frameworks"
     COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:SDL3::SDL3-shared>" "$<TARGET_BUNDLE_DIR:${PENGO_TARGET}>/Contents/Frameworks/"
     COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:SDL3_ttf::SDL3_ttf-shared>" "$<TARGET_BUNDLE_DIR:${PENGO_TARGET}>/Contents/Frameworks/"
+	COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:SDL3_mixer::SDL3_mixer-shared>" "$<TARGET_BUNDLE_DIR:${PENGO_TARGET}>/Contents/Frameworks/"
     COMMAND install_name_tool -change "@rpath/libSDL3_ttf.0.dylib" "@executable_path/../Frameworks/libSDL3_ttf.0.2.2.dylib" "$<TARGET_FILE:${PENGO_TARGET}>"
     COMMAND install_name_tool -change "@rpath/libSDL3.0.dylib" "@executable_path/../Frameworks/libSDL3.0.dylib" "$<TARGET_FILE:${PENGO_TARGET}>"
   )

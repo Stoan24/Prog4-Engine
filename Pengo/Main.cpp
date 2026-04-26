@@ -42,10 +42,22 @@
 #include <cstdlib>
 #include <ctime>
 
+//Sound
+#include "Sound/Sound.h"
+#include "Sound/ServiceLocator.h"
+#include "Sound/SDLSoundSystem.h"
+
 namespace fs = std::filesystem;
 
 static void load()
 {
+	dae::ServiceLocator::RegisterSoundSystem(std::make_unique<dae::SDLSoundSystem>());
+	auto& ss = dae::ServiceLocator::GetSoundSystem();
+
+	ss.LoadSound(0, "Data/Sounds/ActStart.mp3");
+	ss.Play(0, 2);
+
+
 	auto& gameScene = dae::SceneManager::GetInstance().CreateScene("Game");
 	dae::SceneManager::GetInstance().SetActiveScene("Game");
 	auto& input = dae::InputManager::GetInstance();

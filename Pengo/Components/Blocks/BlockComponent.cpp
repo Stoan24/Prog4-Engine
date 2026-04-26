@@ -57,10 +57,11 @@ void dae::BlockComponent::Push(glm::ivec2 direction, GameObject* player)
 
     m_SlideDirection = direction;
 
+    m_pPlayer = player;
+
     if (m_pMoveComponent->Move(m_SlideDirection, true))
     {
         m_IsSliding = true;
-        m_pPlayer = player;
     }
     else
     {

@@ -10,18 +10,38 @@ dae::GameObject::GameObject()
 	AddComponent<Transform>();
 }
 
-dae::GameObject::~GameObject() = default;
+dae::GameObject::~GameObject()
+{
+	if (m_pParent)
+	{
+		m_pParent->RemoveChild(this);
+	}
+
+	for (auto* pChild : m_pChildren)
+	{
+		if (pChild)
+		{
+			pChild->m_pParent = nullptr;
+		}
+	}
+}
 
 void dae::GameObject::Update()
 {
 	for (const auto& component : m_pComponents)
 	{
-		component->Update();
+		if (component) 
+		{
+			component->Update();
+		}
 	}
 
 	for (const auto& child : m_pChildren)
 	{
-		child->Update();
+		if (child)
+		{
+			child->Update();
+		}
 	}
 }
 
@@ -109,7 +129,7 @@ void dae::GameObject::AddChild(GameObject* pChild)
 
 void dae::GameObject::RemoveChild(GameObject* pChild)
 {
-	m_pChildren.erase(std::remove(m_pChildren.begin(), m_pChildren.end(), pChild));
+	m_pChildren.erase(std::remove(m_pChildren.begin(), m_pChildren.end(), pChild), m_pChildren.end());
 }
 
 bool dae::GameObject::IsChildOf(GameObject* pObject) const
