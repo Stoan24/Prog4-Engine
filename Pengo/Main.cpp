@@ -9,27 +9,6 @@
 #include "Minigin.h"
 #include "ResourceManager.h"
 #include "SceneManager.h"
-#include "Scene.h"
-
-//Components
-#include "Components/TextComponent.h"
-#include "Components/TextureComponent.h"
-#include "Components/FPSComponent.h"
-#include "Components/RotationComponent.h"
-#include "Components/ThrashComponent.h"
-#include "Components/HealthComponent.h"
-#include "Components/ScoreComponent.h"
-#include "Components/CollisionComponent.h"
-#include "Components/GridComponent.h"
-#include "Components/GridMoveComponent.h"
-#include "Transform.h"
-
-//Observers
-#include "Observers/HealthObserver.h"
-#include "Observers/ScoreObserver.h"
-
-//Events
-#include "ScoreManager.h"
 
 //input commands
 #include "InputManager.h"
@@ -52,16 +31,16 @@ namespace fs = std::filesystem;
 static void load()
 {
 	dae::ServiceLocator::RegisterSoundSystem(std::make_unique<dae::SDLSoundSystem>());
-	auto& ss = dae::ServiceLocator::GetSoundSystem();
 
-	ss.LoadSound(0, "Data/Sounds/ActStart.mp3");
-	ss.Play(0, 2);
-
+#ifdef _DEBUG
+	dae::ServiceLocator::RegisterSoundSystem(std::make_unique<dae::LoggingSoundSystem>(std::make_unique<dae::SDLSoundSystem>()));
+#else
+	ServiceLocator::RegisterSoundSystem(std::make_unique<SDLSoundSystem>());
+#endif
 
 	auto& gameScene = dae::SceneManager::GetInstance().CreateScene("Game");
 	dae::SceneManager::GetInstance().SetActiveScene("Game");
 	auto& input = dae::InputManager::GetInstance();
-	dae::ScoreManager::GetInstance().Initialize();
 
 	dae::LevelLoader loader;
 	loader.LoadLevel("Data/Levels/level1.json", gameScene);

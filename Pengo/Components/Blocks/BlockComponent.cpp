@@ -2,6 +2,7 @@
 #include "CollisionManager.h"
 #include "Events/Event.h"
 #include "Events/EventManager.h"
+#include "Sound/ServiceLocator.h"
 #include "SDBMHasher.h"
 
 dae::BlockComponent::BlockComponent(GameObject* gameObject, GridComponent* grid)
@@ -45,6 +46,8 @@ void dae::BlockComponent::Update()
             e.args[0].gameObject = m_pPlayer;
             EventManager::GetInstance().HandleEvent(e);
 
+            ServiceLocator::GetSoundSystem().Play(make_sdbm_hash("SnoBeeSquashed"), 0.05f);
+
 
             hitObject->MarkForDestruction();
         }
@@ -61,6 +64,8 @@ void dae::BlockComponent::Push(glm::ivec2 direction, GameObject* player)
 
     if (m_pMoveComponent->Move(m_SlideDirection, true))
     {
+
+        ServiceLocator::GetSoundSystem().Play(make_sdbm_hash("PushIceBlock"), 0.05f);
         m_IsSliding = true;
     }
     else

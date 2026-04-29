@@ -27,5 +27,6 @@ namespace dae
         void LoadGrid(const json& gridJson, Scene& scene, GridComponent*& outGrid);
         void LoadCell(int id, int col, int row, Scene& scene, GridComponent* grid);
         void LoadUI(const json& uiJson, Scene& scene);
+        void LoadSound();
     };
 }

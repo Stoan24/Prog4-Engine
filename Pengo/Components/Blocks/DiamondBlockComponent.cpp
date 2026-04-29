@@ -3,6 +3,7 @@
 #include "Events/Event.h"
 #include "Events/EventManager.h"
 #include "SDBMHasher.h"
+#include "Sound/ServiceLocator.h"
 
 dae::DiamondBlockComponent::DiamondBlockComponent(GameObject* gameObject, GridComponent* grid)
     : BlockComponent(gameObject, grid)
@@ -44,5 +45,7 @@ void dae::DiamondBlockComponent::CheckAlignment()
         e.nbArgs = 0;
         e.args[0].gameObject = m_pPlayer;
         EventManager::GetInstance().HandleEvent(e);
+
+        ServiceLocator::GetSoundSystem().Play(make_sdbm_hash("SnoBeeStunned"), 0.05f);
     }
 }

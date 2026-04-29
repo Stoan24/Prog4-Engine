@@ -10,9 +10,12 @@
 #include "Components/GridComponent.h"
 #include "Components/GridMoveComponent.h"
 #include "Components/CollisionComponent.h"
-#include "ResourceManager.h"
-
 #include "Transform.h"
+
+//Managers
+#include "ResourceManager.h"
+#include "ScoreManager.h"
+#include "Sound/ServiceLocator.h"
 
 //Game components
 #include "Components/HealthComponent.h"
@@ -43,6 +46,10 @@ dae::GridComponent* dae::LevelLoader::LoadLevel(const std::string& filePath, Sce
     LoadGrid(data["grid"], scene, grid);
 
     LoadUI(data["ui"], scene);
+
+    LoadSound();
+
+    dae::ScoreManager::GetInstance().Initialize();
 
     SnoBeeManager::GetInstance().Initialize(grid);
     SnoBeeManager::GetInstance().HatchNextEgg();
@@ -193,4 +200,20 @@ void dae::LevelLoader::LoadUI(const json& uiJson, Scene& scene)
 
         scene.Add(std::move(gameObject));
     }
+}
+
+void dae::LevelLoader::LoadSound()
+{
+    auto& ss = dae::ServiceLocator::GetSoundSystem();
+
+    //Will be moved to JSON file
+    ss.RegisterSound(make_sdbm_hash("ActStart"), "Data/Sounds/ActStart.mp3");
+    //ss.RegisterSound(make_sdbm_hash("IceBlockDestroyed"), "Data/Sounds/IceBlockDestroyed.mp3"); commented because of noise spam
+    ss.RegisterSound(make_sdbm_hash("PushIceBlock"), "Data/Sounds/PushIceBlock.mp3");
+    ss.RegisterSound(make_sdbm_hash("SnoBeeEggDestroyed"), "Data/Sounds/SnoBeeEggDestroyed.mp3");
+    ss.RegisterSound(make_sdbm_hash("SnoBeeSpawning"), "Data/Sounds/SnoBeeSpawning.mp3");
+    ss.RegisterSound(make_sdbm_hash("SnoBeeSquashed"), "Data/Sounds/SnoBeeSquashed.mp3");
+    ss.RegisterSound(make_sdbm_hash("SnoBeeStunned"), "Data/Sounds/SnoBeeStunned.mp3");
+
+    ss.SetVolume(0.02f);
 }
