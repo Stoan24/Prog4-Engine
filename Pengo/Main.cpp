@@ -35,7 +35,7 @@ static void load()
 #ifdef _DEBUG
 	dae::ServiceLocator::RegisterSoundSystem(std::make_unique<dae::LoggingSoundSystem>(std::make_unique<dae::SDLSoundSystem>()));
 #else
-	ServiceLocator::RegisterSoundSystem(std::make_unique<SDLSoundSystem>());
+	dae::ServiceLocator::RegisterSoundSystem(std::make_unique<dae::SDLSoundSystem>());
 #endif
 
 	auto& gameScene = dae::SceneManager::GetInstance().CreateScene("Game");

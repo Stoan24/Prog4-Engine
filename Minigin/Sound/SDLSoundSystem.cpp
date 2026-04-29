@@ -63,7 +63,7 @@ namespace dae
             m_playQueue.push({ id, volume });
             m_condition.notify_one();
 #else
-            PlaySingleTrack(id, volume);
+            PlaySingleTrack({ id, volume });
 #endif
         }
 
