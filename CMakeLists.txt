@@ -226,7 +226,7 @@ if(EMSCRIPTEN)
   set(PENGO_PARAM  )
 else()
   set(PENGO_TARGET  minigin)
-  set(PENGO_PARAM  WIN32)
+  #set(PENGO_PARAM  WIN32)
 endif()
 
 add_executable(${PENGO_TARGET} ${PENGO_PARAM}

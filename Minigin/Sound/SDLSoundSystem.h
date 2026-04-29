@@ -6,6 +6,12 @@
 
 namespace dae
 {
+    struct PlayRequest
+    {
+        sound_id id;
+        float volume;
+    };
+
     class SDLSoundSystem final : public SoundSystem
     {
         class SDLSoundSystemImpl;
@@ -24,6 +30,6 @@ namespace dae
         void StopAll() override;
         void SetVolume(float volume) override;
 
-        sound_id LoadSound(const sound_id id, const std::string& filepath) override;
+        void RegisterSound(const sound_id id, const std::string& filepath) override;
     };
 }

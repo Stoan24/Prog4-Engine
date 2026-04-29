@@ -1,4 +1,5 @@
 #include "SDLSoundSystem.h"
+#include "SDLSoundSystem.h"
 #include "Events/EventManager.h"
 #include "Events/Event.h"
 #include <unordered_map>
@@ -17,22 +18,14 @@ namespace dae
 
         SDLSoundSystemImpl()
         {
-            if (!MIX_Init()) {
-                std::cerr << "Failed to initialize mixer " << SDL_GetError() << std::endl;
-            }
+            if (!MIX_Init()) return;
 
             m_mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, nullptr);
 
-            if (!m_mixer)
-            {
-                std::cerr << "Failed to create mixer " << SDL_GetError() << '\n';
-                return;
-            }
+            if (!m_mixer) return;
 
 #ifndef __EMSCRIPTEN__
-            m_thread = std::jthread([this](std::stop_token stop_token) { UpdateQueue(stop_token); });
-#else
-            UpdateQueue();
+            m_thread = std::jthread([this](std::stop_token stop_token) { PlayQueue(stop_token); });
 #endif
         }
 
@@ -53,41 +46,24 @@ namespace dae
             m_loadedSounds.clear();
         }
 
-        sound_id LoadSound(const sound_id id, const std::string& filepath)
+        void RegisterSound(const sound_id id, const std::string& filepath)
         {
-#ifndef __EMSCRIPTEN__
-            std::lock_guard<std::mutex> lock(m_mutex);
-#endif
-            
-
-
-            if (m_loadedSounds.find(id) != m_loadedSounds.end())
+            if (m_paths.find(id) != m_paths.end())
             {
-                return id;
+                return;
             }
 
-            MIX_Audio* audio = MIX_LoadAudio(m_mixer, filepath.c_str(), true);
-
-            if (audio == nullptr)
-            {
-                std::cerr << "Failed to load sound " << filepath << " " << SDL_GetError() << '\n';
-                return 0;
-            }
-
-            m_loadedSounds[id] = audio;
-            return id;
+            m_paths[id] = filepath;
         }
 
         void Play(sound_id id, float volume)
         {
 #ifndef __EMSCRIPTEN__
             std::lock_guard<std::mutex> lock(m_mutex);
-#endif
-
             m_playQueue.push({ id, volume });
-
-#ifndef __EMSCRIPTEN__
             m_condition.notify_one();
+#else
+            PlaySingleTrack(id, volume);
 #endif
         }
 
@@ -103,14 +79,31 @@ namespace dae
         }
 
     private:
-        struct PlayRequest
+
+        void PlaySingleTrack(PlayRequest request)
         {
-            sound_id id;
-            float volume;
-        };
+            MIX_Audio* audio{};
+
+            if (m_loadedSounds.find(request.id) != m_loadedSounds.end())
+            {
+                auto path_it = m_paths.find(request.id);
+                if (path_it == m_paths.end()) return;
+
+                audio = MIX_LoadAudio(m_mixer, path_it->second.c_str(), true);
+
+                m_loadedSounds[request.id] = audio;
+            }
+
+            if (audio == nullptr)
+            {
+                audio = m_loadedSounds[request.id];
+            }
+
+            MIX_PlayAudio(m_mixer, audio);
+        }
 
 #ifndef __EMSCRIPTEN__
-        void UpdateQueue(std::stop_token stop_token)
+        void PlayQueue(std::stop_token stop_token)
         {
             while (!stop_token.stop_requested())
             {
@@ -119,7 +112,7 @@ namespace dae
 
                 m_condition.wait(lock, [this, &stop_token] {
                     return !m_playQueue.empty() || stop_token.stop_requested();
-                    });
+                });
 
                 if (stop_token.stop_requested())
                 {
@@ -132,38 +125,18 @@ namespace dae
                     PlayRequest request = m_playQueue.front();
                     m_playQueue.pop();
 
-                    auto it = m_loadedSounds.find(request.id);
-                    if (it != m_loadedSounds.end())
-                    {
-                        MIX_Audio* audio = it->second;
-
-                        MIX_PlayAudio(m_mixer, audio);
-                    }
+                    lock.unlock();
+                    PlaySingleTrack(request);
+                    lock.lock();
                 }
             }
         }
 #endif
 
-        void UpdateQueue()
-        {
-            while (!m_playQueue.empty())
-            {
-                PlayRequest request = m_playQueue.front();
-                m_playQueue.pop();
-
-                auto it = m_loadedSounds.find(request.id);
-                if (it != m_loadedSounds.end())
-                {
-                    MIX_Audio* audio = it->second;
-
-                    MIX_PlayAudio(m_mixer, audio);
-                }
-            }
-        }
-
-        MIX_Mixer* m_mixer;
+        MIX_Mixer* m_mixer{ nullptr };
 
         std::unordered_map<sound_id, MIX_Audio*> m_loadedSounds;
+        std::unordered_map<sound_id, std::string> m_paths;
         std::queue<PlayRequest> m_playQueue;
 
         float m_volume{ 1.0f };
@@ -202,9 +175,9 @@ namespace dae
         Pimpl->SetVolume(volume);
     }
 
-    sound_id SDLSoundSystem::LoadSound(const sound_id id, const std::string& filepath)
+    void SDLSoundSystem::RegisterSound(const sound_id id, const std::string& filepath)
     {
-        return Pimpl->LoadSound(id, filepath);
+        Pimpl->RegisterSound(id, filepath);
     }
 
 #pragma endregion Pimpl
