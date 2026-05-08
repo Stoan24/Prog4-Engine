@@ -15,6 +15,12 @@ void dae::SnoBeeManager::Initialize(GridComponent* grid)
     EventManager::GetInstance().AddEvent(make_sdbm_hash("EnemyKilled"), this);
 }
 
+void dae::SnoBeeManager::Clear()
+{
+    m_Eggs.clear();
+    m_ActiveSnoBees.clear();
+}
+
 void dae::SnoBeeManager::RegisterSnoBee(GameObject* snoBee)
 {
     m_ActiveSnoBees.push_back(snoBee);
@@ -57,14 +63,23 @@ void dae::SnoBeeManager::CleanupDead()
             [](GameObject* obj) { return obj->IsMarkedForDestruction(); }),
         m_ActiveSnoBees.end()
     );
+
+    m_Eggs.erase(
+        std::remove_if(m_Eggs.begin(), m_Eggs.end(),
+            [](GameObject* obj) { return obj->IsMarkedForDestruction(); }),
+        m_Eggs.end()
+    );
 }
 
 void dae::SnoBeeManager::HatchNextEgg()
 {
+    CleanupDead();
+
     for (auto it = m_Eggs.begin(); it != m_Eggs.end(); ++it)
     {
         GameObject* eggObj = *it;
-        if (eggObj->IsMarkedForDestruction()) continue;
+
+        if (eggObj->IsMarkedForDestruction() || !eggObj) continue;
 
         auto* egg = eggObj->GetComponent<EggBlockComponent>();
         if (!egg || egg->HasHatched()) continue;

@@ -4,6 +4,7 @@
 #include "Commands.h"
 #include <vector>
 #include "Gamepad.h"
+#include <SDL3/SDL_scancode.h>
 
 namespace dae
 {

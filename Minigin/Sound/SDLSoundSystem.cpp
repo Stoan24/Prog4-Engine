@@ -31,6 +31,8 @@ namespace dae
 
         ~SDLSoundSystemImpl()
         {
+            StopAll();
+
 #ifndef __EMSCRIPTEN__
             
             //Stop thread safely
@@ -43,6 +45,13 @@ namespace dae
             }
 #endif
 
+            for (auto& pair : m_loadedSounds)
+            {
+                if (pair.second)
+                {
+                    MIX_DestroyAudio(pair.second);
+                }
+            }
             m_loadedSounds.clear();
         }
 
@@ -82,24 +91,24 @@ namespace dae
 
         void PlaySingleTrack(PlayRequest request)
         {
-            MIX_Audio* audio{};
-
-            if (m_loadedSounds.find(request.id) != m_loadedSounds.end())
+            auto it = m_loadedSounds.find(request.id);
+            if (it != m_loadedSounds.end())
             {
-                auto path_it = m_paths.find(request.id);
-                if (path_it == m_paths.end()) return;
+                MIX_PlayAudio(m_mixer, it->second);
+                return;
+            }
 
-                audio = MIX_LoadAudio(m_mixer, path_it->second.c_str(), true);
 
+            auto path_it = m_paths.find(request.id);
+            if (path_it == m_paths.end()) return;
+            
+
+            MIX_Audio* audio = MIX_LoadAudio(m_mixer, path_it->second.c_str(), true);
+            if (audio)
+            {
                 m_loadedSounds[request.id] = audio;
+                MIX_PlayAudio(m_mixer, audio);
             }
-
-            if (audio == nullptr)
-            {
-                audio = m_loadedSounds[request.id];
-            }
-
-            MIX_PlayAudio(m_mixer, audio);
         }
 
 #ifndef __EMSCRIPTEN__

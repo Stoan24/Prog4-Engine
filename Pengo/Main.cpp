@@ -1,4 +1,3 @@
-#include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
 #if _DEBUG && __has_include(<vld.h>)
@@ -8,14 +7,10 @@
 
 #include "Minigin.h"
 #include "ResourceManager.h"
-#include "SceneManager.h"
 
 //input commands
-#include "InputManager.h"
-#include "PengoCommands.h"
 
 #include <filesystem>
-#include "LevelLoader.h"
 
 //Random
 #include <cstdlib>
@@ -26,11 +21,14 @@
 #include "Sound/ServiceLocator.h"
 #include "Sound/SDLSoundSystem.h"
 
+//State
+#include "GameStateManager.h"
+#include "States/StartMenuState.h"
+
 namespace fs = std::filesystem;
 
 static void load()
 {
-	dae::ServiceLocator::RegisterSoundSystem(std::make_unique<dae::SDLSoundSystem>());
 
 #ifdef _DEBUG
 	dae::ServiceLocator::RegisterSoundSystem(std::make_unique<dae::LoggingSoundSystem>(std::make_unique<dae::SDLSoundSystem>()));
@@ -38,33 +36,8 @@ static void load()
 	dae::ServiceLocator::RegisterSoundSystem(std::make_unique<dae::SDLSoundSystem>());
 #endif
 
-	auto& gameScene = dae::SceneManager::GetInstance().CreateScene("Game");
-	dae::SceneManager::GetInstance().SetActiveScene("Game");
-	auto& input = dae::InputManager::GetInstance();
-
-	dae::LevelLoader loader;
-	loader.LoadLevel("Data/Levels/level1.json", gameScene);
-
-	auto* pengo = loader.GetObject("Pengo");
-	auto* pengo2 = loader.GetObject("Pengo2");
-
-	input.BindKey(SDL_SCANCODE_W, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(pengo, glm::ivec2{ 0,-1 }));
-	input.BindKey(SDL_SCANCODE_S, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(pengo, glm::ivec2{ 0, 1 }));
-	input.BindKey(SDL_SCANCODE_A, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(pengo, glm::ivec2{ -1, 0 }));
-	input.BindKey(SDL_SCANCODE_D, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(pengo, glm::ivec2{ 1, 0 }));
-
-	input.BindKey(SDL_SCANCODE_X, dae::KeyState::Down, std::make_unique<dae::KillEnemyCommand>(pengo));
-	input.BindKey(SDL_SCANCODE_E, dae::KeyState::Down, std::make_unique<dae::PushBlockCommand>(pengo));
-
-	input.BindButton(0, dae::ControllerButton::DpadUp, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(pengo2, glm::ivec2{ 0,-1 }));
-	input.BindButton(0, dae::ControllerButton::DpadDown, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(pengo2, glm::ivec2{ 0, 1 }));
-	input.BindButton(0, dae::ControllerButton::DpadLeft, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(pengo2, glm::ivec2{ -1, 0 }));
-	input.BindButton(0, dae::ControllerButton::DpadRight, dae::KeyState::Pressed, std::make_unique<dae::MoveCommand>(pengo2, glm::ivec2{ 1, 0 }));
-
-	input.BindButton(0, dae::ControllerButton::ButtonX, dae::KeyState::Pressed, std::make_unique<dae::KillEnemyCommand>(pengo2));
-	input.BindButton(0, dae::ControllerButton::ButtonA, dae::KeyState::Pressed, std::make_unique<dae::PushBlockCommand>(pengo2));
-
-	
+	auto initialState = std::make_unique<dae::StartMenuState>();
+	dae::GameStateManager::GetInstance().ChangeState(std::move(initialState));
 }
 
 int main(int, char*[]) {

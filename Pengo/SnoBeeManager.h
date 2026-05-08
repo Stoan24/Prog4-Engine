@@ -14,6 +14,7 @@ namespace dae
     {
     public:
         void Initialize(GridComponent* grid);
+        void Clear();
 
         void RegisterSnoBee(GameObject* snoBee);
 
@@ -31,7 +32,6 @@ namespace dae
         friend class Singleton<SnoBeeManager>;
         SnoBeeManager() = default;
 
-        void OnSnoBeeKilled(GameObject* snoBee);
         void CleanupDead();
 
         GridComponent* m_pGrid{ nullptr };

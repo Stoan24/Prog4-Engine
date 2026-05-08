@@ -242,7 +242,11 @@ add_executable(${PENGO_TARGET} ${PENGO_PARAM}
   Pengo/Components/Blocks/BlockComponent.cpp
   Pengo/Components/SnoBeeComponent.cpp
   Pengo/Components/Blocks/EggBlockComponent.cpp
-  Pengo/SnoBeeManager.cpp)
+  Pengo/SnoBeeManager.cpp 
+  Minigin/GameStateManager.cpp
+  Pengo/States/GameplayState.cpp
+  Pengo/States/StartMenuState.cpp
+  )
 
 target_include_directories(${PENGO_TARGET} PRIVATE
   ${CMAKE_SOURCE_DIR}/Pengo

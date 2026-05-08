@@ -33,6 +33,9 @@ using json = nlohmann::json;
 
 dae::GridComponent* dae::LevelLoader::LoadLevel(const std::string& filePath, Scene& scene)
 {
+    SnoBeeManager::GetInstance().Clear();
+    m_NamedObjects.clear();
+
     std::ifstream file(filePath);
     if (!file.is_open())
     {
@@ -61,6 +64,12 @@ dae::GridComponent* dae::LevelLoader::LoadLevel(const std::string& filePath, Sce
 
 void dae::LevelLoader::LoadGrid(const json& gridJson, Scene& scene, GridComponent*& outGrid)
 {
+    auto backgroundObject = std::make_unique<GameObject>();
+    backgroundObject->GetComponent<Transform>()->SetLocalPosition(0.f, 0.f);
+    backgroundObject->AddComponent<TextureComponent>()->SetTexture("mainBackground.png");
+    scene.Add(std::move(backgroundObject));
+
+
     int cellSize = gridJson["cellSize"];
 
     glm::vec2 origin{ 0.f, 0.f };
