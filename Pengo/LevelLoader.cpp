@@ -14,7 +14,7 @@
 
 //Managers
 #include "ResourceManager.h"
-#include "ScoreManager.h"
+#include "PlayerManager.h"
 #include "Sound/ServiceLocator.h"
 
 //Game components
@@ -50,14 +50,14 @@ dae::GridComponent* dae::LevelLoader::LoadLevel(const std::string& filePath, Sce
 
     LoadUI(data["ui"], scene);
 
-    LoadSound();
+    if (!m_IsSoundLoaded)
+    {
+        LoadSound();
+    }
 
-    dae::ScoreManager::GetInstance().Initialize();
+    dae::PlayerManager::GetInstance().OnLevelStart();
 
     SnoBeeManager::GetInstance().Initialize(grid);
-    SnoBeeManager::GetInstance().HatchNextEgg();
-    SnoBeeManager::GetInstance().HatchNextEgg();
-    SnoBeeManager::GetInstance().HatchNextEgg();
 
     return grid;
 }
@@ -130,20 +130,30 @@ void dae::LevelLoader::LoadCell(int id, int col, int row, Scene& scene, GridComp
         break;
 
     case 3: //Player Spawn
+    {
         gameObject->AddComponent<TextureComponent>()->SetTexture("Pengo.png");
-        gameObject->AddComponent<GridMoveComponent>(grid, col, row, 1.5f);
+        gameObject->AddComponent<GridMoveComponent>(grid, col, row, 1.f);
         gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
 
-        gameObject->AddComponent<HealthComponent>(3);
-        gameObject->AddComponent<ScoreComponent>();
+        auto* health = gameObject->AddComponent<HealthComponent>(4);
+        int savedLives = PlayerManager::GetInstance().GetLives(0);
+        if (savedLives > 0) health->SetLives(savedLives);
+
+
+        auto* score = gameObject->AddComponent<ScoreComponent>();
+        int savedScore = PlayerManager::GetInstance().GetScore(0);
+        if (savedScore > 0) score->SetScore(savedScore);
+
         gameObject->AddTag("Player");
 
         m_NamedObjects["Pengo"] = gameObject.get();
-        break;
 
+        PlayerManager::GetInstance().RegisterPlayer(0, gameObject.get());
+        break;
+    }
     case 4: //Ice Block Enemy
         gameObject->AddComponent<TextureComponent>()->SetTexture("IceBlock.png");
-        gameObject->AddComponent<GridMoveComponent>(grid, col, row, 10.f);
+        gameObject->AddComponent<GridMoveComponent>(grid, col, row, 0.5f);
         gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
 
         gameObject->AddComponent<EggBlockComponent>(grid);
@@ -154,16 +164,27 @@ void dae::LevelLoader::LoadCell(int id, int col, int row, Scene& scene, GridComp
         break;
 
     case 5: //Player 2
+    {
         gameObject->AddComponent<TextureComponent>()->SetTexture("Pengo2.png");
-        gameObject->AddComponent<GridMoveComponent>(grid, col, row, 1.5f);
+        gameObject->AddComponent<GridMoveComponent>(grid, col, row, 1.f);
         gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
 
-        gameObject->AddComponent<HealthComponent>(3);
-        gameObject->AddComponent<ScoreComponent>();
+        auto* health = gameObject->AddComponent<HealthComponent>(4);
+        int savedLives = PlayerManager::GetInstance().GetLives(1);
+        if (savedLives > 0) health->SetLives(savedLives);
+
+
+        auto* score = gameObject->AddComponent<ScoreComponent>();
+        int savedScore = PlayerManager::GetInstance().GetScore(1);
+        if (savedScore > 0) score->SetScore(savedScore);
+
         //gameObject->AddTag("Player");
 
         m_NamedObjects["Pengo2"] = gameObject.get();
+
+        PlayerManager::GetInstance().RegisterPlayer(1, gameObject.get());
         break;
+    }
     }
 
     if (gameObject->HasComponent<TextureComponent>())
@@ -217,7 +238,7 @@ void dae::LevelLoader::LoadSound()
 
     //Will be moved to JSON file
     ss.RegisterSound(make_sdbm_hash("ActStart"), "Data/Sounds/ActStart.mp3");
-    //ss.RegisterSound(make_sdbm_hash("IceBlockDestroyed"), "Data/Sounds/IceBlockDestroyed.mp3"); commented because of noise spam
+    ss.RegisterSound(make_sdbm_hash("IceBlockDestroyed"), "Data/Sounds/IceBlockDestroyed.mp3");
     ss.RegisterSound(make_sdbm_hash("PushIceBlock"), "Data/Sounds/PushIceBlock.mp3");
     ss.RegisterSound(make_sdbm_hash("SnoBeeEggDestroyed"), "Data/Sounds/SnoBeeEggDestroyed.mp3");
     ss.RegisterSound(make_sdbm_hash("SnoBeeSpawning"), "Data/Sounds/SnoBeeSpawning.mp3");
@@ -225,4 +246,6 @@ void dae::LevelLoader::LoadSound()
     ss.RegisterSound(make_sdbm_hash("SnoBeeStunned"), "Data/Sounds/SnoBeeStunned.mp3");
 
     ss.SetVolume(0.02f);
+
+    m_IsSoundLoaded = true;
 }

@@ -21,6 +21,11 @@ namespace dae
             return nullptr;
         }
 
+        static std::string GetLevelPath(int index)
+        {
+            return "Data/Levels/level" + std::to_string(index + 1) + ".json";
+        }
+
     private:
         std::unordered_map<std::string, GameObject*> m_NamedObjects;
 
@@ -28,5 +33,7 @@ namespace dae
         void LoadCell(int id, int col, int row, Scene& scene, GridComponent* grid);
         void LoadUI(const json& uiJson, Scene& scene);
         void LoadSound();
+
+        bool m_IsSoundLoaded{ false };
     };
 }

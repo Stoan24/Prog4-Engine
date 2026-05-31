@@ -1,0 +1,74 @@
+#include "IntroState.h"
+#include "GameplayState.h"
+#include "GameStateManager.h"
+#include "SceneManager.h"
+#include "GameTime.h"
+#include "SnoBeeManager.h"
+#include "Components/Blocks/EggBlockComponent.h"
+
+void dae::IntroState::OnEnter()
+{
+    auto& sceneManager = SceneManager::GetInstance();
+    m_pGameScene = &sceneManager.CreateScene("Game");
+    sceneManager.SetActiveScene("Game");
+
+    m_pGrid = m_LevelLoader.LoadLevel(LevelLoader::GetLevelPath(m_LevelIndex), *m_pGameScene);
+
+    m_pPlayer1 = m_LevelLoader.GetObject("Pengo");
+    m_pPlayer2 = m_LevelLoader.GetObject("Pengo2");
+
+
+    for (auto* eggObj : SnoBeeManager::GetInstance().GetEggs())
+    {
+        if (auto* egg = eggObj->GetComponent<EggBlockComponent>())
+        {
+            egg->SetFlashing(true);
+        }
+    }
+}
+
+void dae::IntroState::OnExit()
+{
+    for (auto* eggObj : SnoBeeManager::GetInstance().GetEggs())
+    {
+        if (auto* egg = eggObj->GetComponent<EggBlockComponent>())
+        {
+            egg->SetFlashing(false);
+        }
+    }
+}
+
+std::unique_ptr<dae::GameState> dae::IntroState::Update()
+{
+    for (auto* eggObj : SnoBeeManager::GetInstance().GetEggs())
+    {
+        if (auto* egg = eggObj->GetComponent<EggBlockComponent>())
+        {
+            egg->UpdateFlash();
+        }
+    }
+
+    m_IntroTimer -= GameTime::GetInstance().GetDeltaTime();
+    if (m_IntroTimer <= 0.f)
+    {
+        SnoBeeManager::GetInstance().HatchNextEgg();
+        SnoBeeManager::GetInstance().HatchNextEgg();
+        SnoBeeManager::GetInstance().HatchNextEgg();
+
+        auto nextState = std::make_unique<GameplayState>(
+            m_pGameScene, m_pGrid, m_pPlayer1, m_pPlayer2, m_LevelIndex
+        );
+
+        GameStateManager::GetInstance().ChangeState(std::move(nextState));
+    }
+
+    return nullptr;
+}
+
+void dae::IntroState::Render()
+{
+    if (m_pGameScene)
+    {
+        m_pGameScene->Render();
+    }
+}

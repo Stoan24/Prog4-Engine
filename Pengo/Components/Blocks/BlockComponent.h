@@ -16,7 +16,7 @@ namespace dae {
 
         void Push(glm::ivec2 direction, GameObject* player);
         
-        virtual void OnBreak() = 0;
+        virtual void OnBreak(bool playsSound) = 0;
 
     protected:
 

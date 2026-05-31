@@ -15,6 +15,7 @@ namespace dae
 		void ResetScore() { m_CurrentScore = 0; }
 
 		int GetScore() const { return m_CurrentScore; }
+		void SetScore(int score) { m_CurrentScore = score; }
 
 		
 		GameObject* GetGameObject() const override { return GameComponent::GetGameObject(); }
@@ -24,7 +25,6 @@ namespace dae
 		std::unique_ptr<Subject> m_pSubject;
 
 		int m_CurrentScore{ 0 };
-		//int m_WinnerScore{ 500 };
 	};
 
 }

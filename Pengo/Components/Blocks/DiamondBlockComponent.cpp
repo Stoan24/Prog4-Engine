@@ -16,30 +16,70 @@ void dae::DiamondBlockComponent::CheckAlignment()
 
     glm::ivec2 currentCell = m_pMoveComponent->GetCurrentCell();
 
-    //Check Row
-    int blocksInRow = 0;
-    for (int c = 0; c < m_pGrid->GetCols(); ++c)
+
+    int horizontalCount = 1;
+
+    //Left
+    for (int c = currentCell.x - 1; c >= 0; --c)
     {
         GameObject* obj = m_pGrid->GetCellObject(c, currentCell.y);
         if (obj && obj->GetComponent<DiamondBlockComponent>())
         {
-            blocksInRow++;
+            horizontalCount++;
+        }
+        else
+        {
+            break;
         }
     }
 
-    //Check Column
-    int blocksInCol = 0;
-    for (int r = 0; r < m_pGrid->GetRows(); ++r)
+    //Right
+    for (int c = currentCell.x + 1; c < m_pGrid->GetCols(); ++c)
+    {
+        GameObject* obj = m_pGrid->GetCellObject(c, currentCell.y);
+        if (obj && obj->GetComponent<DiamondBlockComponent>())
+        {
+            horizontalCount++;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+
+    int verticalCount = 1;
+
+    //Up
+    for (int r = currentCell.y - 1; r >= 0; --r)
     {
         GameObject* obj = m_pGrid->GetCellObject(currentCell.x, r);
         if (obj && obj->GetComponent<DiamondBlockComponent>())
         {
-            blocksInCol++;
+            verticalCount++;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    //Down
+    for (int r = currentCell.y + 1; r < m_pGrid->GetRows(); ++r)
+    {
+        GameObject* obj = m_pGrid->GetCellObject(currentCell.x, r);
+        if (obj && obj->GetComponent<DiamondBlockComponent>())
+        {
+            verticalCount++;
+        }
+        else
+        {
+            break;
         }
     }
 
     //If aligned, stun enemies
-    if (blocksInRow >= 3 || blocksInCol >= 3)
+    if (horizontalCount >= 3 || verticalCount >= 3)
     {
         Event e(make_sdbm_hash("StunEnemies"));
         e.nbArgs = 0;

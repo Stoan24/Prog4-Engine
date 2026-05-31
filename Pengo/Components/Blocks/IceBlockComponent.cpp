@@ -8,14 +8,17 @@ dae::IceBlockComponent::IceBlockComponent(GameObject* gameObject, GridComponent*
 {
 }
 
-void dae::IceBlockComponent::OnBreak()
+void dae::IceBlockComponent::OnBreak(bool playsSound)
 {
     if (m_pGrid && m_pMoveComponent)
     {
         glm::ivec2 currentCell = m_pMoveComponent->GetCurrentCell();
         m_pGrid->FreeCell(currentCell.x, currentCell.y);
 
-        ServiceLocator::GetSoundSystem().Play(make_sdbm_hash("IceBlockDestroyed"), 0.05f);
+        if (playsSound)
+        {
+            ServiceLocator::GetSoundSystem().Play(make_sdbm_hash("IceBlockDestroyed"), 0.05f);
+        }
     }
 
     GetGameObject()->MarkForDestruction();

@@ -2,43 +2,34 @@
 #include "GameState.h"
 #include "LevelLoader.h"
 #include "Components/GridComponent.h"
-#include <memory>
 
 namespace dae
 {
     class Scene;
     class GameObject;
 
-    class GameplayState final : public GameState
+    class IntroState final : public GameState
     {
     public:
-        GameplayState(Scene* scene, GridComponent* grid, GameObject* player1, GameObject* player2, int levelIndex)
-            : m_LevelIndex(levelIndex), m_pGameScene(scene), m_pGrid(grid), m_pPlayer1(player1), m_pPlayer2(player2)
-        {
-        }
 
-        ~GameplayState() override = default;
+        explicit IntroState(int levelIndex = 0) : m_LevelIndex(levelIndex) {}
+        ~IntroState() override = default;
 
         void OnEnter() override;
         void OnExit() override;
         std::unique_ptr<dae::GameState> Update() override;
         void Render() override;
 
-
     private:
 
         int m_LevelIndex{ 0 };
-        int m_MaxLevels{ 3 };
 
-        Scene* m_pGameScene{ nullptr };
         LevelLoader m_LevelLoader;
+        Scene* m_pGameScene{ nullptr };
         GridComponent* m_pGrid{ nullptr };
-
-
         GameObject* m_pPlayer1{ nullptr };
         GameObject* m_pPlayer2{ nullptr };
 
-        void SetupInputBindings();
-        void CleanupInputBindings();
+        float m_IntroTimer{ 3.f };
     };
 }

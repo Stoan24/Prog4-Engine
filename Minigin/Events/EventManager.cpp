@@ -5,6 +5,16 @@ void dae::EventManager::AddEvent(EventId id, Observer* observer)
 	m_Observers[id].push_back(observer);
 }
 
+void dae::EventManager::RemoveObserver(EventId id, Observer* observer)
+{
+    auto it = m_Observers.find(id);
+    if (it != m_Observers.end())
+    {
+        auto& list = it->second;
+        list.erase(std::remove(list.begin(), list.end(), observer), list.end());
+    }
+}
+
 void dae::EventManager::HandleEvent(Event e)
 {
 	m_EventQueue.push(e);

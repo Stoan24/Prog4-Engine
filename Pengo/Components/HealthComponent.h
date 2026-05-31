@@ -24,6 +24,7 @@ namespace dae
 		bool IsDead();
 
 		int GetLives() const { return m_Lives; }
+		void SetLives(int lives) { m_Lives = lives; }
 
 		Subject* GetSubject() const { return m_pSubject.get(); }
 

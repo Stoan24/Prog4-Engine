@@ -5,6 +5,8 @@
 #include "GameObject.h"
 #include "Components/GridComponent.h"
 #include "Sound/ServiceLocator.h"
+#include <GameTime.h>
+#include <Components/TextureComponent.h>
 
 dae::EggBlockComponent::EggBlockComponent(GameObject* gameObject, GridComponent* grid)
     : BlockComponent(gameObject, grid)
@@ -20,11 +22,38 @@ void dae::EggBlockComponent::Hatch()
     Destroy();
 }
 
-void dae::EggBlockComponent::OnBreak()
+void dae::EggBlockComponent::SetFlashing(bool flashing)
+{
+    m_IsFlashing = flashing;
+    if (!flashing)
+    {
+        GetGameObject()->GetComponent<TextureComponent>()->SetTexture(m_NormalTexture);
+    }
+}
+
+void dae::EggBlockComponent::UpdateFlash()
+{
+    if (!m_IsFlashing) return;
+
+    m_FlashTimer += GameTime::GetInstance().GetDeltaTime();
+    if (m_FlashTimer >= m_FlashInterval)
+    {
+        m_FlashTimer = 0.f;
+        m_FlashToggle = !m_FlashToggle;
+        GetGameObject()->GetComponent<TextureComponent>()->SetTexture(
+            m_FlashToggle ? m_FlashTexture : m_NormalTexture
+        );
+    }
+}
+
+void dae::EggBlockComponent::OnBreak(bool playsSound)
 {
     if (m_HasHatched) return;
 
-    ServiceLocator::GetSoundSystem().Play(make_sdbm_hash("SnoBeeEggDestroyed"), 0.05f);
+    if (playsSound)
+    {
+        ServiceLocator::GetSoundSystem().Play(make_sdbm_hash("SnoBeeEggDestroyed"), 0.05f);
+    }
 
 
     Event e(make_sdbm_hash("EggDestroyed"));

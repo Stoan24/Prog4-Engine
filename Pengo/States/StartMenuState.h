@@ -17,12 +17,7 @@ namespace dae
         std::unique_ptr<dae::GameState> Update() override;
         void Render() override;
 
-
-        void RequestStateChange(std::unique_ptr<GameState> nextState) { m_pPendingState = std::move(nextState); }
-
-
     private:
-        std::unique_ptr<GameState> m_pPendingState{ nullptr };
         Scene* m_pMenuScene{ nullptr };
 
         void SetupInputBindings();

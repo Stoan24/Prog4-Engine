@@ -14,6 +14,7 @@ namespace dae
 	public:
 
 		void AddEvent(EventId id, Observer* listener);
+		void RemoveObserver(EventId id, Observer* observer);
 		void HandleEvent(Event e);
 
 		void Update();

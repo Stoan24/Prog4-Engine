@@ -1,7 +1,4 @@
 #include "ScoreComponent.h"
-#include "ScoreManager.h"
-#include "Events/Event.h"
-#include "Events/EventManager.h"
 #include "SDBMHasher.h"
 
 dae::ScoreComponent::ScoreComponent(GameObject* gameObject)

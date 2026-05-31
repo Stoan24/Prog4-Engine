@@ -24,10 +24,12 @@ namespace dae
 
         void Notify(const Event& e) override;
 
-        //int GetActiveSnoBeeCount() const { return static_cast<int>(m_ActiveSnoBees.size()); }
-        //int GetEggCount() const { return static_cast<int>(m_Eggs.size()); }
+        bool IsLevelComplete() const;
 
         void HatchNextEgg();
+
+        const std::vector<GameObject*>& GetEggs() const { return m_Eggs; }
+
     private:
         friend class Singleton<SnoBeeManager>;
         SnoBeeManager() = default;

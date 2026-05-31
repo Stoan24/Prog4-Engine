@@ -46,6 +46,7 @@ void dae::BlockComponent::Update()
             e.args[0].gameObject = m_pPlayer;
             EventManager::GetInstance().HandleEvent(e);
 
+
             ServiceLocator::GetSoundSystem().Play(make_sdbm_hash("SnoBeeSquashed"), 0.05f);
 
 
@@ -70,6 +71,6 @@ void dae::BlockComponent::Push(glm::ivec2 direction, GameObject* player)
     }
     else
     {
-        OnBreak();
+        OnBreak(true);
     }
 }

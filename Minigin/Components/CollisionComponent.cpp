@@ -28,15 +28,3 @@ void dae::CollisionComponent::SetSize(int width, int height)
 	m_Size.x = static_cast<float>(width);
 	m_Size.y = static_cast<float>(height);
 }
-
-void dae::CollisionComponent::OnCollision(GameObject* other)
-{
-	//Quick Tag checking --> Should be in Game not Engine
-	if (other->HasTag("Enemy"))
-	{
-		Event e(make_sdbm_hash("PlayerHit"));
-		e.nbArgs = 1;
-		e.args[0].gameObject = GetGameObject();
-		EventManager::GetInstance().HandleEvent(e);
-	}
-}

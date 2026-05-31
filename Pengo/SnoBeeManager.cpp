@@ -53,7 +53,18 @@ void dae::SnoBeeManager::Notify(const Event& e)
         CleanupDead();
 
         HatchNextEgg();
+
+        if (IsLevelComplete())
+        {
+            Event levelComplete(make_sdbm_hash("LevelComplete"));
+            EventManager::GetInstance().HandleEvent(levelComplete);
+        }
     }
+}
+
+bool dae::SnoBeeManager::IsLevelComplete() const
+{
+    return m_ActiveSnoBees.empty() && m_Eggs.empty();
 }
 
 void dae::SnoBeeManager::CleanupDead()

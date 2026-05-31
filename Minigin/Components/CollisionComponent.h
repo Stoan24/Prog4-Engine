@@ -27,9 +27,6 @@ namespace dae
 
 		GameObject* GetGameObject() const override { return GameComponent::GetGameObject(); }
 
-
-		void OnCollision(GameObject* other);
-
 	private:
 		
 		Transform* m_Transform;

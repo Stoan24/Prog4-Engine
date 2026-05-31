@@ -16,14 +16,19 @@ dae::SnoBeeComponent::SnoBeeComponent(GameObject* gameObject, GridComponent* gri
     EventManager::GetInstance().AddEvent(make_sdbm_hash("StunEnemies"), this);
 }
 
+dae::SnoBeeComponent::~SnoBeeComponent()
+{
+    EventManager::GetInstance().RemoveObserver(make_sdbm_hash("StunEnemies"), this);
+}
+
 void dae::SnoBeeComponent::Update()
 {
-    const float dt = GameTime::GetInstance().GetDeltaTime();
+    const float deltaTime = GameTime::GetInstance().GetDeltaTime();
 
 
     if (m_State == SnoBeeState::Stunned)
     {
-        m_StunTimer -= dt;
+        m_StunTimer -= deltaTime;
         if (m_StunTimer <= 0.f)
         {
             m_State = SnoBeeState::Wander;
@@ -38,7 +43,7 @@ void dae::SnoBeeComponent::Update()
 
     if (m_BlockBreakTimer > 0.f)
     {
-        m_BlockBreakTimer -= dt;
+        m_BlockBreakTimer -= deltaTime;
     }
 
     if (m_pMove->IsMoving()) return;
@@ -95,7 +100,7 @@ bool dae::SnoBeeComponent::BreakBlock(glm::ivec2 direction)
     auto* block = occupant->GetComponent<IceBlockComponent>();
     if (!block) return false;
 
-    block->OnBreak();
+    block->OnBreak(false);
 
     m_BlockBreakTimer = m_BlockBreakCooldown;
     return true;

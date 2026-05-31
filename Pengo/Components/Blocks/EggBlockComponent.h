@@ -19,14 +19,24 @@ namespace dae
 
         bool HasHatched() const { return m_HasHatched; }
 
+        void SetFlashing(bool flashing);
+        void UpdateFlash();
+
     protected:
 
-        void OnBreak() override;
+        void OnBreak(bool playsSound) override;
         void OnSlideStopped() override {}
 
     private:
         void Destroy();
 
         bool m_HasHatched{ false };
+
+        bool m_IsFlashing{ false };
+        float m_FlashTimer{ 0.f };
+        const float m_FlashInterval{ 0.4f };
+        bool m_FlashToggle{ false };
+        const std::string m_NormalTexture{ "IceBlock.png" };
+        const std::string m_FlashTexture{ "FlashBlock.png" };
     };
 }

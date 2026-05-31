@@ -32,25 +32,6 @@ namespace dae
         }
     };
 
-    class KillEnemyCommand final : public Command
-    {
-        GameObject* m_pGameObject;
-
-    public:
-        KillEnemyCommand(GameObject* gameObject)
-            : m_pGameObject{ gameObject }
-        {
-        }
-
-        void Execute() override
-        {
-            Event e(make_sdbm_hash("EnemyKilled"));
-            e.nbArgs = 1;
-            e.args[0].gameObject = m_pGameObject;
-            EventManager::GetInstance().HandleEvent(e);
-        }
-    };
-
     class PushBlockCommand final : public Command
     {
         GameObject* m_pGameObject;

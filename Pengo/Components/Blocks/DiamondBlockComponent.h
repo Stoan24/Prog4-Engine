@@ -19,7 +19,7 @@ namespace dae
 
     protected:
 
-        void OnBreak() override 
+        void OnBreak(bool) override 
         {
             //Cannot break
         }

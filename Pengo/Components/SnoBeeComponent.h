@@ -21,7 +21,7 @@ namespace dae
     {
     public:
         SnoBeeComponent(GameObject* gameObject, GridComponent* grid);
-        virtual ~SnoBeeComponent() = default;
+        virtual ~SnoBeeComponent();
 
         SnoBeeComponent(const SnoBeeComponent&) = delete;
         SnoBeeComponent(SnoBeeComponent&&) = delete;
@@ -37,9 +37,11 @@ namespace dae
         {
             if (e.id == make_sdbm_hash("StunEnemies"))
             {
-                Stun(2);
+                Stun(m_maxStun);
             }
         }
+
+        Subject* GetSubject() const { return m_pSubject.get(); }
 
     private:
         GridComponent* m_pGrid{ nullptr };
@@ -48,6 +50,7 @@ namespace dae
         SnoBeeState m_State{ SnoBeeState::Wander };
 
         float m_StunTimer{ 0.f };
+        float m_maxStun{ 7.5f };
 
         float m_BlockBreakTimer{ 0.f };
         const float m_BlockBreakCooldown{ 1.5f };

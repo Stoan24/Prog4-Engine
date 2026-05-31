@@ -232,7 +232,7 @@ endif()
 add_executable(${PENGO_TARGET} ${PENGO_PARAM}
   Pengo/Main.cpp
   Pengo/Components/HealthComponent.cpp
-  Pengo/ScoreManager.cpp
+  Pengo/PlayerManager.cpp
   Pengo/Components/ScoreComponent.cpp
   Pengo/Components/GridComponent.cpp
   Pengo/Components/GridMoveComponent.cpp
@@ -246,7 +246,7 @@ add_executable(${PENGO_TARGET} ${PENGO_PARAM}
   Minigin/GameStateManager.cpp
   Pengo/States/GameplayState.cpp
   Pengo/States/StartMenuState.cpp
-  )
+  Pengo/States/IntroState.cpp)
 
 target_include_directories(${PENGO_TARGET} PRIVATE
   ${CMAKE_SOURCE_DIR}/Pengo

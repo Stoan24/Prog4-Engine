@@ -1,10 +1,11 @@
 #include "StartMenuState.h"
 #include "GameStateManager.h"
-#include "GameplayState.h"
+#include "IntroState.h"
 
 #include "SceneManager.h"
 #include "InputManager.h"
 #include "ResourceManager.h"
+#include "PlayerManager.h"
 
 #include "GameObject.h"
 #include "Components/TextComponent.h"
@@ -21,18 +22,11 @@ namespace dae
     class StartGameCommand final : public Command
     {
     public:
-        StartGameCommand(StartMenuState* pState)
-            :m_pState(pState) 
-        {}
 
         void Execute() override
         {
-            auto nextState = std::make_unique<GameplayState>();
-            m_pState->RequestStateChange(std::move(nextState));
+            GameStateManager::GetInstance().ChangeState(std::make_unique<IntroState>());
         }
-
-    private:
-        StartMenuState* m_pState;
     };
 
 
@@ -47,6 +41,8 @@ namespace dae
 
 void dae::StartMenuState::OnEnter()
 {
+    PlayerManager::GetInstance().Initialize(2);
+
     CreateMenuScene();
     SetupInputBindings();
 }
@@ -63,7 +59,7 @@ std::unique_ptr<dae::GameState> dae::StartMenuState::Update()
         m_pMenuScene->Update();
     }
 
-    return std::move(m_pPendingState);
+    return nullptr;
 }
 
 void dae::StartMenuState::Render()
@@ -79,8 +75,8 @@ void dae::StartMenuState::SetupInputBindings()
 {
     auto& input = InputManager::GetInstance();
 
-    input.BindKey(SDL_SCANCODE_SPACE, KeyState::Down, std::make_unique<StartGameCommand>(this));
-    input.BindButton(0, ControllerButton::ButtonA, KeyState::Down, std::make_unique<StartGameCommand>(this));
+    input.BindKey(SDL_SCANCODE_SPACE, KeyState::Down, std::make_unique<StartGameCommand>());
+    input.BindButton(0, ControllerButton::ButtonA, KeyState::Down, std::make_unique<StartGameCommand>());
 
     input.BindKey(SDL_SCANCODE_ESCAPE, KeyState::Down, std::make_unique<QuitGameCommand>());
     input.BindButton(0, ControllerButton::Start, KeyState::Pressed, std::make_unique<QuitGameCommand>());
