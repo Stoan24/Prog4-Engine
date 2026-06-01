@@ -17,8 +17,6 @@ void dae::PlayerManager::Initialize(int playerCount)
 
 void dae::PlayerManager::OnLevelStart()
 {
-    m_PlayerObjects.clear();
-
     EventManager::GetInstance().AddEvent(make_sdbm_hash("EnemyKilled"), this);
     EventManager::GetInstance().AddEvent(make_sdbm_hash("StunEnemies"), this);
     EventManager::GetInstance().AddEvent(make_sdbm_hash("EggDestroyed"), this);
@@ -42,6 +40,7 @@ void dae::PlayerManager::RegisterPlayer(int playerIdx, GameObject* playerObject)
     {
         m_PlayerObjects.resize(playerIdx + 1, nullptr);
     }
+
     m_PlayerObjects[playerIdx] = playerObject;
 }
 
@@ -51,5 +50,17 @@ int dae::PlayerManager::GetPlayerIndex(GameObject* playerObject) const
     {
         if (m_PlayerObjects[i] == playerObject) return i;
     }
+
     return -1;
+}
+
+void dae::PlayerManager::AddScore(int playerIdx, int score)
+{
+    m_Players[playerIdx].score += score;
+
+    if (playerIdx < static_cast<int>(m_PlayerObjects.size()) && m_PlayerObjects[playerIdx])
+    {
+        auto* scoreComp = m_PlayerObjects[playerIdx]->GetComponent<ScoreComponent>();
+        if (scoreComp) scoreComp->AddPoints(score);
+    }
 }

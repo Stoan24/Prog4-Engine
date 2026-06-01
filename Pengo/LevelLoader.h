@@ -1,9 +1,12 @@
 #pragma once
 #include <string>
 #include <unordered_map>
+#include <nlohmann/json_fwd.hpp>
+
 #include "Scene.h"
 #include "Components/GridComponent.h"
-#include <nlohmann/json_fwd.hpp>
+#include "States/StartMenuState.h"
+
 
 using json = nlohmann::json;
 
@@ -12,7 +15,13 @@ namespace dae
     class LevelLoader
     {
     public:
-        GridComponent* LoadLevel(const std::string& filePath, Scene& scene);
+        GridComponent* LoadLevel(int levelIndex, Scene& scene, GameMode gameMode);
+
+
+        static int GetLevelCount(const std::string& filePath);
+        static void LoadSounds(const std::string& filePath);
+        void LoadUI(Scene& scene, GameObject* player1, GameObject* player2);
+
 
         GameObject* GetObject(const std::string& name) const
         {
@@ -21,19 +30,13 @@ namespace dae
             return nullptr;
         }
 
-        static std::string GetLevelPath(int index)
-        {
-            return "Data/Levels/level" + std::to_string(index + 1) + ".json";
-        }
+        static std::string GetLevelsPath() { return "Data/JSON/levels.json"; }
 
     private:
+        GameMode m_GameMode{ GameMode::SinglePlayer };
         std::unordered_map<std::string, GameObject*> m_NamedObjects;
 
         void LoadGrid(const json& gridJson, Scene& scene, GridComponent*& outGrid);
-        void LoadCell(int id, int col, int row, Scene& scene, GridComponent* grid);
-        void LoadUI(const json& uiJson, Scene& scene);
-        void LoadSound();
-
-        bool m_IsSoundLoaded{ false };
+        void LoadCell(int id, int col, int row, Scene& scene, GridComponent* grid); 
     };
 }

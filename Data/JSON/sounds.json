@@ -1,0 +1,12 @@
+{
+  "sounds": [
+    { "name": "ActStart",           "file": "Data/Sounds/ActStart.mp3" },
+    { "name": "IceBlockDestroyed",  "file": "Data/Sounds/IceBlockDestroyed.mp3" },
+    { "name": "PushIceBlock",       "file": "Data/Sounds/PushIceBlock.mp3" },
+    { "name": "SnoBeeEggDestroyed", "file": "Data/Sounds/SnoBeeEggDestroyed.mp3" },
+    { "name": "SnoBeeSpawning",     "file": "Data/Sounds/SnoBeeSpawning.mp3" },
+    { "name": "SnoBeeSquashed",     "file": "Data/Sounds/SnoBeeSquashed.mp3" },
+    { "name": "SnoBeeStunned",      "file": "Data/Sounds/SnoBeeStunned.mp3" }
+  ],
+  "volume": 0.02
+}

@@ -1,12 +1,10 @@
 #pragma once
 #include "Singleton.h"
 #include "Observers/Observer.h"
-#include "Events/EventManager.h"
 #include "GameObject.h"
 #include "Components/GridComponent.h"
 #include "Scene.h"
 #include <vector>
-#include <functional>
 
 namespace dae
 {
@@ -30,6 +28,9 @@ namespace dae
 
         const std::vector<GameObject*>& GetEggs() const { return m_Eggs; }
 
+        int GetLevelIndex() const { return m_LevelIndex; }
+        void AddLevelIndex() { m_LevelIndex++; }
+
     private:
         friend class Singleton<SnoBeeManager>;
         SnoBeeManager() = default;
@@ -41,5 +42,7 @@ namespace dae
 
         std::vector<GameObject*> m_ActiveSnoBees;
         std::vector<GameObject*> m_Eggs;
+
+        int m_LevelIndex{ 0 };
     };
 }

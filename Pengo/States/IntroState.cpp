@@ -12,10 +12,12 @@ void dae::IntroState::OnEnter()
     m_pGameScene = &sceneManager.CreateScene("Game");
     sceneManager.SetActiveScene("Game");
 
-    m_pGrid = m_LevelLoader.LoadLevel(LevelLoader::GetLevelPath(m_LevelIndex), *m_pGameScene);
+    m_pGrid = m_LevelLoader.LoadLevel(m_LevelIndex, *m_pGameScene, m_GameMode);
 
     m_pPlayer1 = m_LevelLoader.GetObject("Pengo");
     m_pPlayer2 = m_LevelLoader.GetObject("Pengo2");
+
+    m_LevelLoader.LoadUI(*m_pGameScene, m_pPlayer1, m_pPlayer2);
 
 
     for (auto* eggObj : SnoBeeManager::GetInstance().GetEggs())
@@ -55,11 +57,9 @@ std::unique_ptr<dae::GameState> dae::IntroState::Update()
         SnoBeeManager::GetInstance().HatchNextEgg();
         SnoBeeManager::GetInstance().HatchNextEgg();
 
-        auto nextState = std::make_unique<GameplayState>(
-            m_pGameScene, m_pGrid, m_pPlayer1, m_pPlayer2, m_LevelIndex
+        return std::make_unique<GameplayState>(
+            m_pGameScene, m_pGrid, m_pPlayer1, m_pPlayer2, m_GameMode
         );
-
-        GameStateManager::GetInstance().ChangeState(std::move(nextState));
     }
 
     return nullptr;

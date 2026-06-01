@@ -19,17 +19,6 @@
 
 namespace dae
 {
-    class StartGameCommand final : public Command
-    {
-    public:
-
-        void Execute() override
-        {
-            GameStateManager::GetInstance().ChangeState(std::make_unique<IntroState>());
-        }
-    };
-
-
     class QuitGameCommand final : public Command
     {
     public:
@@ -37,10 +26,41 @@ namespace dae
         {
         }
     };
+
+    class StartSinglePlayerCommand final : public Command
+    {
+    public:
+        void Execute() override
+        {
+            PlayerManager::GetInstance().Initialize(1);
+            GameStateManager::GetInstance().ChangeState(std::make_unique<IntroState>(0, GameMode::SinglePlayer));
+        }
+    };
+
+    class StartCoopCommand final : public Command
+    {
+    public:
+        void Execute() override
+        {
+            PlayerManager::GetInstance().Initialize(2);
+            GameStateManager::GetInstance().ChangeState(std::make_unique<IntroState>(0, GameMode::Coop));
+        }
+    };
+
+    class StartVersusCommand final : public Command
+    {
+    public:
+        void Execute() override
+        {
+            PlayerManager::GetInstance().Initialize(2);
+            GameStateManager::GetInstance().ChangeState(std::make_unique<IntroState>(0, GameMode::Versus));
+        }
+    };
 }
 
 void dae::StartMenuState::OnEnter()
 {
+    LevelLoader::LoadSounds("Data/JSON/sounds.json");
     PlayerManager::GetInstance().Initialize(2);
 
     CreateMenuScene();
@@ -75,8 +95,12 @@ void dae::StartMenuState::SetupInputBindings()
 {
     auto& input = InputManager::GetInstance();
 
-    input.BindKey(SDL_SCANCODE_SPACE, KeyState::Down, std::make_unique<StartGameCommand>());
-    input.BindButton(0, ControllerButton::ButtonA, KeyState::Down, std::make_unique<StartGameCommand>());
+    input.BindKey(SDL_SCANCODE_1, KeyState::Down, std::make_unique<StartSinglePlayerCommand>());
+    input.BindKey(SDL_SCANCODE_2, KeyState::Down, std::make_unique<StartCoopCommand>());
+    input.BindKey(SDL_SCANCODE_3, KeyState::Down, std::make_unique<StartVersusCommand>());
+    input.BindButton(0, ControllerButton::ButtonA, KeyState::Down, std::make_unique<StartSinglePlayerCommand>());
+    input.BindButton(0, ControllerButton::ButtonX, KeyState::Down, std::make_unique<StartCoopCommand>());
+    input.BindButton(0, ControllerButton::ButtonY, KeyState::Down, std::make_unique<StartVersusCommand>());
 
     input.BindKey(SDL_SCANCODE_ESCAPE, KeyState::Down, std::make_unique<QuitGameCommand>());
     input.BindButton(0, ControllerButton::Start, KeyState::Pressed, std::make_unique<QuitGameCommand>());
@@ -87,8 +111,12 @@ void dae::StartMenuState::CleanupInputBindings()
     auto& input = InputManager::GetInstance();
 
 
-    input.UnbindKey(SDL_SCANCODE_SPACE, KeyState::Down);
+    input.UnbindKey(SDL_SCANCODE_1, KeyState::Down);
+    input.UnbindKey(SDL_SCANCODE_2, KeyState::Down);
+    input.UnbindKey(SDL_SCANCODE_3, KeyState::Down);
     input.UnbindButton(0, ControllerButton::ButtonA, KeyState::Down);
+    input.UnbindButton(0, ControllerButton::ButtonX, KeyState::Down);
+    input.UnbindButton(0, ControllerButton::ButtonY, KeyState::Down);
 
     input.UnbindKey(SDL_SCANCODE_ESCAPE, KeyState::Down);
     input.UnbindButton(0, ControllerButton::Start, KeyState::Down);
@@ -114,16 +142,29 @@ void dae::StartMenuState::CreateMenuScene()
     m_pMenuScene->Add(std::move(titleObject));
 
 
-    auto startObject = std::make_unique<GameObject>();
-    auto smallFont = ResourceManager::GetInstance().LoadFont("Lingua.otf", 16);
-    startObject->GetComponent<Transform>()->SetLocalPosition(20.f, 150.f);
-    startObject->AddComponent<TextureComponent>();
-    startObject->AddComponent<TextComponent>("Press SPACE or A to Start", smallFont);
-    m_pMenuScene->Add(std::move(startObject));
+    auto smallFont = ResourceManager::GetInstance().LoadFont("Lingua.otf", 14);
+
+    auto singleplayerText = std::make_unique<GameObject>();
+    singleplayerText->GetComponent<Transform>()->SetLocalPosition(20.f, 150.f);
+    singleplayerText->AddComponent<TextureComponent>();
+    singleplayerText->AddComponent<TextComponent>("Press 1 or A for SinglePlayer", smallFont);
+    m_pMenuScene->Add(std::move(singleplayerText));
+
+    auto coopText = std::make_unique<GameObject>();
+    coopText->GetComponent<Transform>()->SetLocalPosition(20.f, 170.f);
+    coopText->AddComponent<TextureComponent>();
+    coopText->AddComponent<TextComponent>("Press 2 or X for COOP", smallFont);
+    m_pMenuScene->Add(std::move(coopText));
+
+    auto versusText = std::make_unique<GameObject>();
+    versusText->GetComponent<Transform>()->SetLocalPosition(20.f, 190.f);
+    versusText->AddComponent<TextureComponent>();
+    versusText->AddComponent<TextComponent>("Press 3 or Y for Versus", smallFont);
+    m_pMenuScene->Add(std::move(versusText));
 
 
     auto daeObject = std::make_unique<GameObject>();
-    daeObject->GetComponent<Transform>()->SetLocalPosition(76.f, 200.f);
+    daeObject->GetComponent<Transform>()->SetLocalPosition(76.f, 250.f);
     daeObject->AddComponent<TextureComponent>()->SetTexture("UI/Company.png");
     m_pMenuScene->Add(std::move(daeObject));
 }

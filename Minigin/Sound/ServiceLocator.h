@@ -24,6 +24,5 @@ namespace dae
         ServiceLocator(ServiceLocator&&) = delete;
         ServiceLocator& operator=(const ServiceLocator&) = delete;
         ServiceLocator& operator=(ServiceLocator&&) = delete;
-
     };
 }

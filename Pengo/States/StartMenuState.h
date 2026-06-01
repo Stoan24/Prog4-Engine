@@ -4,6 +4,13 @@
 
 namespace dae
 {
+    enum class GameMode
+    {
+        SinglePlayer,
+        Coop,
+        Versus
+    };
+
     class Scene;
 
     class StartMenuState final : public GameState

@@ -31,11 +31,43 @@
 
 using json = nlohmann::json;
 
-dae::GridComponent* dae::LevelLoader::LoadLevel(const std::string& filePath, Scene& scene)
+dae::GridComponent* dae::LevelLoader::LoadLevel(int levelIndex, Scene& scene, GameMode gameMode)
 {
+    m_GameMode = gameMode;
+
     SnoBeeManager::GetInstance().Clear();
     m_NamedObjects.clear();
 
+    std::ifstream file(GetLevelsPath());
+    if (!file.is_open())
+    {
+        throw std::runtime_error("LevelLoader: could not open levels.json" );
+    }
+
+    json data = json::parse(file);
+    const auto& levelJson = data["levels"][levelIndex];
+
+    GridComponent* grid = nullptr;
+    LoadGrid(levelJson, scene, grid);
+
+    dae::PlayerManager::GetInstance().OnLevelStart();
+    SnoBeeManager::GetInstance().Initialize(grid);
+
+    return grid;
+}
+
+int dae::LevelLoader::GetLevelCount(const std::string& filePath)
+{
+    std::ifstream file(filePath);
+
+    if (!file.is_open()) return 0;
+    json data = json::parse(file);
+    
+    return static_cast<int>(data["levels"].size());
+}
+
+void dae::LevelLoader::LoadSounds(const std::string& filePath)
+{
     std::ifstream file(filePath);
     if (!file.is_open())
     {
@@ -43,23 +75,57 @@ dae::GridComponent* dae::LevelLoader::LoadLevel(const std::string& filePath, Sce
     }
 
     json data = json::parse(file);
+    auto& ss = ServiceLocator::GetSoundSystem();
 
-    GridComponent* grid = nullptr;
-
-    LoadGrid(data["grid"], scene, grid);
-
-    LoadUI(data["ui"], scene);
-
-    if (!m_IsSoundLoaded)
+    for (const auto& entry : data["sounds"])
     {
-        LoadSound();
+        std::string name = entry["name"];
+        std::string path = entry["file"];
+        ss.RegisterSound(make_sdbm_hash(name.c_str()), path);
     }
 
-    dae::PlayerManager::GetInstance().OnLevelStart();
+    ss.SetVolume(static_cast<float>(data["volume"]));
+}
 
-    SnoBeeManager::GetInstance().Initialize(grid);
+void dae::LevelLoader::LoadUI(Scene& scene, GameObject* player1, GameObject* player2)
+{
+    auto font = ResourceManager::GetInstance().LoadFont("Lingua.otf", 14);
 
-    return grid;
+    auto makeObservers = [&](GameObject* player, float x)
+    {
+        if (!player) return;
+
+        auto* health = player->GetComponent<HealthComponent>();
+        auto* score = player->GetComponent<ScoreComponent>();
+
+        //Health display
+        auto healthObj = std::make_unique<GameObject>();
+        healthObj->GetComponent<Transform>()->SetLocalPosition(x, 0.f);
+        healthObj->AddComponent<TextureComponent>();
+
+        auto healthText = healthObj->AddComponent<TextComponent>("", font);
+        healthObj->AddComponent<HealthObserver>(healthText, health);
+        healthText->SetText("# Lives: " + std::to_string(health->GetLives()));
+
+        scene.Add(std::move(healthObj));
+
+        //Score display
+        if (score)
+        {
+            auto scoreObj = std::make_unique<GameObject>();
+            scoreObj->GetComponent<Transform>()->SetLocalPosition(x, 16.f);
+            scoreObj->AddComponent<TextureComponent>();
+
+            auto scoreText = scoreObj->AddComponent<TextComponent>("", font);
+            scoreObj->AddComponent<ScoreObserver>(scoreText, score);
+            scoreText->SetText("Score: " + std::to_string(score->GetScore()));
+
+            scene.Add(std::move(scoreObj));
+        }
+    };
+
+    makeObservers(player1, 0.f);
+    makeObservers(player2, 100.f);
 }
 
 void dae::LevelLoader::LoadGrid(const json& gridJson, Scene& scene, GridComponent*& outGrid)
@@ -165,24 +231,44 @@ void dae::LevelLoader::LoadCell(int id, int col, int row, Scene& scene, GridComp
 
     case 5: //Player 2
     {
-        gameObject->AddComponent<TextureComponent>()->SetTexture("Pengo2.png");
-        gameObject->AddComponent<GridMoveComponent>(grid, col, row, 1.f);
-        gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
+        if (m_GameMode == GameMode::SinglePlayer) break; //Singleplayer
 
-        auto* health = gameObject->AddComponent<HealthComponent>(4);
-        int savedLives = PlayerManager::GetInstance().GetLives(1);
-        if (savedLives > 0) health->SetLives(savedLives);
+        if (m_GameMode == GameMode::Coop)
+        {
+            gameObject->AddComponent<TextureComponent>()->SetTexture("Pengo2.png");
+            gameObject->AddComponent<GridMoveComponent>(grid, col, row, 1.f);
+            gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
 
+            auto* health = gameObject->AddComponent<HealthComponent>(4);
+            int savedLives = PlayerManager::GetInstance().GetLives(1);
+            if (savedLives > 0) health->SetLives(savedLives);
 
-        auto* score = gameObject->AddComponent<ScoreComponent>();
-        int savedScore = PlayerManager::GetInstance().GetScore(1);
-        if (savedScore > 0) score->SetScore(savedScore);
+            auto* score = gameObject->AddComponent<ScoreComponent>();
+            int savedScore = PlayerManager::GetInstance().GetScore(1);
+            if (savedScore > 0) score->SetScore(savedScore);
 
-        //gameObject->AddTag("Player");
+            gameObject->AddTag("Player");
 
-        m_NamedObjects["Pengo2"] = gameObject.get();
+            m_NamedObjects["Pengo2"] = gameObject.get();
 
-        PlayerManager::GetInstance().RegisterPlayer(1, gameObject.get());
+            PlayerManager::GetInstance().RegisterPlayer(1, gameObject.get());
+        }
+        else if (m_GameMode == GameMode::Versus)
+        {
+            gameObject->AddComponent<TextureComponent>()->SetTexture("SnoBeePlayer.png");
+            gameObject->AddComponent<GridMoveComponent>(grid, col, row, 1.f);
+            gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
+
+            auto* health = gameObject->AddComponent<HealthComponent>(4);
+            int savedLives = PlayerManager::GetInstance().GetLives(1);
+            if (savedLives > 0) health->SetLives(savedLives);
+
+            gameObject->AddTag("VersusPlayer");
+
+            m_NamedObjects["Pengo2"] = gameObject.get();
+
+            PlayerManager::GetInstance().RegisterPlayer(1, gameObject.get());
+        }
         break;
     }
     }
@@ -192,60 +278,4 @@ void dae::LevelLoader::LoadCell(int id, int col, int row, Scene& scene, GridComp
         gameObject->SetParent(grid->GetGameObject(), false);
         scene.Add(std::move(gameObject));
     }
-}
-
-void dae::LevelLoader::LoadUI(const json& uiJson, Scene& scene)
-{
-    for (const auto& item : uiJson)
-    {
-        std::string type = item["type"];
-        std::string fontFile = item["font"]["file"];
-        uint8_t fontSize = item["font"]["size"];
-        std::string initialText = item["initialText"];
-
-        float x = item["position"]["x"];
-        float y = item["position"]["y"];
-
-        auto font = ResourceManager::GetInstance().LoadFont(fontFile, fontSize);
-
-        auto gameObject = std::make_unique<GameObject>();
-        gameObject->GetComponent<Transform>()->SetLocalPosition(x, y);
-        gameObject->AddComponent<TextureComponent>();
-        auto text = gameObject->AddComponent<TextComponent>(initialText, font);
-
-
-        std::string tracksPlayer = item["tracksPlayer"];
-        GameObject* player = m_NamedObjects.at(tracksPlayer);
-
-        if (type == "healthObserver")
-        {
-            auto* health = player->GetComponent<HealthComponent>();
-            gameObject->AddComponent<HealthObserver>(text, health);
-        }
-        else if (type == "scoreObserver")
-        {
-            auto* score = player->GetComponent<ScoreComponent>();
-            gameObject->AddComponent<ScoreObserver>(text, score);
-        }
-
-        scene.Add(std::move(gameObject));
-    }
-}
-
-void dae::LevelLoader::LoadSound()
-{
-    auto& ss = dae::ServiceLocator::GetSoundSystem();
-
-    //Will be moved to JSON file
-    ss.RegisterSound(make_sdbm_hash("ActStart"), "Data/Sounds/ActStart.mp3");
-    ss.RegisterSound(make_sdbm_hash("IceBlockDestroyed"), "Data/Sounds/IceBlockDestroyed.mp3");
-    ss.RegisterSound(make_sdbm_hash("PushIceBlock"), "Data/Sounds/PushIceBlock.mp3");
-    ss.RegisterSound(make_sdbm_hash("SnoBeeEggDestroyed"), "Data/Sounds/SnoBeeEggDestroyed.mp3");
-    ss.RegisterSound(make_sdbm_hash("SnoBeeSpawning"), "Data/Sounds/SnoBeeSpawning.mp3");
-    ss.RegisterSound(make_sdbm_hash("SnoBeeSquashed"), "Data/Sounds/SnoBeeSquashed.mp3");
-    ss.RegisterSound(make_sdbm_hash("SnoBeeStunned"), "Data/Sounds/SnoBeeStunned.mp3");
-
-    ss.SetVolume(0.02f);
-
-    m_IsSoundLoaded = true;
 }

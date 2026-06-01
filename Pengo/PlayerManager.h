@@ -29,7 +29,7 @@ namespace dae
 
         void SetScore(int playerIdx, int score) { m_Players[playerIdx].score = score; }
         int GetScore(int playerIdx) const { return m_Players[playerIdx].score; }
-        void AddScore(int playerIdx, int score) { m_Players[playerIdx].score += score; }
+        void AddScore(int playerIdx, int score);
 
         int GetPlayerCount() const { return static_cast<int>(m_Players.size()); }
 

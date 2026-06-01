@@ -2,6 +2,7 @@
 #include "GameState.h"
 #include "LevelLoader.h"
 #include "Components/GridComponent.h"
+#include "StartMenuState.h"
 
 namespace dae
 {
@@ -12,7 +13,10 @@ namespace dae
     {
     public:
 
-        explicit IntroState(int levelIndex = 0) : m_LevelIndex(levelIndex) {}
+        explicit IntroState(int levelIndex = 0, GameMode gameMode = GameMode::SinglePlayer)
+            :m_LevelIndex(levelIndex),
+            m_GameMode(gameMode)
+        {}
         ~IntroState() override = default;
 
         void OnEnter() override;
@@ -23,6 +27,7 @@ namespace dae
     private:
 
         int m_LevelIndex{ 0 };
+        GameMode m_GameMode{ GameMode::SinglePlayer };
 
         LevelLoader m_LevelLoader;
         Scene* m_pGameScene{ nullptr };

@@ -1,4 +1,5 @@
 #include "EventManager.h"
+#include "EventManager.h"
 
 void dae::EventManager::AddEvent(EventId id, Observer* observer)
 {

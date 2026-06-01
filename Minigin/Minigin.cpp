@@ -18,7 +18,6 @@
 #endif
 
 #include <SDL3/SDL.h>
-//#include <SDL3_image/SDL_image.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include "Minigin.h"
 #include "InputManager.h"
@@ -101,16 +100,30 @@ dae::Minigin::Minigin(const std::filesystem::path& dataPath)
 //	}
 //#endif
 
+	
+	SDL_SetHint(SDL_HINT_VIDEO_WIN_D3DCOMPILER, "none");
+
 	g_window = SDL_CreateWindow(
 		"Pengo",
 		224,
 		304,
 		SDL_WINDOW_OPENGL
 	);
+
+	//Remove Drag & Drop Leaks
+	SDL_SetEventEnabled(SDL_EVENT_DROP_FILE, false);
+	SDL_SetEventEnabled(SDL_EVENT_DROP_TEXT, false);
+	SDL_SetEventEnabled(SDL_EVENT_DROP_BEGIN, false);
+	SDL_SetEventEnabled(SDL_EVENT_DROP_COMPLETE, false);
+	SDL_SetEventEnabled(SDL_EVENT_DROP_POSITION, false);
+
+
+
 	if (g_window == nullptr) 
 	{
 		throw std::runtime_error(std::string("SDL_CreateWindow Error: ") + SDL_GetError());
 	}
+
 //#if USE_STEAMWORKS
 //	if (!SteamAPI_Init())
 //		throw std::runtime_error(std::string("Fatal Error - Steam must be running to play this game (SteamAPI_Init() failed)."));

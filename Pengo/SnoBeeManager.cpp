@@ -1,4 +1,5 @@
 #include "SnoBeeManager.h"
+#include "Events/EventManager.h"
 #include "Components/Blocks/EggBlockComponent.h"
 #include "Components/SnoBeeComponent.h"
 #include "SDBMHasher.h"
@@ -34,7 +35,8 @@ void dae::SnoBeeManager::RegisterEgg(GameObject* eggBlock)
 void dae::SnoBeeManager::CreateSnoBee(int col, int row)
 {
     auto snoBee = std::make_unique<dae::GameObject>();
-    snoBee->AddComponent<dae::TextureComponent>()->SetTexture("Snobee.png");
+
+    snoBee->AddComponent<dae::TextureComponent>()->SetTexture("Snobee" + std::to_string(m_LevelIndex + 1) + ".png");
     snoBee->AddComponent<dae::GridMoveComponent>(m_pGrid, col, row, 1.f);
     snoBee->AddComponent<dae::SnoBeeComponent>(m_pGrid);
     snoBee->AddComponent<dae::CollisionComponent>()->SetSize(16, 16);

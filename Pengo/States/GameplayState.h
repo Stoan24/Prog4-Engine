@@ -12,8 +12,12 @@ namespace dae
     class GameplayState final : public GameState
     {
     public:
-        GameplayState(Scene* scene, GridComponent* grid, GameObject* player1, GameObject* player2, int levelIndex)
-            : m_LevelIndex(levelIndex), m_pGameScene(scene), m_pGrid(grid), m_pPlayer1(player1), m_pPlayer2(player2)
+        GameplayState(Scene* scene, GridComponent* grid, GameObject* player1, GameObject* player2, GameMode gameMode)
+            :m_GameMode(gameMode),
+            m_pGameScene(scene),
+            m_pGrid(grid),
+            m_pPlayer1(player1),
+            m_pPlayer2(player2)
         {
         }
 
@@ -27,8 +31,7 @@ namespace dae
 
     private:
 
-        int m_LevelIndex{ 0 };
-        int m_MaxLevels{ 3 };
+        GameMode m_GameMode{ GameMode::SinglePlayer };
 
         Scene* m_pGameScene{ nullptr };
         LevelLoader m_LevelLoader;
