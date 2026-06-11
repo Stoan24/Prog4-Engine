@@ -16,6 +16,12 @@ void dae::DiamondBlockComponent::CheckAlignment()
 
     glm::ivec2 currentCell = m_pMoveComponent->GetCurrentCell();
 
+    const int maxCols = m_pGrid->GetCols();
+    const int maxRows = m_pGrid->GetRows();
+
+    //Touching a wall?
+    bool horizontalTouchesEdge = (currentCell.x == 0 || currentCell.x == maxCols - 1);
+    bool verticalTouchesEdge = (currentCell.y == 0 || currentCell.y == maxRows - 1);
 
     int horizontalCount = 1;
 
@@ -26,6 +32,7 @@ void dae::DiamondBlockComponent::CheckAlignment()
         if (obj && obj->GetComponent<DiamondBlockComponent>())
         {
             horizontalCount++;
+            if (c == 0) horizontalTouchesEdge = true;
         }
         else
         {
@@ -40,6 +47,7 @@ void dae::DiamondBlockComponent::CheckAlignment()
         if (obj && obj->GetComponent<DiamondBlockComponent>())
         {
             horizontalCount++;
+            if (c == maxCols - 1) horizontalTouchesEdge = true;
         }
         else
         {
@@ -57,6 +65,7 @@ void dae::DiamondBlockComponent::CheckAlignment()
         if (obj && obj->GetComponent<DiamondBlockComponent>())
         {
             verticalCount++;
+            if (r == 0) verticalTouchesEdge = true;
         }
         else
         {
@@ -71,6 +80,7 @@ void dae::DiamondBlockComponent::CheckAlignment()
         if (obj && obj->GetComponent<DiamondBlockComponent>())
         {
             verticalCount++;
+            if (r == maxRows - 1) verticalTouchesEdge = true;
         }
         else
         {
@@ -78,12 +88,30 @@ void dae::DiamondBlockComponent::CheckAlignment()
         }
     }
 
+    bool isHorizontalMatch = (horizontalCount >= 3);
+    bool isVerticalMatch = (verticalCount >= 3);
+
+
     //If aligned, stun enemies
-    if (horizontalCount >= 3 || verticalCount >= 3)
+    if (isHorizontalMatch || isVerticalMatch)
     {
+        bool alignmentTouchesEdge = false;
+        if (isHorizontalMatch && horizontalTouchesEdge) alignmentTouchesEdge = true;
+        if (isVerticalMatch && verticalTouchesEdge) alignmentTouchesEdge = true;
+
         Event e(make_sdbm_hash("StunEnemies"));
-        e.nbArgs = 0;
+        e.nbArgs = 1;
         e.args[0].gameObject = m_pPlayer;
+
+        if (alignmentTouchesEdge)
+        {
+            e.args[1].score = m_stunSideScore;
+        }
+        else
+        {
+            e.args[1].score = m_stunMiddleScore;
+        }
+
         EventManager::GetInstance().HandleEvent(e);
 
         ServiceLocator::GetSoundSystem().Play(make_sdbm_hash("SnoBeeStunned"), 0.05f);

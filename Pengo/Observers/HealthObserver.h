@@ -1,7 +1,9 @@
 #pragma once
-#include "Observers/Observer.h"
-#include "SDBMHasher.h"
 #include "GameComponent.h"
+#include "Observers/Observer.h"
+
+#include "SDBMHasher.h"
+
 #include "../Components/HealthComponent.h"
 #include "Components/TextComponent.h"
 

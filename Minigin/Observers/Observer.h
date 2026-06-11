@@ -1,11 +1,8 @@
 #pragma once
-#include "GameObject.h"
-#include <Events/Event.h>
+#include "Events/Event.h"
 
 namespace dae
 {
-	using EventId = unsigned int;
-
 	class Observer
 	{
 	public:

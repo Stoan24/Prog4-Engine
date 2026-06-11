@@ -1,8 +1,11 @@
-#include "Components/ScoreComponent.h"
-#include "Events/EventManager.h"
 #include "PlayerManager.h"
-#include <SDBMHasher.h>
-#include <Events/Event.h>
+
+#include "Events/Event.h"
+#include "Events/EventManager.h"
+
+
+#include "Components/ScoreComponent.h"
+
 
 void dae::PlayerManager::Initialize(int playerCount)
 {
@@ -13,13 +16,11 @@ void dae::PlayerManager::Initialize(int playerCount)
     {
         m_Players[i].playerIdx = i;
     }
-}
 
-void dae::PlayerManager::OnLevelStart()
-{
     EventManager::GetInstance().AddEvent(make_sdbm_hash("EnemyKilled"), this);
     EventManager::GetInstance().AddEvent(make_sdbm_hash("StunEnemies"), this);
     EventManager::GetInstance().AddEvent(make_sdbm_hash("EggDestroyed"), this);
+    EventManager::GetInstance().AddEvent(make_sdbm_hash("LevelFinish"), this);
 }
 
 void dae::PlayerManager::Notify(const Event& e)
@@ -29,9 +30,7 @@ void dae::PlayerManager::Notify(const Event& e)
     int playerIdx = GetPlayerIndex(e.args[0].gameObject);
     if (playerIdx == -1) return;
 
-    if (e.id == make_sdbm_hash("EnemyKilled")) AddScore(playerIdx, m_killScore);
-    if (e.id == make_sdbm_hash("StunEnemies")) AddScore(playerIdx, m_stunScore);
-    if (e.id == make_sdbm_hash("EggDestroyed")) AddScore(playerIdx, m_eggScore);
+    AddScore(playerIdx, e.args[0].score);
 }
 
 void dae::PlayerManager::RegisterPlayer(int playerIdx, GameObject* playerObject)

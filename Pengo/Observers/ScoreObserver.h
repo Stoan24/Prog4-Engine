@@ -1,9 +1,11 @@
 #pragma once
-#include "Observers/Observer.h"
 #include "GameComponent.h"
-#include "SDBMHasher.h"
+#include "Observers/Observer.h"
+
 #include "../Components/ScoreComponent.h"
 #include "Components/TextComponent.h"
+
+#include "SDBMHasher.h"
 
 namespace dae
 {

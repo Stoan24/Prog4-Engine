@@ -1,8 +1,8 @@
 #pragma once
+#include <memory>
 #include "GameState.h"
 #include "LevelLoader.h"
 #include "Components/GridComponent.h"
-#include <memory>
 
 namespace dae
 {
@@ -25,8 +25,7 @@ namespace dae
 
         void OnEnter() override;
         void OnExit() override;
-        std::unique_ptr<dae::GameState> Update() override;
-        void Render() override;
+        std::unique_ptr<GameState> Update() override;
 
 
     private:
@@ -37,11 +36,17 @@ namespace dae
         LevelLoader m_LevelLoader;
         GridComponent* m_pGrid{ nullptr };
 
-
         GameObject* m_pPlayer1{ nullptr };
         GameObject* m_pPlayer2{ nullptr };
 
+        float m_LevelTimer{ 0.0f };
+
         void SetupInputBindings();
         void CleanupInputBindings();
+
+        bool CheckAllPlayersDead(int& outScore) const;
+        int  GetCombinedScore() const;
+
+        int CalculateTimeBonus(float timeInSeconds) const;
     };
 }

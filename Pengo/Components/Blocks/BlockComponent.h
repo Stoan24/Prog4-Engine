@@ -30,5 +30,10 @@ namespace dae {
         glm::ivec2 m_SlideDirection{ 0, 0 };
         bool m_IsSliding{ false };
         GameObject* m_pPlayer{ nullptr };
+
+        int m_KillCount{ 0 };
+
+        static constexpr int m_KillScores[] = { 0, 400, 1600, 3200, 6400 };
+        static constexpr int m_MaxKills = 4;
     };
 }

@@ -74,22 +74,8 @@ void dae::StartMenuState::OnExit()
 
 std::unique_ptr<dae::GameState> dae::StartMenuState::Update()
 {
-    if (m_pMenuScene)
-    {
-        m_pMenuScene->Update();
-    }
-
     return nullptr;
 }
-
-void dae::StartMenuState::Render()
-{
-    if (m_pMenuScene)
-    {
-        m_pMenuScene->Render();
-    }
-}
-
 
 void dae::StartMenuState::SetupInputBindings()
 {
@@ -109,7 +95,6 @@ void dae::StartMenuState::SetupInputBindings()
 void dae::StartMenuState::CleanupInputBindings()
 {
     auto& input = InputManager::GetInstance();
-
 
     input.UnbindKey(SDL_SCANCODE_1, KeyState::Down);
     input.UnbindKey(SDL_SCANCODE_2, KeyState::Down);

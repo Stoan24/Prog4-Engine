@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <nlohmann/json.hpp>
 
-//Engine components
+//Engine
 #include "GameObject.h"
 #include "Components/TextureComponent.h"
 #include "Components/TextComponent.h"
@@ -14,20 +14,19 @@
 
 //Managers
 #include "ResourceManager.h"
-#include "PlayerManager.h"
 #include "Sound/ServiceLocator.h"
+#include "PlayerManager.h"
+#include "SnoBeeManager.h"
 
-//Game components
+//Game
 #include "Components/HealthComponent.h"
 #include "Components/ScoreComponent.h"
 #include "Components/Blocks/IceBlockComponent.h"
 #include "Components/Blocks/DiamondBlockComponent.h"
 #include "Components/Blocks/EggBlockComponent.h"
-#include "Components/SnoBeeComponent.h"
 #include "Observers/HealthObserver.h"
 #include "Observers/ScoreObserver.h"
 
-#include "SnoBeeManager.h"
 
 using json = nlohmann::json;
 
@@ -36,7 +35,7 @@ dae::GridComponent* dae::LevelLoader::LoadLevel(int levelIndex, Scene& scene, Ga
     m_GameMode = gameMode;
 
     SnoBeeManager::GetInstance().Clear();
-    m_NamedObjects.clear();
+    m_PlayerObjects.clear();
 
     std::ifstream file(GetLevelsPath());
     if (!file.is_open())
@@ -50,7 +49,6 @@ dae::GridComponent* dae::LevelLoader::LoadLevel(int levelIndex, Scene& scene, Ga
     GridComponent* grid = nullptr;
     LoadGrid(levelJson, scene, grid);
 
-    dae::PlayerManager::GetInstance().OnLevelStart();
     SnoBeeManager::GetInstance().Initialize(grid);
 
     return grid;
@@ -179,103 +177,127 @@ void dae::LevelLoader::LoadCell(int id, int col, int row, Scene& scene, GridComp
 
     switch (id)
     {
-    case 1: //Ice Block
-        gameObject->AddComponent<TextureComponent>()->SetTexture("IceBlock.png");
-        gameObject->AddComponent<GridMoveComponent>(grid, col, row, 10.f);
-        gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
-
-        gameObject->AddComponent<IceBlockComponent>(grid);
+    case 1:
+        gameObject = CreateIceBlock(grid, col, row);
         break;
 
-    case 2: //Diamond Block
-        gameObject->AddComponent<TextureComponent>()->SetTexture("DiamondBlock.png");
-        gameObject->AddComponent<GridMoveComponent>(grid, col, row, 10.f);
-        gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
-
-        gameObject->AddComponent<DiamondBlockComponent>(grid);
+    case 2: 
+        gameObject = CreateDiamondBlock(grid, col, row); 
         break;
 
-    case 3: //Player Spawn
-    {
-        gameObject->AddComponent<TextureComponent>()->SetTexture("Pengo.png");
-        gameObject->AddComponent<GridMoveComponent>(grid, col, row, 1.f);
-        gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
+    case 3: 
+        gameObject = CreatePlayer1(grid, col, row);
+        break;
 
-        auto* health = gameObject->AddComponent<HealthComponent>(4);
-        int savedLives = PlayerManager::GetInstance().GetLives(0);
-        if (savedLives > 0) health->SetLives(savedLives);
+    case 4: 
+        gameObject = CreateEggBlock(grid, col, row); 
+        break;
 
+    case 5: 
+        gameObject = CreatePlayer2(grid, col, row); 
+        break;
 
-        auto* score = gameObject->AddComponent<ScoreComponent>();
-        int savedScore = PlayerManager::GetInstance().GetScore(0);
-        if (savedScore > 0) score->SetScore(savedScore);
-
-        gameObject->AddTag("Player");
-
-        m_NamedObjects["Pengo"] = gameObject.get();
-
-        PlayerManager::GetInstance().RegisterPlayer(0, gameObject.get());
+    default: 
         break;
     }
-    case 4: //Ice Block Enemy
-        gameObject->AddComponent<TextureComponent>()->SetTexture("IceBlock.png");
-        gameObject->AddComponent<GridMoveComponent>(grid, col, row, 0.5f);
-        gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
 
-        gameObject->AddComponent<EggBlockComponent>(grid);
-
-        SnoBeeManager::GetInstance().RegisterEgg(gameObject.get());
-
-        gameObject->AddTag("Enemy");
-        break;
-
-    case 5: //Player 2
-    {
-        if (m_GameMode == GameMode::SinglePlayer) break; //Singleplayer
-
-        if (m_GameMode == GameMode::Coop)
-        {
-            gameObject->AddComponent<TextureComponent>()->SetTexture("Pengo2.png");
-            gameObject->AddComponent<GridMoveComponent>(grid, col, row, 1.f);
-            gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
-
-            auto* health = gameObject->AddComponent<HealthComponent>(4);
-            int savedLives = PlayerManager::GetInstance().GetLives(1);
-            if (savedLives > 0) health->SetLives(savedLives);
-
-            auto* score = gameObject->AddComponent<ScoreComponent>();
-            int savedScore = PlayerManager::GetInstance().GetScore(1);
-            if (savedScore > 0) score->SetScore(savedScore);
-
-            gameObject->AddTag("Player");
-
-            m_NamedObjects["Pengo2"] = gameObject.get();
-
-            PlayerManager::GetInstance().RegisterPlayer(1, gameObject.get());
-        }
-        else if (m_GameMode == GameMode::Versus)
-        {
-            gameObject->AddComponent<TextureComponent>()->SetTexture("SnoBeePlayer.png");
-            gameObject->AddComponent<GridMoveComponent>(grid, col, row, 1.f);
-            gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
-
-            auto* health = gameObject->AddComponent<HealthComponent>(4);
-            int savedLives = PlayerManager::GetInstance().GetLives(1);
-            if (savedLives > 0) health->SetLives(savedLives);
-
-            gameObject->AddTag("VersusPlayer");
-
-            m_NamedObjects["Pengo2"] = gameObject.get();
-
-            PlayerManager::GetInstance().RegisterPlayer(1, gameObject.get());
-        }
-        break;
-    }
-    }
-
-    if (gameObject->HasComponent<TextureComponent>())
+    if (gameObject && gameObject->HasComponent<TextureComponent>())
     {
         gameObject->SetParent(grid->GetGameObject(), false);
         scene.Add(std::move(gameObject));
     }
+}
+
+std::unique_ptr<dae::GameObject> dae::LevelLoader::CreateIceBlock(GridComponent* grid, int col, int row)
+{
+    auto gameObject = std::make_unique<GameObject>();
+    gameObject->AddComponent<TextureComponent>()->SetTexture("IceBlock.png");
+    gameObject->AddComponent<GridMoveComponent>(grid, col, row, 10.f);
+    gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
+    gameObject->AddComponent<IceBlockComponent>(grid);
+    return gameObject;
+}
+
+std::unique_ptr<dae::GameObject> dae::LevelLoader::CreateDiamondBlock(GridComponent* grid, int col, int row)
+{
+    auto gameObject = std::make_unique<GameObject>();
+    gameObject->AddComponent<TextureComponent>()->SetTexture("DiamondBlock.png");
+    gameObject->AddComponent<GridMoveComponent>(grid, col, row, 10.f);
+    gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
+    gameObject->AddComponent<DiamondBlockComponent>(grid);
+    return gameObject;
+}
+
+std::unique_ptr<dae::GameObject> dae::LevelLoader::CreatePlayer1(GridComponent* grid, int col, int row)
+{
+    auto gameObject = std::make_unique<GameObject>();
+    gameObject->AddComponent<TextureComponent>()->SetTexture("Pengo.png");
+    gameObject->AddComponent<GridMoveComponent>(grid, col, row, 2.f);
+    gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
+
+    
+    auto* health = gameObject->AddComponent<HealthComponent>(4);
+    int savedLives = PlayerManager::GetInstance().GetLives(0);
+    if (savedLives > 0) health->SetLives(savedLives);
+
+    auto* score = gameObject->AddComponent<ScoreComponent>();
+    int savedScore = PlayerManager::GetInstance().GetScore(0);
+    if (savedScore > 0) score->SetScore(savedScore);
+
+    gameObject->AddTag("Player");
+
+
+    m_PlayerObjects["Pengo"] = gameObject.get();
+    PlayerManager::GetInstance().RegisterPlayer(0, gameObject.get());
+
+    return gameObject;
+}
+
+std::unique_ptr<dae::GameObject> dae::LevelLoader::CreateEggBlock(GridComponent* grid, int col, int row)
+{
+    auto gameObject = std::make_unique<GameObject>();
+    gameObject->AddComponent<TextureComponent>()->SetTexture("IceBlock.png");
+    gameObject->AddComponent<GridMoveComponent>(grid, col, row, 1.f);
+    gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
+    gameObject->AddComponent<EggBlockComponent>(grid);
+    gameObject->AddTag("Enemy");
+
+    SnoBeeManager::GetInstance().RegisterEgg(gameObject.get());
+    return gameObject;
+}
+
+std::unique_ptr<dae::GameObject> dae::LevelLoader::CreatePlayer2(GridComponent* grid, int col, int row)
+{
+    if (m_GameMode == GameMode::SinglePlayer) return nullptr;
+
+    auto gameObject = std::make_unique<GameObject>();
+    gameObject->AddComponent<GridMoveComponent>(grid, col, row, 2.f);
+    gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
+
+
+    if (m_GameMode == GameMode::Coop)
+    {
+        gameObject->AddComponent<TextureComponent>()->SetTexture("Pengo2.png");
+        auto* score = gameObject->AddComponent<ScoreComponent>();
+        int savedScore = PlayerManager::GetInstance().GetScore(1);
+        if (savedScore > 0) score->SetScore(savedScore);
+
+        gameObject->AddTag("Player");
+    }
+    else if (m_GameMode == GameMode::Versus)
+    {
+        gameObject->AddComponent<TextureComponent>()->SetTexture("SnoBeePlayer.png");
+        gameObject->AddTag("VersusPlayer");
+    }
+
+
+    auto* health = gameObject->AddComponent<HealthComponent>(4);
+    int savedLives = PlayerManager::GetInstance().GetLives(1);
+    if (savedLives > 0) health->SetLives(savedLives);
+
+
+    m_PlayerObjects["Pengo2"] = gameObject.get();
+    PlayerManager::GetInstance().RegisterPlayer(1, gameObject.get());
+
+    return gameObject;
 }

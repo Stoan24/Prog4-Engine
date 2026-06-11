@@ -1,7 +1,6 @@
 #include "HealthComponent.h"
-#include <SDBMHasher.h>
-#include "Events/EventManager.h"
 
+#include "SDBMHasher.h"
 #include "Transform.h"
 
 
@@ -10,20 +9,7 @@ dae::HealthComponent::HealthComponent(GameObject* gameObject, int lives)
 	m_TotalLives{lives},
 	m_pSubject{ std::make_unique<Subject>(10) }
 {
-	EventManager::GetInstance().AddEvent(make_sdbm_hash("PlayerHit"), this);
-
 	m_Lives = m_TotalLives;
-}
-
-void dae::HealthComponent::Notify(const Event& e)
-{
-	if (e.id == make_sdbm_hash("PlayerHit"))
-	{
-		if (e.args[0].gameObject == GetGameObject())
-		{
-			TakeDamage(1);
-		}
-	}
 }
 
 void dae::HealthComponent::TakeDamage(int amount)

@@ -1,12 +1,15 @@
 #include "SnoBeeManager.h"
+
+#include "SDBMHasher.h"
+#include "Scene.h"
+#include "SceneManager.h"
 #include "Events/EventManager.h"
+
 #include "Components/Blocks/EggBlockComponent.h"
 #include "Components/SnoBeeComponent.h"
-#include "SDBMHasher.h"
+#include "Components/TextureComponent.h"
+
 #include <algorithm>
-#include <Components/TextureComponent.h>
-#include "SceneManager.h"
-#include "Scene.h"
 
 void dae::SnoBeeManager::Initialize(GridComponent* grid)
 {
@@ -14,6 +17,7 @@ void dae::SnoBeeManager::Initialize(GridComponent* grid)
     m_pScene = SceneManager::GetInstance().GetActiveScene();
 
     EventManager::GetInstance().AddEvent(make_sdbm_hash("EnemyKilled"), this);
+    EventManager::GetInstance().AddEvent(make_sdbm_hash("GameReset"), this);
 }
 
 void dae::SnoBeeManager::Clear()
@@ -52,15 +56,12 @@ void dae::SnoBeeManager::Notify(const Event& e)
 {
     if (e.id == make_sdbm_hash("EnemyKilled"))
     {
-        CleanupDead();
-
         HatchNextEgg();
+    }
 
-        if (IsLevelComplete())
-        {
-            Event levelComplete(make_sdbm_hash("LevelComplete"));
-            EventManager::GetInstance().HandleEvent(levelComplete);
-        }
+    if (e.id == make_sdbm_hash("GameReset"))
+    {
+        m_LevelIndex = 0;
     }
 }
 

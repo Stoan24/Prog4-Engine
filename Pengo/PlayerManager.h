@@ -3,6 +3,7 @@
 #include "Events/Event.h"
 #include "Observers/Observer.h"
 #include <vector>
+#include "SDBMHasher.h"
 
 namespace dae
 {
@@ -17,7 +18,6 @@ namespace dae
     {
     public:
         void Initialize(int playerCount);
-        void OnLevelStart();
 
         void Notify(const Event& e) override;
 
@@ -39,9 +39,5 @@ namespace dae
 
         std::vector<PlayerData> m_Players;
         std::vector<GameObject*> m_PlayerObjects;
-
-        int m_killScore{ 100 };
-        int m_stunScore{ 50 };
-        int m_eggScore{ 500 };
     };
 }

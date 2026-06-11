@@ -11,9 +11,6 @@ namespace dae
 
         void Update();
 
-        void Render();
-
-
         void ChangeState(std::unique_ptr<GameState> newState);
 
 

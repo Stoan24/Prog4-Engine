@@ -21,8 +21,7 @@ namespace dae
 
         void OnEnter() override;
         void OnExit() override;
-        std::unique_ptr<dae::GameState> Update() override;
-        void Render() override;
+        std::unique_ptr<GameState> Update() override;
 
     private:
         Scene* m_pMenuScene{ nullptr };

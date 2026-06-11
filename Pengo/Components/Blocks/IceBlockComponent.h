@@ -17,6 +17,8 @@ namespace dae
         IceBlockComponent& operator=(const IceBlockComponent&) = delete;
         IceBlockComponent& operator=(IceBlockComponent&&) = delete;
         
-        void OnBreak(bool playsSound) override;
+        void OnBreak(bool byPlayer) override;
+
+        int m_destroyBlockScore{ 30 };
     };
 }

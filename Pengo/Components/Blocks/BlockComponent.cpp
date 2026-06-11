@@ -1,8 +1,9 @@
 #include "BlockComponent.h"
-#include "CollisionManager.h"
+
 #include "Events/Event.h"
 #include "Events/EventManager.h"
 #include "Sound/ServiceLocator.h"
+#include "CollisionManager.h"
 #include "SDBMHasher.h"
 
 dae::BlockComponent::BlockComponent(GameObject* gameObject, GridComponent* grid)
@@ -26,6 +27,21 @@ void dae::BlockComponent::Update()
         {
             m_IsSliding = false;
 
+
+            if (m_KillCount > 0 && m_pPlayer)
+            {
+                int count = std::min(m_KillCount, m_MaxKills);
+                int totalScore = m_KillScores[count];
+
+                Event e(make_sdbm_hash("EnemyKilled"));
+                e.nbArgs = 1;
+                e.args[0].gameObject = m_pPlayer;
+                e.args[0].score = totalScore;
+                EventManager::GetInstance().HandleEvent(e);
+
+                m_KillCount = 0;
+            }
+
             OnSlideStopped();
             m_pPlayer = nullptr;
         }
@@ -41,10 +57,7 @@ void dae::BlockComponent::Update()
         {
             if (hitObject->IsMarkedForDestruction()) return;
 
-            Event e(make_sdbm_hash("EnemyKilled"));
-            e.nbArgs = 1;
-            e.args[0].gameObject = m_pPlayer;
-            EventManager::GetInstance().HandleEvent(e);
+            ++m_KillCount;
 
 
             ServiceLocator::GetSoundSystem().Play(make_sdbm_hash("SnoBeeSquashed"), 0.05f);
@@ -65,7 +78,6 @@ void dae::BlockComponent::Push(glm::ivec2 direction, GameObject* player)
 
     if (m_pMoveComponent->Move(m_SlideDirection, true))
     {
-
         ServiceLocator::GetSoundSystem().Play(make_sdbm_hash("PushIceBlock"), 0.05f);
         m_IsSliding = true;
     }

@@ -6,13 +6,8 @@ namespace dae
 
 	struct EventArg 
 	{
-		//union --> shares the same space
-		union 
-		{
-			GameObject* gameObject;
-			int value;
-		};
-		
+		GameObject* gameObject;
+		int score;
 	};
 
 	using EventId = unsigned int;
@@ -21,7 +16,7 @@ namespace dae
 	{
 		const EventId id;
 		static const uint8_t MAX_ARGS = 8;
-		uint8_t nbArgs;
+		uint8_t nbArgs = 0;
 		EventArg args[MAX_ARGS]{};
 
 		explicit Event(EventId _id) : id{ _id } {}

@@ -4,15 +4,10 @@
 #include <vld.h>
 #endif
 
-
 #include "Minigin.h"
 #include "ResourceManager.h"
 
-//input commands
-
 #include <filesystem>
-
-//Random
 #include <cstdlib>
 #include <ctime>
 
@@ -29,11 +24,11 @@ namespace fs = std::filesystem;
 
 static void load()
 {
-
+	auto soundSystem = std::make_unique<dae::SDLSoundSystem>();
 #ifdef _DEBUG
-	dae::ServiceLocator::RegisterSoundSystem(std::make_unique<dae::LoggingSoundSystem>(std::make_unique<dae::SDLSoundSystem>()));
+	dae::ServiceLocator::RegisterSoundSystem(std::make_unique<dae::LoggingSoundSystem>(std::move(soundSystem)));
 #else
-	dae::ServiceLocator::RegisterSoundSystem(std::make_unique<dae::SDLSoundSystem>());
+	dae::ServiceLocator::RegisterSoundSystem(std::move(soundSystem));
 #endif
 
 	auto initialState = std::make_unique<dae::StartMenuState>();

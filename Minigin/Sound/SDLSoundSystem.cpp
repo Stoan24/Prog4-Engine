@@ -1,14 +1,12 @@
 #include "SDLSoundSystem.h"
-#include "SDLSoundSystem.h"
-#include "Events/EventManager.h"
-#include "Events/Event.h"
+
 #include <unordered_map>
 #include <SDL3_mixer/SDL_mixer.h>
 #include <queue>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
-#include <iostream>
+#include <algorithm>
 
 namespace dae
 {
@@ -39,6 +37,7 @@ namespace dae
             m_thread.request_stop();
             m_condition.notify_one();
 
+            //Does not need to be here, happens automatically --> jthread
             if (m_thread.joinable())
             {
                 m_thread.join();
@@ -116,7 +115,6 @@ namespace dae
         {
             while (!stop_token.stop_requested())
             {
-
                 std::unique_lock<std::mutex> lock(m_mutex);
 
                 m_condition.wait(lock, [this, &stop_token] {
@@ -140,6 +138,10 @@ namespace dae
                 }
             }
         }
+
+        std::mutex m_mutex;
+        std::condition_variable m_condition;
+        std::jthread m_thread;
 #endif
 
         MIX_Mixer* m_mixer{ nullptr };
@@ -149,13 +151,6 @@ namespace dae
         std::queue<PlayRequest> m_playQueue;
 
         float m_volume{ 1.0f };
-
-
-#ifndef __EMSCRIPTEN__
-        std::mutex m_mutex;
-        std::condition_variable m_condition;
-        std::jthread m_thread;
-#endif
     };
 
 

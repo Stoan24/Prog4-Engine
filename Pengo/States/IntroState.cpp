@@ -14,8 +14,8 @@ void dae::IntroState::OnEnter()
 
     m_pGrid = m_LevelLoader.LoadLevel(m_LevelIndex, *m_pGameScene, m_GameMode);
 
-    m_pPlayer1 = m_LevelLoader.GetObject("Pengo");
-    m_pPlayer2 = m_LevelLoader.GetObject("Pengo2");
+    m_pPlayer1 = m_LevelLoader.GetPlayerObject("Pengo");
+    m_pPlayer2 = m_LevelLoader.GetPlayerObject("Pengo2");
 
     m_LevelLoader.LoadUI(*m_pGameScene, m_pPlayer1, m_pPlayer2);
 
@@ -63,12 +63,4 @@ std::unique_ptr<dae::GameState> dae::IntroState::Update()
     }
 
     return nullptr;
-}
-
-void dae::IntroState::Render()
-{
-    if (m_pGameScene)
-    {
-        m_pGameScene->Render();
-    }
 }

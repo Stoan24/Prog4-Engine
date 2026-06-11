@@ -5,7 +5,7 @@
 
 namespace dae
 {
-	class HealthComponent final : public GameComponent, public Observer
+	class HealthComponent final : public GameComponent
 	{
 	public:
 		explicit HealthComponent(GameObject* gameObject, int lives);
@@ -16,7 +16,6 @@ namespace dae
 		HealthComponent& operator=(const HealthComponent& other) = delete;
 		HealthComponent& operator=(HealthComponent&& other) = delete;
 
-		void Notify(const Event& e) override;
 
 
 		void TakeDamage(int amount);

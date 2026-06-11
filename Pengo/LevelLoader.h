@@ -23,10 +23,10 @@ namespace dae
         void LoadUI(Scene& scene, GameObject* player1, GameObject* player2);
 
 
-        GameObject* GetObject(const std::string& name) const
+        GameObject* GetPlayerObject(const std::string& name) const
         {
-            auto it = m_NamedObjects.find(name);
-            if (it != m_NamedObjects.end()) return it->second;
+            auto it = m_PlayerObjects.find(name);
+            if (it != m_PlayerObjects.end()) return it->second;
             return nullptr;
         }
 
@@ -34,9 +34,15 @@ namespace dae
 
     private:
         GameMode m_GameMode{ GameMode::SinglePlayer };
-        std::unordered_map<std::string, GameObject*> m_NamedObjects;
+        std::unordered_map<std::string, GameObject*> m_PlayerObjects;
 
         void LoadGrid(const json& gridJson, Scene& scene, GridComponent*& outGrid);
         void LoadCell(int id, int col, int row, Scene& scene, GridComponent* grid); 
+
+        std::unique_ptr<GameObject> CreateIceBlock(GridComponent* grid, int col, int row);
+        std::unique_ptr<GameObject> CreateDiamondBlock(GridComponent* grid, int col, int row);
+        std::unique_ptr<GameObject> CreatePlayer1(GridComponent* grid, int col, int row);
+        std::unique_ptr<GameObject> CreatePlayer2(GridComponent* grid, int col, int row);
+        std::unique_ptr<GameObject> CreateEggBlock(GridComponent* grid, int col, int row);
     };
 }

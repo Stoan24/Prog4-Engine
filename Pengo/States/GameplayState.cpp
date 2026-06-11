@@ -1,7 +1,9 @@
 #include "GameplayState.h"
 #include "StartMenuState.h"
-#include "GameStateManager.h"
+#include "IntroState.h"
+#include "HighScoreState.h"
 
+#include "GameStateManager.h"
 #include "SceneManager.h"
 #include "InputManager.h"
 #include "SnoBeeManager.h"
@@ -11,9 +13,11 @@
 #include "Commands.h"
 
 #include <memory>
-#include "IntroState.h"
+
 #include "Components/ScoreComponent.h"
 #include "Components/HealthComponent.h"
+
+#include "GameTime.h"
 
 namespace dae
 {
@@ -26,11 +30,43 @@ namespace dae
             GameStateManager::GetInstance().ChangeState(std::make_unique<StartMenuState>());
         }
     };
+
+    class SkipLevelCommand final : public Command
+    {
+    public:
+
+        explicit SkipLevelCommand(GameMode gameMode) : m_GameMode(gameMode) {}
+        
+        void Execute() override
+        {
+            auto& snobeeManager = SnoBeeManager::GetInstance();
+            snobeeManager.AddLevelIndex();
+
+            int nextLevel = snobeeManager.GetLevelIndex();
+            int totalLevels = LevelLoader::GetLevelCount(LevelLoader::GetLevelsPath());
+
+            if (nextLevel < totalLevels)
+            {
+                GameStateManager::GetInstance().ChangeState(
+                    std::make_unique<IntroState>(nextLevel, m_GameMode));
+            }
+            else
+            {
+                GameStateManager::GetInstance().ChangeState(
+                    std::make_unique<HighScoreState>(0, 0, GameEnding::GameWon));
+            }
+        }
+
+    private:
+        GameMode m_GameMode;
+    };
 }
 
 void dae::GameplayState::OnEnter()
 {
     SetupInputBindings();
+
+    m_LevelTimer = 0.0f;
 }
 
 void dae::GameplayState::OnExit()
@@ -50,47 +86,133 @@ void dae::GameplayState::OnExit()
 
 std::unique_ptr<dae::GameState> dae::GameplayState::Update()
 {
-    if (m_pGameScene)
+    m_LevelTimer += GameTime::GetInstance().GetDeltaTime();
+
+    //Check Player Death
+    int combinedScore = 0;
+    if (CheckAllPlayersDead(combinedScore))
     {
-        m_pGameScene->Update();
+        return std::make_unique<HighScoreState>(
+            combinedScore, 0,
+            GameEnding::PlayerDied);
     }
 
-    if (SnoBeeManager::GetInstance().IsLevelComplete())
+    //Check Level Complete
+    auto& snobeeManager = SnoBeeManager::GetInstance();
+    if (snobeeManager.IsLevelComplete())
     {
-        SnoBeeManager::GetInstance().AddLevelIndex();
+        snobeeManager.AddLevelIndex();
 
-        if (m_pPlayer1)
-        {
-            auto* score = m_pPlayer1->GetComponent<ScoreComponent>();
-            auto* health = m_pPlayer1->GetComponent<HealthComponent>();
-            if (score)  PlayerManager::GetInstance().SetScore(0, score->GetScore());
-            if (health) PlayerManager::GetInstance().SetLives(0, health->GetLives());
-        }
-        if (m_pPlayer2)
-        {
-            auto* score = m_pPlayer2->GetComponent<ScoreComponent>();
-            auto* health = m_pPlayer2->GetComponent<HealthComponent>();
-            if (score)  PlayerManager::GetInstance().SetScore(1, score->GetScore());
-            if (health) PlayerManager::GetInstance().SetLives(1, health->GetLives());
-        }
+        int timeBonus = CalculateTimeBonus(m_LevelTimer);
 
-        int nextLevel = SnoBeeManager::GetInstance().GetLevelIndex();
-        if (nextLevel < LevelLoader::GetLevelCount(LevelLoader::GetLevelsPath()))
+        //DRY
+        auto keep = [&](GameObject* player, int idx)
+            {
+                if (!player) return;
+                
+                if (timeBonus > 0)
+                {
+                    Event e(make_sdbm_hash("LevelFinish"));
+                    e.nbArgs = 1;
+                    e.args[0].gameObject = player;
+                    e.args[0].score = timeBonus;
+                    EventManager::GetInstance().HandleEvent(e);
+                }
+                
+                if (auto* score = player->GetComponent<ScoreComponent>())
+                {
+                    PlayerManager::GetInstance().SetScore(idx, score->GetScore());
+                }
+                if (auto* health = player->GetComponent<HealthComponent>())
+                {
+                    PlayerManager::GetInstance().SetLives(idx, health->GetLives());
+                }
+            };
+
+        keep(m_pPlayer1, 0);
+        keep(m_pPlayer2, 1);
+
+        const int nextLevel = snobeeManager.GetLevelIndex();
+        const int totalLevels = LevelLoader::GetLevelCount(LevelLoader::GetLevelsPath());
+        
+        if (nextLevel < totalLevels)
         {
             return std::make_unique<IntroState>(nextLevel, m_GameMode);
+        }
+        else
+        {
+            return std::make_unique<HighScoreState>(
+                GetCombinedScore(), 0,
+                GameEnding::GameWon);
         }
     }
 
     return nullptr;
 }
 
-void dae::GameplayState::Render()
+bool dae::GameplayState::CheckAllPlayersDead(int& outScore) const
 {
-    if (m_pGameScene)
+    //DRY
+    auto isDead = [](GameObject* player) -> bool
+        {
+            if (!player) return true;
+            auto* health = player->GetComponent<HealthComponent>();
+            return health && health->GetLives() <= 0;
+        };
+
+    const bool p1Dead = isDead(m_pPlayer1);
+
+    if (m_GameMode == GameMode::SinglePlayer)
     {
-        m_pGameScene->Render();
+        if (p1Dead)
+        {
+            outScore = GetCombinedScore();
+            return true;
+        }
+        return false;
     }
+
+
+    const bool p2Dead = isDead(m_pPlayer2);
+    if (p1Dead && p2Dead)
+    {
+        outScore = GetCombinedScore();
+        return true;
+    }
+    return false;
 }
+
+int dae::GameplayState::GetCombinedScore() const
+{
+    int total = 0;
+    
+    //DRY
+    auto add = [&](GameObject* player)
+        {
+            if (!player) return;
+            if (auto* s = player->GetComponent<ScoreComponent>())
+                total += s->GetScore();
+        };
+
+    add(m_pPlayer1);
+    add(m_pPlayer2);
+    return total;
+}
+
+int dae::GameplayState::CalculateTimeBonus(float timeInSeconds) const
+{
+    int seconds = static_cast<int>(timeInSeconds);
+
+    if (seconds >= 1 && seconds <= 20)   return 5000;
+    if (seconds >= 21 && seconds <= 29)  return 2000;
+    if (seconds >= 30 && seconds <= 39)  return 1000;
+    if (seconds >= 40 && seconds <= 49)  return 500;
+    if (seconds >= 50 && seconds <= 59)  return 10;
+
+    return 0;
+}
+
+#pragma region InputBinding
 
 void dae::GameplayState::SetupInputBindings()
 {
@@ -122,6 +244,11 @@ void dae::GameplayState::SetupInputBindings()
             input.BindButton(0, ControllerButton::DpadRight, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer1, glm::ivec2{ 1, 0 }));
             input.BindButton(0, ControllerButton::ButtonA, KeyState::Pressed, std::make_unique<PushBlockCommand>(m_pPlayer1));
         }
+
+        //F1 For Skip
+        input.BindKey(SDL_SCANCODE_F1, KeyState::Down, std::make_unique<SkipLevelCommand>(m_GameMode));
+
+        //F2 For Mute
     }
 
     //Player 2 controller (Gamepad)
@@ -165,7 +292,14 @@ void dae::GameplayState::CleanupInputBindings()
     input.UnbindButton(0, ControllerButton::DpadRight, KeyState::Pressed);
     input.UnbindButton(0, ControllerButton::ButtonA, KeyState::Pressed);
 
-
+    //Unbind Quit
     input.UnbindKey(SDL_SCANCODE_ESCAPE, KeyState::Pressed);
     input.UnbindButton(0, ControllerButton::Start, KeyState::Pressed);
+
+    //Unbind Skip
+    input.UnbindKey(SDL_SCANCODE_F1, KeyState::Down);
+
+    //Unbind Mute
 }
+
+#pragma endregion

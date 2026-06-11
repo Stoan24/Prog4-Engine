@@ -13,14 +13,6 @@ void dae::GameStateManager::Update()
     }
 }
 
-void dae::GameStateManager::Render()
-{
-    if (m_pCurrentState)
-    {
-        m_pCurrentState->Render();
-    }
-}
-
 void dae::GameStateManager::ChangeState(std::unique_ptr<GameState> newState)
 {
     if (m_pCurrentState)

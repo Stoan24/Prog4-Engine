@@ -1,12 +1,14 @@
 #pragma once
 #include "GameComponent.h"
 #include "GameObject.h"
-#include "GridComponent.h"
-#include "GridMoveComponent.h"
+
 #include "Observers/Observer.h"
 #include "Observers/Subject.h"
-#include <glm/fwd.hpp>
-#include <SDBMHasher.h>
+
+#include "GridComponent.h"
+#include "GridMoveComponent.h"
+
+#include "SDBMHasher.h"
 
 namespace dae
 {
@@ -21,7 +23,7 @@ namespace dae
     {
     public:
         SnoBeeComponent(GameObject* gameObject, GridComponent* grid);
-        virtual ~SnoBeeComponent();
+        virtual ~SnoBeeComponent() = default;
 
         SnoBeeComponent(const SnoBeeComponent&) = delete;
         SnoBeeComponent(SnoBeeComponent&&) = delete;
@@ -41,8 +43,6 @@ namespace dae
             }
         }
 
-        Subject* GetSubject() const { return m_pSubject.get(); }
-
     private:
         GridComponent* m_pGrid{ nullptr };
         GridMoveComponent* m_pMove{ nullptr };
@@ -56,8 +56,6 @@ namespace dae
         const float m_BlockBreakCooldown{ 1.5f };
 
         glm::ivec2 m_WanderTarget{ -1, -1 };
-
-        std::unique_ptr<Subject> m_pSubject;
 
         void UpdateWander();
 

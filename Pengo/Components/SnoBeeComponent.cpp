@@ -4,21 +4,14 @@
 #include "Components/Blocks/IceBlockComponent.h"
 #include <cstdlib>
 #include "Events/EventManager.h"
-#include "Observers/Subject.h"
 #include "Blocks/EggBlockComponent.h"
 
 dae::SnoBeeComponent::SnoBeeComponent(GameObject* gameObject, GridComponent* grid)
     : GameComponent(gameObject),
-    m_pGrid{ grid },
-    m_pSubject{ std::make_unique<Subject>(10) }
+    m_pGrid{ grid }
 {
     m_pMove = gameObject->GetComponent<GridMoveComponent>();
     EventManager::GetInstance().AddEvent(make_sdbm_hash("StunEnemies"), this);
-}
-
-dae::SnoBeeComponent::~SnoBeeComponent()
-{
-    EventManager::GetInstance().RemoveObserver(make_sdbm_hash("StunEnemies"), this);
 }
 
 void dae::SnoBeeComponent::Update()

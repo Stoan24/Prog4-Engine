@@ -55,10 +55,10 @@ void dae::EggBlockComponent::OnBreak(bool playsSound)
         ServiceLocator::GetSoundSystem().Play(make_sdbm_hash("SnoBeeEggDestroyed"), 0.05f);
     }
 
-
     Event e(make_sdbm_hash("EggDestroyed"));
     e.nbArgs = 1;
     e.args[0].gameObject = m_pPlayer;
+    e.args[0].score = m_eggBreakScore;
     EventManager::GetInstance().HandleEvent(e);
 
 

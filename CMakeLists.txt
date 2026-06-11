@@ -246,7 +246,9 @@ add_executable(${PENGO_TARGET} ${PENGO_PARAM}
   Minigin/GameStateManager.cpp
   Pengo/States/GameplayState.cpp
   Pengo/States/StartMenuState.cpp
-  Pengo/States/IntroState.cpp)
+  Pengo/States/IntroState.cpp
+  Pengo/HighScoreManager.cpp
+  Pengo/States/HighScoreState.cpp)
 
 target_include_directories(${PENGO_TARGET} PRIVATE
   ${CMAKE_SOURCE_DIR}/Pengo
@@ -286,7 +288,9 @@ elseif(WIN32)
   # Set minigin as the default startup project
   set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PENGO_TARGET})
   # Set working directory to output folder
-  set_target_properties(${PENGO_TARGET} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${PENGO_TARGET}>")
+  set_target_properties(${PENGO_TARGET} PROPERTIES
+  VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${PENGO_TARGET}>"
+  OUTPUT_NAME "Pengo")
 
   # Copy SDL dlls to output folder
   set(SDL_RUNTIME_DLLS
