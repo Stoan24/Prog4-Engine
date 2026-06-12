@@ -9,13 +9,6 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Force Warning Level 4
-if(MSVC)
-    add_compile_options(/W4 /WX)
-else()
-    add_compile_options(-Wall -Wextra -Werror)
-endif()
-
 # Third Party Dependencies
 
 include(FetchContent)
@@ -141,6 +134,8 @@ target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR} ${sdl3_SOURCE_DIR}/i
 target_link_libraries(imgui PUBLIC SDL3::SDL3)
 # enable c++20 features
 target_compile_features(imgui PUBLIC cxx_std_20)
+
+enforce_strict_rules(imgui)
 
 if (WIN32)
   # Add VLD (Visual Leak Detector) for memory leak detection on Windows
