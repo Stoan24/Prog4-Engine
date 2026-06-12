@@ -8,6 +8,9 @@
 #if WIN32
 #define WIN32_LEAN_AND_MEAN 
 #include <windows.h>
+#endif
+
+#if _DEBUG && __has_include(<vld.h>)
 #include <vld.h>
 #endif
 
@@ -89,7 +92,7 @@ dae::Minigin::Minigin(const std::filesystem::path& dataPath)
 	SDL_SetHint(SDL_HINT_VIDEO_WIN_D3DCOMPILER, "none");
 
 	//Remove RegistDragDrop Leaks?
-#if WIN32
+#if _DEBUG && __has_include(<vld.h>)
 	VLDDisable();
 #endif
 
@@ -100,7 +103,7 @@ dae::Minigin::Minigin(const std::filesystem::path& dataPath)
 		SDL_WINDOW_OPENGL
 	);
 
-#if WIN32
+#if _DEBUG && __has_include(<vld.h>)
 	VLDEnable();
 #endif
 
