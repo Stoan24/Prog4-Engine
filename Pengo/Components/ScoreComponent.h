@@ -1,6 +1,5 @@
 #pragma once
 #include "GameComponent.h"
-#include <Observers/Subject.h>
 
 namespace dae
 {
@@ -17,12 +16,9 @@ namespace dae
 		int GetScore() const { return m_CurrentScore; }
 		void SetScore(int score) { m_CurrentScore = score; }
 
-		
 		GameObject* GetGameObject() const override { return GameComponent::GetGameObject(); }
-		Subject* GetSubject() const { return m_pSubject.get(); }
 
 	private:
-		std::unique_ptr<Subject> m_pSubject;
 
 		int m_CurrentScore{ 0 };
 	};

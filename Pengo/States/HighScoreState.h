@@ -38,7 +38,7 @@ namespace dae
 
         //Player data
         static constexpr int m_NameLength = 3;
-        std::string m_CurrentName{ "OLI" };
+        std::string m_CurrentName{ "AAA" };
         int m_CursorPos{ 0 };
         bool m_NameConfirmed{ false };
 

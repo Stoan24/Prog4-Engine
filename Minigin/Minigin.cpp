@@ -8,6 +8,7 @@
 #if WIN32
 #define WIN32_LEAN_AND_MEAN 
 #include <windows.h>
+#include <vld.h>
 #endif
 
 #if USE_STEAMWORKS
@@ -26,6 +27,7 @@
 #include "ResourceManager.h"
 #include "Events/EventManager.h"
 #include "GameStateManager.h"
+#include "CollisionManager.h"
 
 #include "GameTime.h"
 
@@ -83,25 +85,13 @@ dae::Minigin::Minigin(const std::filesystem::path& dataPath)
 		throw std::runtime_error(std::string("SDL_Init Error: ") + SDL_GetError());
 	}
 
-//#ifdef __EMSCRIPTEN__
-//	if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD | SDL_INIT_EVENTS))
-//	{
-//		SDL_Log("SDL_Init Error: %s", SDL_GetError());
-//		throw std::runtime_error(std::string("SDL_Init Error: ") + SDL_GetError());
-//	}
-//#else
-//	if (!(SDL_WasInit(SDL_INIT_VIDEO) & SDL_INIT_VIDEO))
-//	{
-//		if (!SDL_InitSubSystem(SDL_INIT_VIDEO))
-//		{
-//			SDL_Log("Renderer error: %s", SDL_GetError());
-//			throw std::runtime_error(std::string("SDL_Init Error: ") + SDL_GetError());
-//		}
-//	}
-//#endif
-
 	
 	SDL_SetHint(SDL_HINT_VIDEO_WIN_D3DCOMPILER, "none");
+
+	//Remove RegistDragDrop Leaks?
+#if WIN32
+	VLDDisable();
+#endif
 
 	g_window = SDL_CreateWindow(
 		"Pengo",
@@ -110,25 +100,14 @@ dae::Minigin::Minigin(const std::filesystem::path& dataPath)
 		SDL_WINDOW_OPENGL
 	);
 
-	//Remove Drag & Drop Leaks
-	SDL_SetEventEnabled(SDL_EVENT_DROP_FILE, false);
-	SDL_SetEventEnabled(SDL_EVENT_DROP_TEXT, false);
-	SDL_SetEventEnabled(SDL_EVENT_DROP_BEGIN, false);
-	SDL_SetEventEnabled(SDL_EVENT_DROP_COMPLETE, false);
-	SDL_SetEventEnabled(SDL_EVENT_DROP_POSITION, false);
-
-
+#if WIN32
+	VLDEnable();
+#endif
 
 	if (g_window == nullptr) 
 	{
 		throw std::runtime_error(std::string("SDL_CreateWindow Error: ") + SDL_GetError());
 	}
-
-//#if USE_STEAMWORKS
-//	if (!SteamAPI_Init())
-//		throw std::runtime_error(std::string("Fatal Error - Steam must be running to play this game (SteamAPI_Init() failed)."));
-//	g_SteamAchievements = new SteamAchievements(g_Achievements, 4);
-//#endif
 
 	Renderer::GetInstance().Init(g_window);
 	ResourceManager::GetInstance().Init(dataPath);
@@ -136,14 +115,12 @@ dae::Minigin::Minigin(const std::filesystem::path& dataPath)
 
 dae::Minigin::~Minigin()
 {
-//#if USE_STEAMWORKS
-//	delete g_SteamAchievements;
-//	SteamAPI_Shutdown();
-//#endif
-
-	SDL_DestroyWindow(g_window);
-	g_window = nullptr;
-	SDL_Quit();
+	if (g_window)
+	{
+		SDL_DestroyWindow(g_window);
+		g_window = nullptr;
+		SDL_Quit();
+	}
 }
 
 void dae::Minigin::Run(const std::function<void()>& load)
@@ -165,24 +142,35 @@ void dae::Minigin::Run(const std::function<void()>& load)
 
 void dae::Minigin::RunOneFrame()
 {
-//#if USE_STEAMWORKS
-//	SteamAPI_RunCallbacks();
-//#endif
-
 	const std::chrono::duration<float> desiredFrameTime{ 1.f / m_desiredFPS };
 	
 	//Calculate delta time
 	const auto currentTime{ std::chrono::high_resolution_clock::now() };
-	const std::chrono::duration<float> deltaTime{ currentTime - m_LastTime };
-
-	GameTime::GetInstance().SetDeltaTime(deltaTime.count());
+	float deltaTime = std::chrono::duration<float>(currentTime - m_LastTime).count();
 	m_LastTime = currentTime;
+	
+	if (deltaTime > 0.25f) deltaTime = 0.25f;
+	
+	static float accumulator = 0.0f;
+	accumulator += deltaTime;
 
+	m_quit = !InputManager::GetInstance().ProcessInput();
 
 	//Game loop
-	m_quit = !InputManager::GetInstance().ProcessInput();
-	SceneManager::GetInstance().Update();
+	const float fixedDeltaTime = 1.f / 60.f;
+	while (accumulator >= fixedDeltaTime)
+	{
+		GameTime::GetInstance().SetFixedDeltaTime(fixedDeltaTime);
+		GameTime::GetInstance().SetDeltaTime(deltaTime);
+
+		SceneManager::GetInstance().FixedUpdate();
+		CollisionManager::GetInstance().FixedUpdate();
+		
+		accumulator -= fixedDeltaTime;
+	}
+
 	EventManager::GetInstance().Update();
+	SceneManager::GetInstance().Update();
 	GameStateManager::GetInstance().Update();
 	Renderer::GetInstance().Render();
 	

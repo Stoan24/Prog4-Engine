@@ -86,6 +86,11 @@ namespace dae
             MIX_SetMixerGain(m_mixer, m_volume);
         }
 
+        float GetVolume()
+        {
+            return m_volume;
+        }
+
     private:
 
         void PlaySingleTrack(PlayRequest request)
@@ -177,6 +182,11 @@ namespace dae
     void SDLSoundSystem::SetVolume(float volume)
     {
         Pimpl->SetVolume(volume);
+    }
+
+    float SDLSoundSystem::GetVolume()
+    {
+        return Pimpl->GetVolume();
     }
 
     void SDLSoundSystem::RegisterSound(const sound_id id, const std::string& filepath)

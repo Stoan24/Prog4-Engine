@@ -4,7 +4,7 @@
 #include "SDBMHasher.h"
 #include "GameObject.h"
 #include "Components/GridComponent.h"
-#include "Sound/ServiceLocator.h"
+#include "ServiceLocator.h"
 #include <GameTime.h>
 #include <Components/TextureComponent.h>
 
@@ -58,7 +58,6 @@ void dae::EggBlockComponent::OnBreak(bool playsSound)
     Event e(make_sdbm_hash("EggDestroyed"));
     e.nbArgs = 1;
     e.args[0].gameObject = m_pPlayer;
-    e.args[0].score = m_eggBreakScore;
     EventManager::GetInstance().HandleEvent(e);
 
 

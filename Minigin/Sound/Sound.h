@@ -1,27 +1,29 @@
 #pragma once
 #include <string>
 #include <iostream>
+#include <memory>
 
 namespace dae
 {
     using sound_id = unsigned int;
 
-    class SoundSystem
+    class ISoundSystem
     {
 
     public:
 
-        virtual ~SoundSystem() = default;
+        virtual ~ISoundSystem() = default;
 
         virtual void Play(sound_id id, float volume) = 0;
         virtual void StopAll() = 0;
         virtual void SetVolume(float volume) = 0;
+        virtual float GetVolume() = 0;
 
         virtual void RegisterSound(const sound_id id, const std::string& filepath) = 0;
 
     };
 
-    class NullSoundSystem final : public SoundSystem
+    class NullSoundSystem final : public ISoundSystem
     {
 
     public:
@@ -29,18 +31,19 @@ namespace dae
         void Play(sound_id, float) override {}
         void StopAll() override {}
         void SetVolume(float) override {}
+        float GetVolume() override { return  0.f; }
 
         void RegisterSound(const sound_id, const std::string&) override { return; }
 
     };
 
-    class LoggingSoundSystem final : public SoundSystem
+    class LoggingSoundSystem final : public ISoundSystem
     {
-        std::unique_ptr<SoundSystem> m_soundSystem;
+        std::unique_ptr<ISoundSystem> m_soundSystem;
 
     public:
 
-        explicit LoggingSoundSystem(std::unique_ptr<SoundSystem>&& ss)
+        explicit LoggingSoundSystem(std::unique_ptr<ISoundSystem>&& ss)
             : m_soundSystem(std::move(ss))
         {
         }
@@ -61,6 +64,12 @@ namespace dae
         {
             std::cout << "Changing volume to: " << volume << '\n';
             m_soundSystem->SetVolume(volume);
+        }
+
+        float GetVolume() override
+        {
+            std::cout << "Current volume: " << m_soundSystem->GetVolume() << '\n';
+            return m_soundSystem->GetVolume();
         }
 
         void RegisterSound(const sound_id id, const std::string& filepath) override

@@ -16,11 +16,12 @@ namespace dae
 		}
 
 		void Add(std::unique_ptr<GameObject> object);
-		void Add(std::unique_ptr<Observer> observer);
+		void Add(std::unique_ptr<IObserver> observer);
 		void Remove(const GameObject& object);
-		void Remove(const Observer& observer);
+		void Remove(const IObserver& observer);
 
 		void Update();
+		void FixedUpdate();
 		void Render() const;
 		void RenderGUI();
 
@@ -40,7 +41,7 @@ namespace dae
 		std::string m_name;
 
 		std::vector <std::unique_ptr<GameObject>> m_objects{};
-		std::vector <std::unique_ptr<Observer>> m_observers{};
+		std::vector <std::unique_ptr<IObserver>> m_observers{};
 	};
 
 }

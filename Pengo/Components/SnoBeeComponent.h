@@ -19,29 +19,24 @@ namespace dae
         Stunned
     };
 
-    class SnoBeeComponent final : public GameComponent, public Observer
+    class SnoBeeComponent final : public GameComponent, public IObserver
     {
     public:
         SnoBeeComponent(GameObject* gameObject, GridComponent* grid);
-        virtual ~SnoBeeComponent() = default;
+        virtual ~SnoBeeComponent();
 
         SnoBeeComponent(const SnoBeeComponent&) = delete;
         SnoBeeComponent(SnoBeeComponent&&) = delete;
         SnoBeeComponent& operator=(const SnoBeeComponent&) = delete;
         SnoBeeComponent& operator=(SnoBeeComponent&&) = delete;
 
-        void Update() override;
+        void FixedUpdate() override;
 
         void Stun(float duration);
         bool IsStunned() const { return m_State == SnoBeeState::Stunned; }
 
-        void Notify(const Event& e) override
-        {
-            if (e.id == make_sdbm_hash("StunEnemies"))
-            {
-                Stun(m_maxStun);
-            }
-        }
+        void Notify(const Event& e) override;
+        
 
     private:
         GridComponent* m_pGrid{ nullptr };

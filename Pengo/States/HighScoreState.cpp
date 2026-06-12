@@ -7,6 +7,7 @@
 #include "InputManager.h"
 #include "ResourceManager.h"
 #include "Events/EventManager.h"
+#include "ScoreManager.h"
 
 #include "GameObject.h"
 #include "Components/TextComponent.h"
@@ -91,6 +92,7 @@ void dae::HighScoreState::OnEnter()
 
 void dae::HighScoreState::OnExit()
 {
+    ScoreManager::GetInstance().ResetScore();
     CleanupInput();
 }
 

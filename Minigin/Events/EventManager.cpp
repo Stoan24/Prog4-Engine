@@ -1,11 +1,11 @@
 #include "EventManager.h"
 
-void dae::EventManager::AddEvent(EventId id, Observer* observer)
+void dae::EventManager::AddEvent(EventId id, IObserver* observer)
 {
 	m_Observers[id].push_back(observer);
 }
 
-void dae::EventManager::RemoveObserver(EventId id, Observer* observer)
+void dae::EventManager::RemoveObserver(EventId id, IObserver* observer)
 {
     auto it = m_Observers.find(id);
     if (it != m_Observers.end())
@@ -31,7 +31,10 @@ void dae::EventManager::Update()
         {
             for (auto observer : eventIt->second)
             {
-                observer->Notify(e);
+                if (observer)
+                {
+                    observer->Notify(e);
+                }
             }
         }
 

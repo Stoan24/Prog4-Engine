@@ -12,7 +12,7 @@ namespace dae
         float volume;
     };
 
-    class SDLSoundSystem final : public SoundSystem
+    class SDLSoundSystem final : public ISoundSystem
     {
         class SDLSoundSystemImpl;
         std::unique_ptr<SDLSoundSystemImpl> Pimpl;
@@ -29,6 +29,7 @@ namespace dae
         void Play(sound_id id, float volume) override;
         void StopAll() override;
         void SetVolume(float volume) override;
+        float GetVolume() override;
 
         void RegisterSound(const sound_id id, const std::string& filepath) override;
     };

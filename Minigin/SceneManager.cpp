@@ -1,6 +1,4 @@
 #include "SceneManager.h"
-#include "SceneManager.h"
-#include "SceneManager.h"
 #include "Scene.h"
 #include <algorithm>
 
@@ -9,6 +7,14 @@ void dae::SceneManager::Update()
 	if (m_pActiveScene)
 	{
 		m_pActiveScene->Update();
+	}
+}
+
+void dae::SceneManager::FixedUpdate()
+{
+	if (m_pActiveScene)
+	{
+		m_pActiveScene->FixedUpdate();
 	}
 }
 

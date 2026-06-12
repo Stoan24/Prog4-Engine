@@ -12,8 +12,6 @@ namespace dae
 		explicit CollisionComponent(GameObject* gameObject);
 		virtual ~CollisionComponent();
 
-		void Update() override;
-
 		CollisionComponent(const CollisionComponent& other) = delete;
 		CollisionComponent(CollisionComponent&& other) = delete;
 		CollisionComponent& operator=(const CollisionComponent& other) = delete;

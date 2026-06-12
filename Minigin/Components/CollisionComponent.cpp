@@ -18,11 +18,6 @@ dae::CollisionComponent::~CollisionComponent()
 	CollisionManager::GetInstance().RemoveCollider(this);
 }
 
-void dae::CollisionComponent::Update()
-{
-	CollisionManager::GetInstance().CheckCollision(this);
-}
-
 void dae::CollisionComponent::SetSize(int width, int height)
 {
 	m_Size.x = static_cast<float>(width);

@@ -1,9 +1,5 @@
 #include "PlayerManager.h"
 
-#include "Events/Event.h"
-#include "Events/EventManager.h"
-
-
 #include "Components/ScoreComponent.h"
 
 
@@ -16,21 +12,12 @@ void dae::PlayerManager::Initialize(int playerCount)
     {
         m_Players[i].playerIdx = i;
     }
-
-    EventManager::GetInstance().AddEvent(make_sdbm_hash("EnemyKilled"), this);
-    EventManager::GetInstance().AddEvent(make_sdbm_hash("StunEnemies"), this);
-    EventManager::GetInstance().AddEvent(make_sdbm_hash("EggDestroyed"), this);
-    EventManager::GetInstance().AddEvent(make_sdbm_hash("LevelFinish"), this);
 }
 
-void dae::PlayerManager::Notify(const Event& e)
+dae::GameObject* dae::PlayerManager::GetPlayerObject(int playerIdx) const
 {
-    if (e.nbArgs < 1 || !e.args[0].gameObject) return;
-
-    int playerIdx = GetPlayerIndex(e.args[0].gameObject);
-    if (playerIdx == -1) return;
-
-    AddScore(playerIdx, e.args[0].score);
+    if (playerIdx < 0 || playerIdx >= static_cast<int>(m_PlayerObjects.size())) return nullptr;
+    return m_PlayerObjects[playerIdx];
 }
 
 void dae::PlayerManager::RegisterPlayer(int playerIdx, GameObject* playerObject)
@@ -51,15 +38,4 @@ int dae::PlayerManager::GetPlayerIndex(GameObject* playerObject) const
     }
 
     return -1;
-}
-
-void dae::PlayerManager::AddScore(int playerIdx, int score)
-{
-    m_Players[playerIdx].score += score;
-
-    if (playerIdx < static_cast<int>(m_PlayerObjects.size()) && m_PlayerObjects[playerIdx])
-    {
-        auto* scoreComp = m_PlayerObjects[playerIdx]->GetComponent<ScoreComponent>();
-        if (scoreComp) scoreComp->AddPoints(score);
-    }
 }

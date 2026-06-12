@@ -2,6 +2,9 @@
 #include "GameObject.h"
 #include "Transform.h"
 #include <vector>
+#include <SDBMHasher.h>
+#include "Events/Event.h"
+#include "Events/EventManager.h"
 
 void dae::CollisionManager::AddCollider(CollisionComponent* collider)
 {
@@ -13,27 +16,31 @@ void dae::CollisionManager::RemoveCollider(CollisionComponent* collider)
 	std::erase(m_pColliders, collider);
 }
 
-dae::GameObject* dae::CollisionManager::CheckCollision(CollisionComponent* collider)
+void dae::CollisionManager::FixedUpdate()
 {
-	const auto transform = collider->GetTransform();
-	const auto position = transform->GetWorldPosition();
-	const auto size = collider->GetSize();
+    for (size_t i = 0; i < m_pColliders.size(); ++i)
+    {
+        for (size_t j = i + 1; j < m_pColliders.size(); ++j)
+        {
+            auto* colliderA = m_pColliders[i];
+            auto* colliderB = m_pColliders[j];
 
-	for (auto otherCollider : m_pColliders)
-	{
-		if (collider == otherCollider) continue;
+            const auto posA = colliderA->GetTransform()->GetWorldPosition();
+            const auto sizeA = colliderA->GetSize();
+            const auto posB = colliderB->GetTransform()->GetWorldPosition();
+            const auto sizeB = colliderB->GetSize();
 
-		const auto otherTransform = otherCollider->GetTransform();
-		const auto otherPosition = otherTransform->GetWorldPosition();
-		const auto otherSize = otherCollider->GetSize();
+            //AABB Check
+            if (posA.x < posB.x + sizeB.x && posA.x + sizeA.x > posB.x &&
+                posA.y < posB.y + sizeB.y && posA.y + sizeA.y > posB.y)
+            {
+                Event e(make_sdbm_hash("OnCollision"));
+                e.nbArgs = 2;
+                e.args[0].gameObject = colliderA->GetGameObject();
+                e.args[1].gameObject = colliderB->GetGameObject();
 
-		//AABB
-		if (position.x < otherPosition.x + otherSize.x && position.x + size.x > otherPosition.x &&
-			position.y < otherPosition.y + otherSize.y && position.y + size.y > otherPosition.y)
-		{
-			return otherCollider->GetGameObject();
-		}
-	}
-
-	return nullptr;
+                EventManager::GetInstance().HandleEvent(e);
+            }
+        }
+    }
 }

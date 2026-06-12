@@ -10,7 +10,7 @@ void Scene::Add(std::unique_ptr<GameObject> object)
 	m_objects.emplace_back(std::move(object));
 }
 
-void Scene::Add(std::unique_ptr<Observer> observer)
+void Scene::Add(std::unique_ptr<IObserver> observer)
 {
 	assert(observer != nullptr && "Cannot add a null Observer to the scene.");
 	m_observers.emplace_back(std::move(observer));
@@ -28,7 +28,7 @@ void Scene::Remove(const GameObject& object)
 	);
 }
 
-void dae::Scene::Remove(const Observer& observer)
+void dae::Scene::Remove(const IObserver& observer)
 {
 	m_observers.erase(
 		std::remove_if(
@@ -54,6 +54,21 @@ void Scene::Update()
 			return object->IsMarkedForDestruction();
 		});
 
+}
+
+void dae::Scene::FixedUpdate()
+{
+	//Update
+	for (auto& object : m_objects)
+	{
+		object->FixedUpdate();
+	}
+
+	//Removal
+	std::erase_if(m_objects, [](const std::unique_ptr<GameObject>& object)
+		{
+			return object->IsMarkedForDestruction();
+		});
 }
 
 void Scene::Render() const

@@ -1,18 +1,25 @@
 #pragma once
 #include "GameComponent.h"
 #include "GameObject.h"
+
+#include "Observers/Observer.h"
+
 #include "Components/GridComponent.h"
 #include "Components/GridMoveComponent.h"
 #include "Components/CollisionComponent.h"
 
 namespace dae {
-    class BlockComponent : public GameComponent {
+    class BlockComponent : public GameComponent, public IObserver {
     public:
         BlockComponent(GameObject* gameObject, GridComponent* grid);
 
-        virtual ~BlockComponent() = default;
+        virtual ~BlockComponent();
 
-        void Update();
+        void Update() override;
+
+        void HandleCollisionWith(GameObject* other);
+
+        void Notify(const Event& e) override;
 
         void Push(glm::ivec2 direction, GameObject* player);
         

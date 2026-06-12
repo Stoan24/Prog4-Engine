@@ -2,9 +2,13 @@
 #include "GameplayState.h"
 #include "GameStateManager.h"
 #include "SceneManager.h"
-#include "GameTime.h"
 #include "SnoBeeManager.h"
+#include "ScoreManager.h"
+
 #include "Components/Blocks/EggBlockComponent.h"
+
+#include "GameTime.h"
+
 
 void dae::IntroState::OnEnter()
 {

@@ -38,7 +38,5 @@ namespace dae
         bool m_FlashToggle{ false };
         const std::string m_NormalTexture{ "IceBlock.png" };
         const std::string m_FlashTexture{ "FlashBlock.png" };
-
-        int m_eggBreakScore{ 500 };
     };
 }

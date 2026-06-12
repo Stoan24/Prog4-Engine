@@ -15,11 +15,11 @@ dae::GridMoveComponent::GridMoveComponent(GameObject* gameObject, GridComponent*
     m_StartWorldPos = startPos;
 }
 
-void dae::GridMoveComponent::Update()
+void dae::GridMoveComponent::FixedUpdate()
 {
     if (!m_IsMoving) return;
 
-    const float deltaTime = GameTime::GetInstance().GetDeltaTime();
+    const float deltaTime = GameTime::GetInstance().GetFixedDeltaTime();
     m_MoveProgress += deltaTime * m_MoveSpeed;
 
     glm::vec2 targetWorldPos = m_pGrid->CellToWorld(m_TargetCell);
@@ -68,4 +68,19 @@ bool dae::GridMoveComponent::Move(glm::ivec2 direction, bool isBlock)
 glm::ivec2 dae::GridMoveComponent::GetLookDirection()
 {
     return m_LookDirection;
+}
+
+void dae::GridMoveComponent::ResetToCell(int col, int row)
+{
+    m_CurrentCell = { col, row };
+    m_TargetCell = { col, row };
+    m_IsMoving = false;
+    m_MoveProgress = 0.f;
+
+
+    glm::vec2 newPos = m_pGrid->CellToWorld(col, row);
+    m_StartWorldPos = newPos;
+
+    GetGameObject()->GetComponent<Transform>()->SetLocalPosition(newPos.x, newPos.y);
+    GetGameObject()->GetComponent<Transform>()->UpdateWorldPosition();
 }

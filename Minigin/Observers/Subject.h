@@ -16,12 +16,12 @@ namespace dae
 
 		virtual ~Subject() {}
 
-		void AddObserver(Observer* observer)
+		void AddObserver(IObserver* observer)
 		{
 			m_pObservers.emplace_back(observer);
 		}
 
-		void RemoveObserver(Observer* observer)
+		void RemoveObserver(IObserver* observer)
 		{
 			if (!m_pObservers.empty())
 			{
@@ -42,6 +42,6 @@ namespace dae
 		}
 
 	private:
-		std::vector<Observer*> m_pObservers{};
+		std::vector<IObserver*> m_pObservers{};
 	};
 }

@@ -5,30 +5,41 @@
 #include "../Components/ScoreComponent.h"
 #include "Components/TextComponent.h"
 
+#include "Events/EventManager.h"
+
 #include "SDBMHasher.h"
 
 namespace dae
 {
-    class ScoreObserver final : public GameComponent, public Observer
+    class ScoreObserver final : public GameComponent, public IObserver
     {
     public:
-        ScoreObserver(GameObject* gameObject, TextComponent* pText, ScoreComponent* pScore)
+        explicit ScoreObserver(GameObject* gameObject, TextComponent* pText, ScoreComponent* pScore)
             : GameComponent(gameObject),
             m_pTextComponent{ pText },
-            m_pScore{ pScore },
-            m_pSubject{ pScore->GetSubject() }
+            m_pScore{ pScore }
         {
-            m_pSubject->AddObserver(this);
+            EventManager::GetInstance().AddEvent(make_sdbm_hash("EnemyKilled"), this);
+            EventManager::GetInstance().AddEvent(make_sdbm_hash("StunEnemies"), this);
+            EventManager::GetInstance().AddEvent(make_sdbm_hash("EggDestroyed"), this);
+            EventManager::GetInstance().AddEvent(make_sdbm_hash("IceBlockDestroyed"), this);
+            EventManager::GetInstance().AddEvent(make_sdbm_hash("LevelFinish"), this);
         }
 
-        ~ScoreObserver()
+        virtual ~ScoreObserver()
         {
-            if (m_pSubject) m_pSubject->RemoveObserver(this);
+            EventManager::GetInstance().RemoveObserver(make_sdbm_hash("EnemyKilled"), this);
+            EventManager::GetInstance().RemoveObserver(make_sdbm_hash("StunEnemies"), this);
+            EventManager::GetInstance().RemoveObserver(make_sdbm_hash("EggDestroyed"), this);
+            EventManager::GetInstance().RemoveObserver(make_sdbm_hash("IceBlockDestroyed"), this);
+            EventManager::GetInstance().RemoveObserver(make_sdbm_hash("LevelFinish"), this);
         }
 
         void Notify(const Event& e) override
         {
-            if (e.id == make_sdbm_hash("ScoreChanged"))
+            if (e.id == make_sdbm_hash("EnemyKilled") || e.id == make_sdbm_hash("StunEnemies")
+                || e.id == make_sdbm_hash("EggDestroyed") || e.id == make_sdbm_hash("IceBlockDestroyed")
+                || e.id == make_sdbm_hash("LevelFinish"))
             {
                 m_pTextComponent->SetText("Score: " + std::to_string(m_pScore->GetScore()));
             }
@@ -37,6 +48,5 @@ namespace dae
     private:
         TextComponent* m_pTextComponent{ nullptr };
         ScoreComponent* m_pScore{ nullptr };
-        Subject* m_pSubject{ nullptr };
     };
 }

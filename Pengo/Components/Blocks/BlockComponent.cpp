@@ -2,7 +2,7 @@
 
 #include "Events/Event.h"
 #include "Events/EventManager.h"
-#include "Sound/ServiceLocator.h"
+#include "ServiceLocator.h"
 #include "CollisionManager.h"
 #include "SDBMHasher.h"
 
@@ -14,6 +14,13 @@ dae::BlockComponent::BlockComponent(GameObject* gameObject, GridComponent* grid)
     m_pCollisionComponent = gameObject->GetComponent<CollisionComponent>();
 
     m_pGrid->FillCell(m_pMoveComponent->GetCurrentCell().x, m_pMoveComponent->GetCurrentCell().y, gameObject);
+
+    EventManager::GetInstance().AddEvent(make_sdbm_hash("OnCollision"), this);
+}
+
+dae::BlockComponent::~BlockComponent()
+{
+    EventManager::GetInstance().RemoveObserver(make_sdbm_hash("OnCollision"), this);
 }
 
 void dae::BlockComponent::Update()
@@ -30,13 +37,10 @@ void dae::BlockComponent::Update()
 
             if (m_KillCount > 0 && m_pPlayer)
             {
-                int count = std::min(m_KillCount, m_MaxKills);
-                int totalScore = m_KillScores[count];
-
                 Event e(make_sdbm_hash("EnemyKilled"));
                 e.nbArgs = 1;
                 e.args[0].gameObject = m_pPlayer;
-                e.args[0].score = totalScore;
+                e.args[0].value = m_KillCount;
                 EventManager::GetInstance().HandleEvent(e);
 
                 m_KillCount = 0;
@@ -46,24 +50,34 @@ void dae::BlockComponent::Update()
             m_pPlayer = nullptr;
         }
     }
+}
 
-    //Kill enemy on collision
-    auto* myCollider = GetGameObject()->GetComponent<CollisionComponent>();
-    if (myCollider)
+void dae::BlockComponent::HandleCollisionWith(GameObject* other)
+{
+    if (!m_IsSliding) return;
+
+    if (other->HasTag("Enemy") && !other->IsMarkedForDestruction())
     {
-        GameObject* hitObject = CollisionManager::GetInstance().CheckCollision(myCollider);
+        ++m_KillCount;
+        ServiceLocator::GetSoundSystem().Play(make_sdbm_hash("SnoBeeSquashed"), 0.05f);
+        other->MarkForDestruction();
+    }
+}
 
-        if (hitObject && hitObject->HasTag("Enemy"))
+void dae::BlockComponent::Notify(const Event& e)
+{
+    if (e.id == make_sdbm_hash("OnCollision"))
+    {
+        GameObject* objA = e.args[0].gameObject;
+        GameObject* objB = e.args[1].gameObject;
+
+        if (objA == GetGameObject())
         {
-            if (hitObject->IsMarkedForDestruction()) return;
-
-            ++m_KillCount;
-
-
-            ServiceLocator::GetSoundSystem().Play(make_sdbm_hash("SnoBeeSquashed"), 0.05f);
-
-
-            hitObject->MarkForDestruction();
+            HandleCollisionWith(objB);
+        }
+        else if (objB == GetGameObject())
+        {
+            HandleCollisionWith(objA);
         }
     }
 }

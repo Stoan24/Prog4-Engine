@@ -32,8 +32,5 @@ namespace dae
     private:
 
         void CheckAlignment();
-
-        int m_stunSideScore{ 5000 };
-        int m_stunMiddleScore{ 10000 };
     };
 }

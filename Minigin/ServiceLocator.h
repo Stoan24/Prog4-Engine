@@ -1,19 +1,19 @@
 #pragma once
 
-#include "Sound.h"
+#include "Sound/Sound.h"
 #include <memory>
 
 namespace dae
 {
     class ServiceLocator final
     {
-        static std::unique_ptr<SoundSystem> soundSystemInstance;
+        static std::unique_ptr<ISoundSystem> soundSystemInstance;
 
     public:
 
-        static SoundSystem& GetSoundSystem() { return *soundSystemInstance; }
+        static ISoundSystem& GetSoundSystem() { return *soundSystemInstance; }
 
-        static void RegisterSoundSystem(std::unique_ptr<SoundSystem>&& ss)
+        static void RegisterSoundSystem(std::unique_ptr<ISoundSystem>&& ss)
         {
             soundSystemInstance = std::move(ss);
         }

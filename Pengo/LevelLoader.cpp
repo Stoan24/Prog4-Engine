@@ -11,12 +11,14 @@
 #include "Components/GridMoveComponent.h"
 #include "Components/CollisionComponent.h"
 #include "Transform.h"
+#include "ServiceLocator.h"
 
 //Managers
 #include "ResourceManager.h"
-#include "Sound/ServiceLocator.h"
 #include "PlayerManager.h"
+#include "ScoreManager.h"
 #include "SnoBeeManager.h"
+
 
 //Game
 #include "Components/HealthComponent.h"
@@ -237,11 +239,12 @@ std::unique_ptr<dae::GameObject> dae::LevelLoader::CreatePlayer1(GridComponent* 
 
     
     auto* health = gameObject->AddComponent<HealthComponent>(4);
+    health->SetSpawnCell({col, row});
     int savedLives = PlayerManager::GetInstance().GetLives(0);
     if (savedLives > 0) health->SetLives(savedLives);
 
     auto* score = gameObject->AddComponent<ScoreComponent>();
-    int savedScore = PlayerManager::GetInstance().GetScore(0);
+    int savedScore = ScoreManager::GetInstance().GetScore(0);
     if (savedScore > 0) score->SetScore(savedScore);
 
     gameObject->AddTag("Player");
@@ -257,7 +260,7 @@ std::unique_ptr<dae::GameObject> dae::LevelLoader::CreateEggBlock(GridComponent*
 {
     auto gameObject = std::make_unique<GameObject>();
     gameObject->AddComponent<TextureComponent>()->SetTexture("IceBlock.png");
-    gameObject->AddComponent<GridMoveComponent>(grid, col, row, 1.f);
+    gameObject->AddComponent<GridMoveComponent>(grid, col, row, 10.f);
     gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
     gameObject->AddComponent<EggBlockComponent>(grid);
     gameObject->AddTag("Enemy");
@@ -279,7 +282,7 @@ std::unique_ptr<dae::GameObject> dae::LevelLoader::CreatePlayer2(GridComponent* 
     {
         gameObject->AddComponent<TextureComponent>()->SetTexture("Pengo2.png");
         auto* score = gameObject->AddComponent<ScoreComponent>();
-        int savedScore = PlayerManager::GetInstance().GetScore(1);
+        int savedScore = ScoreManager::GetInstance().GetScore(1);
         if (savedScore > 0) score->SetScore(savedScore);
 
         gameObject->AddTag("Player");
@@ -287,11 +290,12 @@ std::unique_ptr<dae::GameObject> dae::LevelLoader::CreatePlayer2(GridComponent* 
     else if (m_GameMode == GameMode::Versus)
     {
         gameObject->AddComponent<TextureComponent>()->SetTexture("SnoBeePlayer.png");
-        gameObject->AddTag("VersusPlayer");
+        gameObject->AddTag("Enemy");
     }
 
 
     auto* health = gameObject->AddComponent<HealthComponent>(4);
+    health->SetSpawnCell({ col, row });
     int savedLives = PlayerManager::GetInstance().GetLives(1);
     if (savedLives > 0) health->SetLives(savedLives);
 

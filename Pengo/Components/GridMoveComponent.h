@@ -17,7 +17,7 @@ namespace dae
         GridMoveComponent& operator=(const GridMoveComponent&) = delete;
         GridMoveComponent& operator=(GridMoveComponent&&) = delete;
 
-        void Update() override;
+        void FixedUpdate() override;
 
 
         bool Move(glm::ivec2 direction, bool isBlock);
@@ -27,6 +27,8 @@ namespace dae
 
         bool IsMoving() const { return m_IsMoving; }
         glm::ivec2 GetCurrentCell() const { return m_CurrentCell; }
+
+        void ResetToCell(int col, int row);
 
     private:
         GridComponent* m_pGrid{ nullptr };

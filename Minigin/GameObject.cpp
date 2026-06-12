@@ -45,6 +45,25 @@ void dae::GameObject::Update()
 	}
 }
 
+void dae::GameObject::FixedUpdate()
+{
+	for (const auto& component : m_pComponents)
+	{
+		if (component)
+		{
+			component->FixedUpdate();
+		}
+	}
+
+	for (const auto& child : m_pChildren)
+	{
+		if (child)
+		{
+			child->FixedUpdate();
+		}
+	}
+}
+
 void dae::GameObject::Render() const
 {
 	for(const auto& component : m_pComponents)

@@ -9,7 +9,7 @@
 
 namespace dae
 {
-	class HealthObserver : public GameComponent, public Observer
+	class HealthObserver : public GameComponent, public IObserver
 	{
 		
 	public:
@@ -31,7 +31,7 @@ namespace dae
 		{
 			if (e.id == make_sdbm_hash("PlayerHit"))
 			{
-				m_pTextComponent->SetText("# Lives: " + std::to_string(m_pHealth->GetLives()));
+				UpdateDisplay(m_pHealth->GetLives());
 			}
 		}
 

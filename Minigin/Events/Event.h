@@ -7,7 +7,7 @@ namespace dae
 	struct EventArg 
 	{
 		GameObject* gameObject;
-		int score;
+		int value;
 	};
 
 	using EventId = unsigned int;

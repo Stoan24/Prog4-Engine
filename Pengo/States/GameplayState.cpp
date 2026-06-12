@@ -19,6 +19,9 @@
 
 #include "GameTime.h"
 
+#include <Events/EventManager.h>
+#include <Events/Event.h>
+
 namespace dae
 {
     class PauseGameCommand final : public Command
@@ -35,7 +38,9 @@ namespace dae
     {
     public:
 
-        explicit SkipLevelCommand(GameMode gameMode) : m_GameMode(gameMode) {}
+        explicit SkipLevelCommand(GameplayState* pState, GameMode gameMode)
+            : m_pState(pState)
+            , m_GameMode(gameMode) {}
         
         void Execute() override
         {
@@ -53,11 +58,12 @@ namespace dae
             else
             {
                 GameStateManager::GetInstance().ChangeState(
-                    std::make_unique<HighScoreState>(0, 0, GameEnding::GameWon));
+                    std::make_unique<HighScoreState>(m_pState->GetCombinedScore(), 0, GameEnding::GameWon));
             }
         }
 
     private:
+        GameplayState* m_pState;
         GameMode m_GameMode;
     };
 }
@@ -103,26 +109,17 @@ std::unique_ptr<dae::GameState> dae::GameplayState::Update()
     {
         snobeeManager.AddLevelIndex();
 
-        int timeBonus = CalculateTimeBonus(m_LevelTimer);
-
         //DRY
         auto keep = [&](GameObject* player, int idx)
             {
                 if (!player) return;
-                
-                if (timeBonus > 0)
-                {
-                    Event e(make_sdbm_hash("LevelFinish"));
-                    e.nbArgs = 1;
-                    e.args[0].gameObject = player;
-                    e.args[0].score = timeBonus;
-                    EventManager::GetInstance().HandleEvent(e);
-                }
-                
-                if (auto* score = player->GetComponent<ScoreComponent>())
-                {
-                    PlayerManager::GetInstance().SetScore(idx, score->GetScore());
-                }
+
+                Event e(make_sdbm_hash("LevelFinish"));
+                e.nbArgs = 1;
+                e.args[0].gameObject = player;
+                e.args[0].value = static_cast<int>(m_LevelTimer);
+                EventManager::GetInstance().HandleEvent(e);
+
                 if (auto* health = player->GetComponent<HealthComponent>())
                 {
                     PlayerManager::GetInstance().SetLives(idx, health->GetLives());
@@ -191,7 +188,9 @@ int dae::GameplayState::GetCombinedScore() const
         {
             if (!player) return;
             if (auto* s = player->GetComponent<ScoreComponent>())
+            {
                 total += s->GetScore();
+            }
         };
 
     add(m_pPlayer1);
@@ -232,11 +231,30 @@ void dae::GameplayState::SetupInputBindings()
         input.BindKey(SDL_SCANCODE_DOWN, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer1, glm::ivec2{ 0, 1 }));
         input.BindKey(SDL_SCANCODE_LEFT, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer1, glm::ivec2{ -1, 0 }));
         input.BindKey(SDL_SCANCODE_RIGHT, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer1, glm::ivec2{ 1, 0 }));
-
-
         input.BindKey(SDL_SCANCODE_E, KeyState::Pressed, std::make_unique<PushBlockCommand>(m_pPlayer1));
 
-        if (m_GameMode == GameMode::SinglePlayer)
+        //F1 For Skip
+        input.BindKey(SDL_SCANCODE_F1, KeyState::Down, std::make_unique<SkipLevelCommand>(this, m_GameMode));
+    }
+
+
+    if (m_GameMode == GameMode::SinglePlayer)
+    {
+        if (m_pPlayer1)
+        {
+            for (int i = 0; i < 2; ++i)
+            {
+                input.BindButton(i, ControllerButton::DpadUp, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer1, glm::ivec2{ 0,-1 }));
+                input.BindButton(i, ControllerButton::DpadDown, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer1, glm::ivec2{ 0, 1 }));
+                input.BindButton(i, ControllerButton::DpadLeft, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer1, glm::ivec2{ -1, 0 }));
+                input.BindButton(i, ControllerButton::DpadRight, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer1, glm::ivec2{ 1, 0 }));
+                input.BindButton(i, ControllerButton::ButtonA, KeyState::Pressed, std::make_unique<PushBlockCommand>(m_pPlayer1));
+            }
+        }
+    }
+    else // Multiplayer COOP/VS
+    {
+        if (m_pPlayer1)
         {
             input.BindButton(0, ControllerButton::DpadUp, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer1, glm::ivec2{ 0,-1 }));
             input.BindButton(0, ControllerButton::DpadDown, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer1, glm::ivec2{ 0, 1 }));
@@ -245,29 +263,20 @@ void dae::GameplayState::SetupInputBindings()
             input.BindButton(0, ControllerButton::ButtonA, KeyState::Pressed, std::make_unique<PushBlockCommand>(m_pPlayer1));
         }
 
-        //F1 For Skip
-        input.BindKey(SDL_SCANCODE_F1, KeyState::Down, std::make_unique<SkipLevelCommand>(m_GameMode));
-
-        //F2 For Mute
-    }
-
-    //Player 2 controller (Gamepad)
-    if (m_pPlayer2 && m_GameMode != GameMode::SinglePlayer)
-    {
-        input.BindButton(0, ControllerButton::DpadUp, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer2, glm::ivec2{ 0,-1 }));
-        input.BindButton(0, ControllerButton::DpadDown, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer2, glm::ivec2{ 0, 1 }));
-        input.BindButton(0, ControllerButton::DpadLeft, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer2, glm::ivec2{ -1, 0 }));
-        input.BindButton(0, ControllerButton::DpadRight, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer2, glm::ivec2{ 1, 0 }));
-
-        if (m_GameMode == GameMode::Coop)
+        if (m_pPlayer2)
         {
-            input.BindButton(0, ControllerButton::ButtonA, KeyState::Pressed, std::make_unique<PushBlockCommand>(m_pPlayer2));
+            input.BindButton(1, ControllerButton::DpadUp, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer2, glm::ivec2{ 0,-1 }));
+            input.BindButton(1, ControllerButton::DpadDown, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer2, glm::ivec2{ 0, 1 }));
+            input.BindButton(1, ControllerButton::DpadLeft, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer2, glm::ivec2{ -1, 0 }));
+            input.BindButton(1, ControllerButton::DpadRight, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer2, glm::ivec2{ 1, 0 }));
+            input.BindButton(1, ControllerButton::ButtonA, KeyState::Pressed, std::make_unique<PushBlockCommand>(m_pPlayer2));
         }
     }
 
     //Quit
     input.BindKey(SDL_SCANCODE_ESCAPE, KeyState::Pressed, std::make_unique<PauseGameCommand>());
     input.BindButton(0, ControllerButton::Start, KeyState::Pressed, std::make_unique<PauseGameCommand>());
+    input.BindButton(1, ControllerButton::Start, KeyState::Pressed, std::make_unique<PauseGameCommand>());
 }
 
 void dae::GameplayState::CleanupInputBindings()
@@ -285,6 +294,12 @@ void dae::GameplayState::CleanupInputBindings()
     input.UnbindKey(SDL_SCANCODE_RIGHT, KeyState::Pressed);
     input.UnbindKey(SDL_SCANCODE_E, KeyState::Pressed);
 
+    input.UnbindButton(1, ControllerButton::DpadUp, KeyState::Pressed);
+    input.UnbindButton(1, ControllerButton::DpadDown, KeyState::Pressed);
+    input.UnbindButton(1, ControllerButton::DpadLeft, KeyState::Pressed);
+    input.UnbindButton(1, ControllerButton::DpadRight, KeyState::Pressed);
+    input.UnbindButton(1, ControllerButton::ButtonA, KeyState::Pressed);
+
     //Unbind Player 2
     input.UnbindButton(0, ControllerButton::DpadUp, KeyState::Pressed);
     input.UnbindButton(0, ControllerButton::DpadDown, KeyState::Pressed);
@@ -295,11 +310,10 @@ void dae::GameplayState::CleanupInputBindings()
     //Unbind Quit
     input.UnbindKey(SDL_SCANCODE_ESCAPE, KeyState::Pressed);
     input.UnbindButton(0, ControllerButton::Start, KeyState::Pressed);
+    input.UnbindButton(1, ControllerButton::Start, KeyState::Pressed);
 
     //Unbind Skip
     input.UnbindKey(SDL_SCANCODE_F1, KeyState::Down);
-
-    //Unbind Mute
 }
 
 #pragma endregion

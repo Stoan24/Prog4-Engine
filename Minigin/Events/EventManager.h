@@ -13,8 +13,8 @@ namespace dae
 	{
 	public:
 
-		void AddEvent(EventId id, Observer* listener);
-		void RemoveObserver(EventId id, Observer* observer);
+		void AddEvent(EventId id, IObserver* listener);
+		void RemoveObserver(EventId id, IObserver* observer);
 		void HandleEvent(Event e);
 
 		void Update();
@@ -26,6 +26,6 @@ namespace dae
 		std::queue<Event> m_EventQueue;
 
 		//Link events to multiple listeners
-		std::map<EventId, std::vector<Observer*>> m_Observers;
+		std::map<EventId, std::vector<IObserver*>> m_Observers;
 	};
 }

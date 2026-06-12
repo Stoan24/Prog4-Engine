@@ -16,6 +16,7 @@ namespace dae
 	{
 	public:
 		void Update();
+		void FixedUpdate();
 		void Render() const;
 		void RenderGUI();
 

@@ -180,7 +180,7 @@ add_library(MiniginLib STATIC
   Minigin/Events/EventManager.cpp
   Minigin/Steam/Achievement.cpp 
   Minigin/Sound/SDLSoundSystem.cpp
-  Minigin/Sound/ServiceLocator.cpp)
+  "Minigin/ServiceLocator.cpp")
 
 # enable c++20 features
 target_compile_features(MiniginLib PUBLIC cxx_std_20)
@@ -248,7 +248,7 @@ add_executable(${PENGO_TARGET} ${PENGO_PARAM}
   Pengo/States/StartMenuState.cpp
   Pengo/States/IntroState.cpp
   Pengo/HighScoreManager.cpp
-  Pengo/States/HighScoreState.cpp)
+  Pengo/States/HighScoreState.cpp "Pengo/ScoreManager.cpp")
 
 target_include_directories(${PENGO_TARGET} PRIVATE
   ${CMAKE_SOURCE_DIR}/Pengo

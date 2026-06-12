@@ -8,7 +8,7 @@
 
 namespace dae
 {
-    class SnoBeeManager final : public Singleton<SnoBeeManager>, public Observer
+    class SnoBeeManager final : public Singleton<SnoBeeManager>, public IObserver
     {
     public:
         void Initialize(GridComponent* grid);

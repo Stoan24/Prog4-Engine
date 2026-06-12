@@ -14,6 +14,7 @@ namespace dae
 		GameComponent& operator=(GameComponent&& other) = delete;
 		
 		virtual void Update() {}
+		virtual void FixedUpdate() {}
 		virtual void Render() const {}
 		virtual void RenderGUI() {}
 

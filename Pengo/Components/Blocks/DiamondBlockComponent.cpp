@@ -3,7 +3,7 @@
 #include "Events/Event.h"
 #include "Events/EventManager.h"
 #include "SDBMHasher.h"
-#include "Sound/ServiceLocator.h"
+#include "ServiceLocator.h"
 
 dae::DiamondBlockComponent::DiamondBlockComponent(GameObject* gameObject, GridComponent* grid)
     : BlockComponent(gameObject, grid)
@@ -102,16 +102,7 @@ void dae::DiamondBlockComponent::CheckAlignment()
         Event e(make_sdbm_hash("StunEnemies"));
         e.nbArgs = 1;
         e.args[0].gameObject = m_pPlayer;
-
-        if (alignmentTouchesEdge)
-        {
-            e.args[1].score = m_stunSideScore;
-        }
-        else
-        {
-            e.args[1].score = m_stunMiddleScore;
-        }
-
+        e.args[0].value = alignmentTouchesEdge ? 1 : 0;
         EventManager::GetInstance().HandleEvent(e);
 
         ServiceLocator::GetSoundSystem().Play(make_sdbm_hash("SnoBeeStunned"), 0.05f);

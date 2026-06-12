@@ -12,11 +12,17 @@ dae::SnoBeeComponent::SnoBeeComponent(GameObject* gameObject, GridComponent* gri
 {
     m_pMove = gameObject->GetComponent<GridMoveComponent>();
     EventManager::GetInstance().AddEvent(make_sdbm_hash("StunEnemies"), this);
+    EventManager::GetInstance().AddEvent(make_sdbm_hash("OnCollision"), this);
 }
 
-void dae::SnoBeeComponent::Update()
+dae::SnoBeeComponent::~SnoBeeComponent()
 {
-    const float deltaTime = GameTime::GetInstance().GetDeltaTime();
+    EventManager::GetInstance().RemoveObserver(make_sdbm_hash("OnCollision"), this);
+}
+
+void dae::SnoBeeComponent::FixedUpdate()
+{
+    const float deltaTime = GameTime::GetInstance().GetFixedDeltaTime();
 
 
     if (m_State == SnoBeeState::Stunned)
@@ -37,6 +43,7 @@ void dae::SnoBeeComponent::Update()
     if (m_BlockBreakTimer > 0.f)
     {
         m_BlockBreakTimer -= deltaTime;
+        return;
     }
 
     if (m_pMove->IsMoving()) return;
@@ -46,9 +53,6 @@ void dae::SnoBeeComponent::Update()
 
 void dae::SnoBeeComponent::UpdateWander()
 {
-    if (m_BlockBreakTimer > 0.f) return;
-
-
     glm::ivec2 currentCell = m_pMove->GetCurrentCell();
     
     if (m_WanderTarget == glm::ivec2{ -1, -1 } || currentCell == m_WanderTarget)
@@ -140,4 +144,37 @@ void dae::SnoBeeComponent::Stun(float duration)
     m_State = SnoBeeState::Stunned;
     m_StunTimer = duration;
     m_WanderTarget = { -1, -1 };
+}
+
+void dae::SnoBeeComponent::Notify(const Event& e)
+{
+    if (e.id == make_sdbm_hash("StunEnemies"))
+    {
+        Stun(m_maxStun);
+    }
+    else if (e.id == make_sdbm_hash("OnCollision"))
+    {
+        GameObject* objA = e.args[0].gameObject;
+        GameObject* objB = e.args[1].gameObject;
+
+        GameObject* other = nullptr;
+        if (objA == GetGameObject()) other = objB;
+        else if (objB == GetGameObject()) other = objA;
+
+
+        if (!other) return;
+
+        //Kill Snobee when stunned
+        if (other->HasTag("Player") && IsStunned())
+        {
+            if (GetGameObject()->IsMarkedForDestruction()) return;
+
+            Event scoreEvent(make_sdbm_hash("EnemyKilled"));
+            scoreEvent.nbArgs = 1;
+            scoreEvent.args[0].gameObject = other;
+            EventManager::GetInstance().HandleEvent(scoreEvent);
+
+            GetGameObject()->MarkForDestruction();
+        }
+    }
 }

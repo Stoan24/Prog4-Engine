@@ -13,7 +13,7 @@ namespace dae
 		void AddCollider(CollisionComponent* collider);
 		void RemoveCollider(CollisionComponent* collider);
 
-		GameObject* CheckCollision(CollisionComponent* collider);
+		void FixedUpdate();
 
 	private:
 		//Friend class, can only be made by itself

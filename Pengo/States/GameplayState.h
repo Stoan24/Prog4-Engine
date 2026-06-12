@@ -27,6 +27,7 @@ namespace dae
         void OnExit() override;
         std::unique_ptr<GameState> Update() override;
 
+        int  GetCombinedScore() const;
 
     private:
 
@@ -45,7 +46,7 @@ namespace dae
         void CleanupInputBindings();
 
         bool CheckAllPlayersDead(int& outScore) const;
-        int  GetCombinedScore() const;
+        
 
         int CalculateTimeBonus(float timeInSeconds) const;
     };
