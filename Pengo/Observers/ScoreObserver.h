@@ -11,6 +11,7 @@
 
 namespace dae
 {
+    //Should be named ScoreDisplay
     class ScoreObserver final : public GameComponent, public IObserver
     {
     public:

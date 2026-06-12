@@ -1,6 +1,6 @@
 #pragma once
 #include "Singleton.h"
-#include "Events/Event.h"
+#include "GameObject.h"
 #include <vector>
 
 namespace dae

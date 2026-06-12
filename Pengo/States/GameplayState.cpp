@@ -110,7 +110,7 @@ std::unique_ptr<dae::GameState> dae::GameplayState::Update()
         snobeeManager.AddLevelIndex();
 
         //DRY
-        auto keep = [&](GameObject* player, int idx)
+        auto Keep = [&](GameObject* player, int idx)
             {
                 if (!player) return;
 
@@ -126,8 +126,8 @@ std::unique_ptr<dae::GameState> dae::GameplayState::Update()
                 }
             };
 
-        keep(m_pPlayer1, 0);
-        keep(m_pPlayer2, 1);
+        Keep(m_pPlayer1, 0);
+        Keep(m_pPlayer2, 1);
 
         const int nextLevel = snobeeManager.GetLevelIndex();
         const int totalLevels = LevelLoader::GetLevelCount(LevelLoader::GetLevelsPath());
@@ -184,7 +184,7 @@ int dae::GameplayState::GetCombinedScore() const
     int total = 0;
     
     //DRY
-    auto add = [&](GameObject* player)
+    auto Add = [&](GameObject* player)
         {
             if (!player) return;
             if (auto* s = player->GetComponent<ScoreComponent>())
@@ -193,8 +193,8 @@ int dae::GameplayState::GetCombinedScore() const
             }
         };
 
-    add(m_pPlayer1);
-    add(m_pPlayer2);
+    Add(m_pPlayer1);
+    Add(m_pPlayer2);
     return total;
 }
 

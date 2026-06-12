@@ -9,6 +9,7 @@
 
 namespace dae
 {
+	//Should be named HealthDisplay
 	class HealthObserver : public GameComponent, public IObserver
 	{
 		

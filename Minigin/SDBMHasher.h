@@ -1,5 +1,8 @@
 #pragma once
 
+//Template Meta Programming (compile time recursion)
+//Right-Left
+
 //template <int length> struct sdbm_hash
 //{
 //	consteval static unsigned int _calculate(const char* const text, unsigned int& value) {
@@ -20,6 +23,11 @@
 //	return sdbm_hash<N - 1>::calculate(text);
 //};
 
+
+//Can run at compile time or runtime
+//Could eventually use user input for strings
+//Left-Right
+//Will return a different hash result
 
 #include <string_view>
 

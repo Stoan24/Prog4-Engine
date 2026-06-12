@@ -1,8 +1,9 @@
 #include "CollisionManager.h"
-#include "GameObject.h"
+
 #include "Transform.h"
 #include <vector>
 #include <SDBMHasher.h>
+
 #include "Events/Event.h"
 #include "Events/EventManager.h"
 

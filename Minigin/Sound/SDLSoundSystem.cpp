@@ -37,11 +37,6 @@ namespace dae
             m_thread.request_stop();
             m_condition.notify_one();
 
-            //Does not need to be here, happens automatically --> jthread
-            if (m_thread.joinable())
-            {
-                m_thread.join();
-            }
 #endif
 
             for (auto& pair : m_loadedSounds)

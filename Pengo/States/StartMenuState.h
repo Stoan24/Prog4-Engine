@@ -26,8 +26,8 @@ namespace dae
     private:
         Scene* m_pMenuScene{ nullptr };
 
+        void CreateMenuScene();
         void SetupInputBindings();
         void CleanupInputBindings();
-        void CreateMenuScene();
     };
 }

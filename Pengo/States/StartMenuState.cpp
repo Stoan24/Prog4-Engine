@@ -17,6 +17,8 @@
 #include <utility>
 #include <memory>
 
+
+#pragma region Commands
 namespace dae
 {
     class QuitGameCommand final : public Command
@@ -57,6 +59,7 @@ namespace dae
         }
     };
 }
+#pragma endregion
 
 void dae::StartMenuState::OnEnter()
 {
@@ -75,36 +78,6 @@ void dae::StartMenuState::OnExit()
 std::unique_ptr<dae::GameState> dae::StartMenuState::Update()
 {
     return nullptr;
-}
-
-void dae::StartMenuState::SetupInputBindings()
-{
-    auto& input = InputManager::GetInstance();
-
-    input.BindKey(SDL_SCANCODE_1, KeyState::Down, std::make_unique<StartSinglePlayerCommand>());
-    input.BindKey(SDL_SCANCODE_2, KeyState::Down, std::make_unique<StartCoopCommand>());
-    input.BindKey(SDL_SCANCODE_3, KeyState::Down, std::make_unique<StartVersusCommand>());
-    input.BindButton(0, ControllerButton::ButtonA, KeyState::Down, std::make_unique<StartSinglePlayerCommand>());
-    input.BindButton(0, ControllerButton::ButtonX, KeyState::Down, std::make_unique<StartCoopCommand>());
-    input.BindButton(0, ControllerButton::ButtonY, KeyState::Down, std::make_unique<StartVersusCommand>());
-
-    input.BindKey(SDL_SCANCODE_ESCAPE, KeyState::Down, std::make_unique<QuitGameCommand>());
-    input.BindButton(0, ControllerButton::Start, KeyState::Pressed, std::make_unique<QuitGameCommand>());
-}
-
-void dae::StartMenuState::CleanupInputBindings()
-{
-    auto& input = InputManager::GetInstance();
-
-    input.UnbindKey(SDL_SCANCODE_1, KeyState::Down);
-    input.UnbindKey(SDL_SCANCODE_2, KeyState::Down);
-    input.UnbindKey(SDL_SCANCODE_3, KeyState::Down);
-    input.UnbindButton(0, ControllerButton::ButtonA, KeyState::Down);
-    input.UnbindButton(0, ControllerButton::ButtonX, KeyState::Down);
-    input.UnbindButton(0, ControllerButton::ButtonY, KeyState::Down);
-
-    input.UnbindKey(SDL_SCANCODE_ESCAPE, KeyState::Down);
-    input.UnbindButton(0, ControllerButton::Start, KeyState::Down);
 }
 
 void dae::StartMenuState::CreateMenuScene()
@@ -153,3 +126,35 @@ void dae::StartMenuState::CreateMenuScene()
     daeObject->AddComponent<TextureComponent>()->SetTexture("UI/Company.png");
     m_pMenuScene->Add(std::move(daeObject));
 }
+
+#pragma region InputBindings
+void dae::StartMenuState::SetupInputBindings()
+{
+    auto& input = InputManager::GetInstance();
+
+    input.BindKey(SDL_SCANCODE_1, KeyState::Down, std::make_unique<StartSinglePlayerCommand>());
+    input.BindKey(SDL_SCANCODE_2, KeyState::Down, std::make_unique<StartCoopCommand>());
+    input.BindKey(SDL_SCANCODE_3, KeyState::Down, std::make_unique<StartVersusCommand>());
+    input.BindButton(0, ControllerButton::ButtonA, KeyState::Down, std::make_unique<StartSinglePlayerCommand>());
+    input.BindButton(0, ControllerButton::ButtonX, KeyState::Down, std::make_unique<StartCoopCommand>());
+    input.BindButton(0, ControllerButton::ButtonY, KeyState::Down, std::make_unique<StartVersusCommand>());
+
+    input.BindKey(SDL_SCANCODE_ESCAPE, KeyState::Down, std::make_unique<QuitGameCommand>());
+    input.BindButton(0, ControllerButton::Start, KeyState::Pressed, std::make_unique<QuitGameCommand>());
+}
+
+void dae::StartMenuState::CleanupInputBindings()
+{
+    auto& input = InputManager::GetInstance();
+
+    input.UnbindKey(SDL_SCANCODE_1, KeyState::Down);
+    input.UnbindKey(SDL_SCANCODE_2, KeyState::Down);
+    input.UnbindKey(SDL_SCANCODE_3, KeyState::Down);
+    input.UnbindButton(0, ControllerButton::ButtonA, KeyState::Down);
+    input.UnbindButton(0, ControllerButton::ButtonX, KeyState::Down);
+    input.UnbindButton(0, ControllerButton::ButtonY, KeyState::Down);
+
+    input.UnbindKey(SDL_SCANCODE_ESCAPE, KeyState::Down);
+    input.UnbindButton(0, ControllerButton::Start, KeyState::Down);
+}
+#pragma endregion

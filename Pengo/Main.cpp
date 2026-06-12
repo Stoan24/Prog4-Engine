@@ -30,6 +30,7 @@
 
 namespace fs = std::filesystem;
 
+//F2 Mute Command
 namespace dae
 {
 	class ToggleMuteCommand final : public Command

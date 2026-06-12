@@ -22,6 +22,7 @@
 #include <SDBMHasher.h>
 
 
+#pragma region Commands
 namespace dae
 {
     class HSCycleUpCommand final : public Command
@@ -69,7 +70,7 @@ namespace dae
         HighScoreState* m_State;
     };
 }
-
+#pragma endregion
 
 dae::HighScoreState::HighScoreState(int score, int playerIndex, GameEnding reason)
     : m_Score(score)

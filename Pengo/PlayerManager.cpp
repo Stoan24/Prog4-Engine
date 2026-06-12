@@ -1,6 +1,5 @@
 #include "PlayerManager.h"
 
-#include "Components/ScoreComponent.h"
 
 
 void dae::PlayerManager::Initialize(int playerCount)

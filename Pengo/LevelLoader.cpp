@@ -210,6 +210,7 @@ void dae::LevelLoader::LoadCell(int id, int col, int row, Scene& scene, GridComp
     }
 }
 
+#pragma region Creators
 std::unique_ptr<dae::GameObject> dae::LevelLoader::CreateIceBlock(GridComponent* grid, int col, int row)
 {
     auto gameObject = std::make_unique<GameObject>();
@@ -237,9 +238,9 @@ std::unique_ptr<dae::GameObject> dae::LevelLoader::CreatePlayer1(GridComponent* 
     gameObject->AddComponent<GridMoveComponent>(grid, col, row, 2.f);
     gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
 
-    
+
     auto* health = gameObject->AddComponent<HealthComponent>(4);
-    health->SetSpawnCell({col, row});
+    health->SetSpawnCell({ col, row });
     int savedLives = PlayerManager::GetInstance().GetLives(0);
     if (savedLives > 0) health->SetLives(savedLives);
 
@@ -305,3 +306,4 @@ std::unique_ptr<dae::GameObject> dae::LevelLoader::CreatePlayer2(GridComponent* 
 
     return gameObject;
 }
+#pragma endregion
