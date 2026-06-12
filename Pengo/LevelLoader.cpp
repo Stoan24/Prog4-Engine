@@ -26,6 +26,7 @@
 #include "Components/Blocks/IceBlockComponent.h"
 #include "Components/Blocks/DiamondBlockComponent.h"
 #include "Components/Blocks/EggBlockComponent.h"
+#include "Components/SnoBeeComponent.h"
 #include "Observers/HealthObserver.h"
 #include "Observers/ScoreObserver.h"
 
@@ -125,7 +126,11 @@ void dae::LevelLoader::LoadUI(Scene& scene, GameObject* player1, GameObject* pla
     };
 
     makeObservers(player1, 0.f);
-    makeObservers(player2, 100.f);
+
+    if (m_GameMode == GameMode::Coop)
+    {
+        makeObservers(player2, 100.f);
+    }
 }
 
 void dae::LevelLoader::LoadGrid(const json& gridJson, Scene& scene, GridComponent*& outGrid)
@@ -275,31 +280,34 @@ std::unique_ptr<dae::GameObject> dae::LevelLoader::CreatePlayer2(GridComponent* 
     if (m_GameMode == GameMode::SinglePlayer) return nullptr;
 
     auto gameObject = std::make_unique<GameObject>();
-    gameObject->AddComponent<GridMoveComponent>(grid, col, row, 2.f);
     gameObject->AddComponent<CollisionComponent>()->SetSize(16, 16);
 
-
+    //VS mode --> Snobee player should respawn via available egg
     if (m_GameMode == GameMode::Coop)
     {
+        gameObject->AddComponent<GridMoveComponent>(grid, col, row, 2.f);
+
         gameObject->AddComponent<TextureComponent>()->SetTexture("Pengo2.png");
         auto* score = gameObject->AddComponent<ScoreComponent>();
         int savedScore = ScoreManager::GetInstance().GetScore(1);
         if (savedScore > 0) score->SetScore(savedScore);
 
+        auto* health = gameObject->AddComponent<HealthComponent>(4);
+        health->SetSpawnCell({ col, row });
+        int savedLives = PlayerManager::GetInstance().GetLives(1);
+        if (savedLives > 0) health->SetLives(savedLives);
+
         gameObject->AddTag("Player");
     }
     else if (m_GameMode == GameMode::Versus)
     {
+        gameObject->AddComponent<GridMoveComponent>(grid, col, row, 1.f);
+
+        gameObject->AddComponent<SnoBeeComponent>(grid, true);
+
         gameObject->AddComponent<TextureComponent>()->SetTexture("SnoBeePlayer.png");
         gameObject->AddTag("Enemy");
     }
-
-
-    auto* health = gameObject->AddComponent<HealthComponent>(4);
-    health->SetSpawnCell({ col, row });
-    int savedLives = PlayerManager::GetInstance().GetLives(1);
-    if (savedLives > 0) health->SetLives(savedLives);
-
 
     m_PlayerObjects["Pengo2"] = gameObject.get();
     PlayerManager::GetInstance().RegisterPlayer(1, gameObject.get());

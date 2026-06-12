@@ -3,6 +3,7 @@
 #include "GameObject.h"
 #include "Components/GridMoveComponent.h"
 #include "Components/Blocks/BlockComponent.h"
+#include "Components/SnoBeeComponent.h"
 
 namespace dae
 {
@@ -54,6 +55,11 @@ namespace dae
             glm::ivec2 lookDir = m_MoveComponent->GetLookDirection();
             glm::ivec2 targetCell = m_MoveComponent->GetCurrentCell() + lookDir;
 
+            if (auto* snoBee = m_pGameObject->GetComponent<SnoBeeComponent>())
+            {
+                snoBee->TryManualBlockBreak(lookDir);
+                return;
+            }
 
             GameObject* targetObject = m_Grid->GetCellObject(targetCell.x, targetCell.y);
             if (targetObject)

@@ -13,6 +13,7 @@
 #include "Commands.h"
 
 #include <memory>
+#include <SDBMHasher.h>
 
 #include "Components/ScoreComponent.h"
 #include "Components/HealthComponent.h"
@@ -242,34 +243,32 @@ void dae::GameplayState::SetupInputBindings()
     {
         if (m_pPlayer1)
         {
-            for (int i = 0; i < 2; ++i)
-            {
-                input.BindButton(i, ControllerButton::DpadUp, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer1, glm::ivec2{ 0,-1 }));
-                input.BindButton(i, ControllerButton::DpadDown, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer1, glm::ivec2{ 0, 1 }));
-                input.BindButton(i, ControllerButton::DpadLeft, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer1, glm::ivec2{ -1, 0 }));
-                input.BindButton(i, ControllerButton::DpadRight, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer1, glm::ivec2{ 1, 0 }));
-                input.BindButton(i, ControllerButton::ButtonA, KeyState::Pressed, std::make_unique<PushBlockCommand>(m_pPlayer1));
-            }
-        }
-    }
-    else // Multiplayer COOP/VS
-    {
-        if (m_pPlayer1)
-        {
             input.BindButton(0, ControllerButton::DpadUp, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer1, glm::ivec2{ 0,-1 }));
             input.BindButton(0, ControllerButton::DpadDown, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer1, glm::ivec2{ 0, 1 }));
             input.BindButton(0, ControllerButton::DpadLeft, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer1, glm::ivec2{ -1, 0 }));
             input.BindButton(0, ControllerButton::DpadRight, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer1, glm::ivec2{ 1, 0 }));
             input.BindButton(0, ControllerButton::ButtonA, KeyState::Pressed, std::make_unique<PushBlockCommand>(m_pPlayer1));
         }
+    }
+    else // Multiplayer COOP/VS
+    {
+        if (m_pPlayer1)
+        {
+            input.BindButton(0, ControllerButton::DpadUp, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer2, glm::ivec2{ 0,-1 }));
+            input.BindButton(0, ControllerButton::DpadDown, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer2, glm::ivec2{ 0, 1 }));
+            input.BindButton(0, ControllerButton::DpadLeft, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer2, glm::ivec2{ -1, 0 }));
+            input.BindButton(0, ControllerButton::DpadRight, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer2, glm::ivec2{ 1, 0 }));
+
+            input.BindButton(0, ControllerButton::ButtonA, KeyState::Pressed, std::make_unique<PushBlockCommand>(m_pPlayer2));
+        }
 
         if (m_pPlayer2)
         {
-            input.BindButton(1, ControllerButton::DpadUp, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer2, glm::ivec2{ 0,-1 }));
-            input.BindButton(1, ControllerButton::DpadDown, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer2, glm::ivec2{ 0, 1 }));
-            input.BindButton(1, ControllerButton::DpadLeft, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer2, glm::ivec2{ -1, 0 }));
-            input.BindButton(1, ControllerButton::DpadRight, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer2, glm::ivec2{ 1, 0 }));
-            input.BindButton(1, ControllerButton::ButtonA, KeyState::Pressed, std::make_unique<PushBlockCommand>(m_pPlayer2));
+            input.BindButton(1, ControllerButton::DpadUp, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer1, glm::ivec2{ 0,-1 }));
+            input.BindButton(1, ControllerButton::DpadDown, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer1, glm::ivec2{ 0, 1 }));
+            input.BindButton(1, ControllerButton::DpadLeft, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer1, glm::ivec2{ -1, 0 }));
+            input.BindButton(1, ControllerButton::DpadRight, KeyState::Pressed, std::make_unique<MoveCommand>(m_pPlayer1, glm::ivec2{ 1, 0 }));
+            input.BindButton(1, ControllerButton::ButtonA, KeyState::Pressed, std::make_unique<PushBlockCommand>(m_pPlayer1));
         }
     }
 
@@ -294,11 +293,14 @@ void dae::GameplayState::CleanupInputBindings()
     input.UnbindKey(SDL_SCANCODE_RIGHT, KeyState::Pressed);
     input.UnbindKey(SDL_SCANCODE_E, KeyState::Pressed);
 
-    input.UnbindButton(1, ControllerButton::DpadUp, KeyState::Pressed);
-    input.UnbindButton(1, ControllerButton::DpadDown, KeyState::Pressed);
-    input.UnbindButton(1, ControllerButton::DpadLeft, KeyState::Pressed);
-    input.UnbindButton(1, ControllerButton::DpadRight, KeyState::Pressed);
-    input.UnbindButton(1, ControllerButton::ButtonA, KeyState::Pressed);
+    if (m_GameMode != GameMode::SinglePlayer)
+    {
+        input.UnbindButton(1, ControllerButton::DpadUp, KeyState::Pressed);
+        input.UnbindButton(1, ControllerButton::DpadDown, KeyState::Pressed);
+        input.UnbindButton(1, ControllerButton::DpadLeft, KeyState::Pressed);
+        input.UnbindButton(1, ControllerButton::DpadRight, KeyState::Pressed);
+        input.UnbindButton(1, ControllerButton::ButtonA, KeyState::Pressed);
+    }
 
     //Unbind Player 2
     input.UnbindButton(0, ControllerButton::DpadUp, KeyState::Pressed);

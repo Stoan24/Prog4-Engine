@@ -22,7 +22,7 @@ namespace dae
     class SnoBeeComponent final : public GameComponent, public IObserver
     {
     public:
-        SnoBeeComponent(GameObject* gameObject, GridComponent* grid);
+        SnoBeeComponent(GameObject* gameObject, GridComponent* grid, bool isPlayerControlled = false);
         virtual ~SnoBeeComponent();
 
         SnoBeeComponent(const SnoBeeComponent&) = delete;
@@ -36,6 +36,8 @@ namespace dae
         bool IsStunned() const { return m_State == SnoBeeState::Stunned; }
 
         void Notify(const Event& e) override;
+
+        bool TryManualBlockBreak(glm::ivec2 direction);
         
 
     private:
@@ -57,5 +59,7 @@ namespace dae
         bool BreakBlock(glm::ivec2 direction);
 
         glm::ivec2 PickRandomCell() const;
+
+        bool m_IsPlayerControlled{ false };
     };
 }

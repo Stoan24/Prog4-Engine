@@ -6,9 +6,10 @@
 #include "Events/EventManager.h"
 #include "Blocks/EggBlockComponent.h"
 
-dae::SnoBeeComponent::SnoBeeComponent(GameObject* gameObject, GridComponent* grid)
+dae::SnoBeeComponent::SnoBeeComponent(GameObject* gameObject, GridComponent* grid, bool isPlayerControlled)
     : GameComponent(gameObject),
-    m_pGrid{ grid }
+    m_pGrid{ grid },
+    m_IsPlayerControlled{ isPlayerControlled }
 {
     m_pMove = gameObject->GetComponent<GridMoveComponent>();
     EventManager::GetInstance().AddEvent(make_sdbm_hash("StunEnemies"), this);
@@ -45,6 +46,8 @@ void dae::SnoBeeComponent::FixedUpdate()
         m_BlockBreakTimer -= deltaTime;
         return;
     }
+
+    if (m_IsPlayerControlled) return;
 
     if (m_pMove->IsMoving()) return;
 
@@ -177,4 +180,9 @@ void dae::SnoBeeComponent::Notify(const Event& e)
             GetGameObject()->MarkForDestruction();
         }
     }
+}
+
+bool dae::SnoBeeComponent::TryManualBlockBreak(glm::ivec2 direction)
+{
+    return BreakBlock(direction);
 }
