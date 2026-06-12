@@ -2,6 +2,8 @@
 # 2D Component-Based Engine
 
 This project contains a 2D component-based game engine in C++. This engine also features a remake of the Sega game Pengo, playable [here](https://stoan24.github.io/Prog4-Engine/).
+The official repository and source control history for this project can be found here:
+* **Primary Repository:** [https://github.com/Stoan24/Prog4-Engine](https://github.com/Stoan24/Prog4-Engine)
 
 [![Build Status](https://github.com/Stoan24/Prog4-Engine/actions/workflows/cmake.yml/badge.svg)](https://github.com/Stoan24/cmake/actions)
 [![Build Status](https://github.com/Stoan24/Prog4-Engine/actions/workflows/emscripten.yml/badge.svg)](https://github.com/Stoan24/emscripten/actions)
